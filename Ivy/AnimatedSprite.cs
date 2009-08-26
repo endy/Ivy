@@ -8,65 +8,173 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ivy
 {
-    class AnimatedSprite
+    public class AnimatedSprite : Microsoft.Xna.Framework.GameComponent
     {
-        private Texture2D m_spriteMap;
+        public delegate bool AnimatedSpriteEvent();
 
+        public AnimatedSpriteEvent OnAnimEnd;
+
+        // Component Data
+        IvyGame m_game;
+
+        // Sprite Properties
+        private Texture2D m_texture;
         private Rectangle m_animRect;
+        private int m_frameCount;
+        private float m_framesPerSecond;
 
-        private int m_frameCount = 0;
-        private float framesPerSecond = 16.0f;
-
-        private float timePerFrameMS;
-        private float totalElapsedMS;
-
-        private int currFrame = 0;
+        private Vector2 m_scale;             // amount to scale the animation
 
         private int m_frameWidth;
-        private Point m_center;
+        private Point m_frameCenter;
 
-        public AnimatedSprite(Texture2D spriteMap, int frameCount, Rectangle animRect)
+        // Animation Properties
+        private bool m_playing;             // true if animation is playing
+        private bool m_loop;                // loop animation
+        private bool m_reverse;             // play frames in reverse order
+        private int m_currentFrame;         // current frame
+
+        // Private Animation Data
+        private float m_timePerFrame;       // milliseconds per frame
+        private float m_timeElapsed;        // time elapsed in milliseconds
+
+        public AnimatedSprite(IvyGame game, Texture2D texture, Rectangle animRect, int frameCount,
+                              float framesPerSecond) 
+                              : 
+                              base(game)
         {
-            m_spriteMap = spriteMap;
-            m_frameCount = frameCount;
+            m_game = game;
+            
+            m_texture = texture;
             m_animRect = animRect;
+            m_frameCount = frameCount;
+            m_framesPerSecond = framesPerSecond;
 
-            timePerFrameMS = ((1.0f / framesPerSecond) * 1000.0f);
+            m_playing = false;
+            m_loop = true;
+            m_reverse = false;
 
-            m_frameWidth = m_animRect.Width / m_frameCount;
-            m_center = new Point(m_frameWidth / 2, m_animRect.Height / 2);
-
+            m_scale = new Vector2(1.0f, 1.0f);
         }
 
+        public override void Initialize()
+        {
+            if (m_frameCount != 0)
+            {
+                m_frameWidth = m_animRect.Width / m_frameCount;
+                m_frameCenter = new Point(m_frameWidth / 2, m_animRect.Height / 2);
+            }
+
+            m_timePerFrame = ((1.0f / m_framesPerSecond) * 1000.0f);
+        }
+
+        #region Properties
+        public Vector2 Scale
+        {
+            get { return m_scale; }
+            set { m_scale = value; }
+        }
         public Point Center
         {
-            get { return Point.Zero; }
+            get { return m_frameCenter; }
+        }
+        public bool IsPlaying
+        {
+            get { return m_playing; }
+        }
+        public bool Loop
+        {
+            get { return m_loop; }
+            set { m_loop = value; }
+        }
+        public bool Reverse
+        {
+            get { return m_reverse; }
+            set
+            {
+                if (m_reverse != value)
+                {
+                    m_reverse = value;
+                    Reset();
+                }
+                else
+                {
+                    m_reverse = value;
+                }
+            }
+        }
+        #endregion
+
+        public void Play()
+        {
+            m_playing = true;
+        }
+        public void Stop()
+        {
+            m_playing = false;
+        }
+        public void Reset()
+        {
+            m_currentFrame = (Reverse) ? (m_frameCount - 1) : 0;
+            m_timeElapsed = 0;
+        }
+        public void Replay()
+        {
+            Reset();
+            Play();
         }
 
-        public void Update(float elapsedTimeMS)
+        public override void Update(GameTime gameTime)
         {
-            totalElapsedMS += elapsedTimeMS;
-
-            if (totalElapsedMS > timePerFrameMS)
+            if (IsPlaying)
             {
-                currFrame = ((currFrame + 1) % m_frameCount);
+                m_timeElapsed += gameTime.ElapsedGameTime.Milliseconds;
 
+                bool looped = false;
+                if (m_timeElapsed > m_timePerFrame)
+                {
+                    if (Reverse)
+                    {
+                        m_currentFrame--;
+                        if (m_currentFrame < 0)
+                        {
+                            m_currentFrame = m_frameCount - 1;
+                            looped = true;
+                        }
+                    }
+                    else
+                    {
+                        m_currentFrame++;
+                        if (m_currentFrame >= m_frameCount)
+                        {
+                            m_currentFrame = 0;
+                            looped = true;
+                        }
+                    }
+                    m_timeElapsed = 0;
+                }
 
-                totalElapsedMS = 0;
+                if (looped == true && Loop != true)
+                {
+                    // Animation ended
+                    ///todo Fire AnimEnd event
+                    Stop();
+                }
             }
         }
 
-        
-
         public void Draw(SpriteBatch spriteBatch, Point pos)
         {
-            Rectangle srcRect = new Rectangle(m_animRect.X + (m_frameWidth * currFrame),
+            Rectangle srcRect = new Rectangle(m_animRect.X + (m_frameWidth * m_currentFrame),
                                               m_animRect.Y,
                                               m_frameWidth,
                                               m_animRect.Height);
-            Rectangle dstRect = new Rectangle((int)pos.X, (int)pos.Y, (int)(srcRect.Width * 2.3f), (int)(srcRect.Height *2.3f));
-            spriteBatch.Draw(m_spriteMap, dstRect, srcRect, Color.White);
 
+            Rectangle dstRect = new Rectangle(pos.X, pos.Y,
+                                              (int)(srcRect.Width * Scale.X),
+                                              (int)(srcRect.Height * Scale.Y));
+
+            spriteBatch.Draw(m_texture, dstRect, srcRect, Color.White);
         }
     }
 }

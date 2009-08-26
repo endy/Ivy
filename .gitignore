@@ -1,0 +1,8 @@
+*.suo
+*.cachefile
+*.user
+Ivy/Content/obj
+Ivy/bin
+Ivy/obj
+IvyMovies
+IvySounds

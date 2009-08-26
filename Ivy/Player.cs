@@ -26,11 +26,15 @@ namespace Ivy
         Texture2D samusMap;
         AnimatedSprite samusRunRight;
         AnimatedSprite samusRunLeft;
-        AnimatedSprite samusJumpRight;
-        AnimatedSprite samusJumpLeft;
+        AnimatedSprite samusJumpRollRight;
+        AnimatedSprite samusJumpRollLeft;
         Point samusPos;
         Vector2 samusDir;
         bool jump;
+
+        // Prototype Vars
+        AnimatedSprite testAnim;
+        bool playTestAnim;
 
 
         public Player(IvyGame game, Rectangle worldBounds)
@@ -56,17 +60,47 @@ namespace Ivy
 
             samusMap = Game.Content.Load<Texture2D>("Sprites\\samusMap");
 
-            Rectangle samusRunRightRect = new Rectangle(0, 70, 460, 44);
-            Rectangle samusRunLeftRect = new Rectangle(0, 114, 460, 44);
+            Rectangle samusRunRightRect = new Rectangle(0, 66, 460, 45);
+            Rectangle samusRunLeftRect = new Rectangle(0, 111, 460, 45);
 
-            Rectangle samusJumpRightRect = new Rectangle(0, 0, 280, 35);
-            Rectangle samusJumpLeftRect = new Rectangle(0, 35, 280, 35);
+            Rectangle samusJumpRightRect = new Rectangle(0, 0, 280, 32);
+            Rectangle samusJumpLeftRect = new Rectangle(0, 33, 280, 32);
 
-            samusRunRight = new AnimatedSprite(samusMap, 10, samusRunRightRect);
-            samusRunLeft = new AnimatedSprite(samusMap, 10, samusRunLeftRect);
-            samusJumpRight = new AnimatedSprite(samusMap, 8, samusJumpRightRect);
-            samusJumpLeft = new AnimatedSprite(samusMap, 8, samusJumpLeftRect);
+            samusRunRight = new AnimatedSprite(m_game, samusMap, samusRunRightRect, 10, 10f);
+            samusRunRight.Initialize();
+            samusRunRight.Scale = new Vector2(3.0f, 3.0f);
+            samusRunRight.Play();
 
+            samusRunLeft = new AnimatedSprite(m_game, samusMap, samusRunLeftRect, 10, 10f);
+            samusRunLeft.Initialize();
+            samusRunLeft.Scale = new Vector2(3.0f, 3.0f);
+            samusRunLeft.Play();
+
+            samusJumpRollRight = new AnimatedSprite(m_game, samusMap, samusJumpRightRect, 8, 8f);
+            samusJumpRollRight.Initialize();
+
+            samusJumpRollLeft = new AnimatedSprite(m_game, samusMap, samusJumpLeftRect, 8, 8f);
+            samusJumpRollLeft.Initialize();
+
+            Rectangle samusTurn = new Rectangle(0, 156, 78, 47);
+            Rectangle samusWaitRight = new Rectangle(0, 203, 140, 45);
+            Rectangle samusWaitLeft = new Rectangle(0, 248, 140, 45);
+            Rectangle samusJumpRight = new Rectangle(0, 293, 224, 47);
+            Rectangle samusJumpLeft = new Rectangle(0, 340, 224, 47);
+
+            AnimatedSprite turnAnim = new AnimatedSprite(m_game, samusMap, samusTurn, 3, 3f);
+            turnAnim.Initialize();
+            turnAnim.Scale = new Vector2(3.0f, 3.0f);
+            turnAnim.Reverse = true;
+            turnAnim.Play();
+
+            AnimatedSprite samusJumpLeftAnim = new AnimatedSprite(m_game, samusMap, samusJumpLeft, 8, 8f);
+            samusJumpLeftAnim.Initialize();
+            samusJumpLeftAnim.Scale = new Vector2(3.0f, 3.0f);
+
+            testAnim = turnAnim;  
+
+            playTestAnim = false;
 
             base.Initialize();
         }
@@ -87,25 +121,34 @@ namespace Ivy
 
             if (gamePadState.ThumbSticks.Left.X > deadZone)
             {
-                samusDir.X = 1.0f;
+                samusDir.X = 2f;
             }
             else if (gamePadState.ThumbSticks.Left.X < -deadZone)
             {
-                samusDir.X = -1.0f;
+                samusDir.X = -2f;
             }
             if (gamePadState.ThumbSticks.Left.Y < -deadZone)
             {
-                samusDir.Y = 1.0f;
+                samusDir.Y = 2f;
             }
             else if (gamePadState.ThumbSticks.Left.Y > deadZone)
             {
-                samusDir.Y = -1.0f;
+                samusDir.Y = -2f;
             }
 
             jump = false;
             if (gamePadState.Buttons.A == ButtonState.Pressed)
             {
                 jump = true;
+            }
+
+            if (gamePadState.Buttons.B == ButtonState.Pressed)
+            {
+                playTestAnim = true;
+            }
+            else
+            {
+                playTestAnim = false;
             }
 
 #if !XBOX
@@ -137,22 +180,25 @@ namespace Ivy
             {
                 newPos.Y = m_worldBounds.Y + m_worldBounds.Height;
             }
-
+             
             samusPos = newPos;
 
             // Update animations
-            float elapsedTimeMS = gameTime.ElapsedGameTime.Milliseconds;
+            if (playTestAnim)
+            {
+                testAnim.Update(gameTime);
+            }
 
             if (jump)
             {
                 // Samus Jump
-                samusJumpLeft.Update(elapsedTimeMS);
-                samusJumpRight.Update(elapsedTimeMS);
+                samusJumpRollLeft.Update(gameTime);
+                samusJumpRollRight.Update(gameTime);
             }
             else if ((samusDir.X * samusDir.X) > 0.001)
             {
-                samusRunLeft.Update(elapsedTimeMS);
-                samusRunRight.Update(elapsedTimeMS);
+                samusRunLeft.Update(gameTime);
+                samusRunRight.Update(gameTime);
             }          
 
 
@@ -173,14 +219,14 @@ namespace Ivy
             {
                 if (right)
                 {
-                    samusJumpRight.Draw(spriteBatch, samusScreenPos);
+                    samusJumpRollRight.Draw(spriteBatch, samusScreenPos);
                 }
                 else
                 {
-                    samusJumpLeft.Draw(spriteBatch, samusScreenPos);
+                    samusJumpRollLeft.Draw(spriteBatch, samusScreenPos);
                 }
             }
-            else
+            else if (!playTestAnim)
             {
                 if (right)
                 {
@@ -191,6 +237,12 @@ namespace Ivy
                     samusRunLeft.Draw(spriteBatch, samusScreenPos);
                 }
             }
+            else
+            {
+                testAnim.Draw(spriteBatch, samusScreenPos);
+            }
+
+            
         }
 
         public Point PlayerPos

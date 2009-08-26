@@ -38,6 +38,11 @@ namespace Ivy
         // prototype vars
         Box box;
 
+        private string m_consoleString;
+
+        Texture2D animTestPattern;
+        AnimatedSprite testPattern;
+
         public IvyGame()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -70,6 +75,10 @@ namespace Ivy
             m_player.Initialize();
             box.Initialize();
 
+            animTestPattern = Content.Load<Texture2D>("Sprites\\animTestPattern");
+            testPattern = new AnimatedSprite(this, animTestPattern, new Rectangle(0, 0, 84, 50), 3, 0.5f);
+            testPattern.Initialize();
+
             base.Initialize();
         }
 
@@ -88,8 +97,6 @@ namespace Ivy
         
             consoleFont = Content.Load<SpriteFont>("Fonts\\Console");
             consolePos = new Vector2(0, 30);
-
-
         }
 
         /// <summary>
@@ -108,6 +115,8 @@ namespace Ivy
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
+            ConsoleStr = ""; 
+
             // Allows the game to exit
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
@@ -121,9 +130,24 @@ namespace Ivy
             Point focusPos = new Point(m_player.PlayerPos.X, m_player.PlayerPos.Y);
             m_camera.Update(focusPos);
 
+            // Camera Info
+            Rectangle cameraRect = m_camera.CameraRect;     // camera rect in world space
+
+            ConsoleStr += "Camera Rect (X:" + cameraRect.X + " Y:" + cameraRect.Y + ")\n";
+            ConsoleStr += "\n";
+
+
             box.Update(gameTime);
 
+            testPattern.Update(gameTime);
+
             base.Update(gameTime);
+        }
+
+        private bool OnAnimEnd()
+        {
+            ConsoleStr += "Test Anim End\n";
+            return true;
         }
 
         /// <summary>
@@ -132,11 +156,18 @@ namespace Ivy
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.Red);
+            float fps = (1 / (float)gameTime.ElapsedGameTime.Milliseconds) * 1000;
+            ConsoleStr += "FPS: " + fps + "\n";
+
+            GraphicsDevice.Clear(Color.Black);
             
             // TODO: Add your drawing code here
 
-            spriteBatch.Begin();
+            //this.GraphicsDevice.
+            spriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None, Matrix.Identity);
+            graphics.GraphicsDevice.SamplerStates[0].MagFilter = TextureFilter.Point;
+            graphics.GraphicsDevice.SamplerStates[0].MinFilter = TextureFilter.Point;
+            graphics.GraphicsDevice.SamplerStates[0].MipFilter = TextureFilter.Point;
 
             // Draw Background
             Rectangle cameraRect = m_camera.CameraRect;     // camera rect in world space
@@ -146,28 +177,21 @@ namespace Ivy
             // bg: 512x192, tl=48,873
             Rectangle srcRect = new Rectangle(48+cameraRect.X, 873+cameraRect.Y, cameraRect.Width, cameraRect.Height);
             Rectangle dstRect = new Rectangle(0, 0, 800, 600);
-            spriteBatch.Draw(background, dstRect, srcRect, Color.White);
+            //spriteBatch.Draw(background, dstRect, srcRect, Color.White);
 
             m_player.Draw(spriteBatch);
 
-            // Draw Console
-
-            float fps = (1 / (float)gameTime.ElapsedGameTime.Milliseconds) * 1000;
-
-            string output = "FPS: " + fps + "\n";
-            output += "Camera Rect (X:" + cameraRect.X + " Y:" + cameraRect.Y + ")\n";
-            output += "\n";
-
-
+            // Draw Console           
             // Find the center of the string
-            Vector2 FontOrigin = consoleFont.MeasureString(output) / 2;
+            Vector2 FontOrigin = consoleFont.MeasureString(ConsoleStr) / 2;
 
             Vector2 drawConsolePos = new Vector2(consolePos.X + FontOrigin.X, consolePos.Y);
                         
             // Draw the string
-            spriteBatch.DrawString(consoleFont, output, drawConsolePos, Color.LimeGreen,
-                0, FontOrigin, 1.0f, SpriteEffects.None, 0.5f);
+            spriteBatch.DrawString(consoleFont, ConsoleStr, drawConsolePos, Color.LimeGreen,
+                                   0, FontOrigin, 1.0f, SpriteEffects.None, 0.5f);
 
+            testPattern.Draw(spriteBatch, new Point(10, 10));
 
             spriteBatch.End();
 
@@ -180,6 +204,12 @@ namespace Ivy
         public Camera2D Camera
         {
             get { return m_camera; }
+        }
+
+        public string ConsoleStr
+        {
+            get { return m_consoleString; }
+            set { m_consoleString = value; }
         }
     }
 }
