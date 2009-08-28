@@ -20,22 +20,52 @@ namespace Ivy
     public class Player : Microsoft.Xna.Framework.GameComponent
     {
         IvyGame m_game;
-
         Rectangle m_worldBounds;
 
-        Texture2D samusMap;
-        AnimatedSprite samusRunRight;
-        AnimatedSprite samusRunLeft;
-        AnimatedSprite samusJumpRollRight;
-        AnimatedSprite samusJumpRollLeft;
-        Point samusPos;
-        Vector2 samusDir;
-        bool jump;
+        Point m_playerPos;
+        Vector2 m_playerDir;
+        bool facingRight;
 
-        // Prototype Vars
-        AnimatedSprite testAnim;
-        bool playTestAnim;
+        int jumpTime;
+        int jumpElapsedTime;
 
+
+        Rectangle samusTurnRect = new Rectangle(0, 156, 78, 47);
+        Rectangle samusWaitRightRect = new Rectangle(0, 203, 140, 45);
+        Rectangle samusWaitLeftRect = new Rectangle(0, 248, 140, 45);
+        Rectangle samusRunRightRect = new Rectangle(0, 66, 460, 45);
+        Rectangle samusRunLeftRect = new Rectangle(0, 111, 460, 45);
+        Rectangle samusJumpRollRightRect = new Rectangle(0, 0, 280, 32);
+        Rectangle samusJumpRollLeftRect = new Rectangle(0, 33, 280, 32);
+        Rectangle samusJumpRightRect = new Rectangle(0, 293, 224, 47);
+        Rectangle samusJumpLeftRect = new Rectangle(0, 340, 224, 47);
+
+        Texture2D m_samusMap;
+        AnimatedSprite samusTurnAnim;
+        AnimatedSprite samusWaitRightAnim;
+        AnimatedSprite samusWaitLeftAnim;
+        AnimatedSprite samusRunRightAnim;
+        AnimatedSprite samusRunLeftAnim;
+        AnimatedSprite samusJumpRollRightAnim;
+        AnimatedSprite samusJumpRollLeftAnim;
+        AnimatedSprite samusJumpRightAnim;
+        AnimatedSprite samusJumpLeftAnim;
+
+        // Player State Data
+        enum PlayerState
+        {
+            Wait = 0,
+            Run,
+            JumpAscend,
+            JumpDescend,
+            Fall
+        };
+
+        PlayerState m_playerState;
+        AnimatedSprite m_playerAnim;
+
+        GamePadState m_lastGamePadState;
+        GamePadState m_currentGamePadState;
 
         public Player(IvyGame game, Rectangle worldBounds)
             : base(game)
@@ -53,54 +83,60 @@ namespace Ivy
         {
             // TODO: Add your initialization code here
 
-            samusPos = new Point(m_worldBounds.X + (m_worldBounds.Width / 2),
+            m_playerPos = new Point(m_worldBounds.X + (m_worldBounds.Width / 2),
                                  m_worldBounds.Y + (m_worldBounds.Height / 2));
-            samusDir = Vector2.Zero;
-            jump = false;
+            m_playerDir = Vector2.Zero;
+            facingRight = true;
 
-            samusMap = Game.Content.Load<Texture2D>("Sprites\\samusMap");
+            jumpTime = 2000;
+            jumpElapsedTime = 0;
 
-            Rectangle samusRunRightRect = new Rectangle(0, 66, 460, 45);
-            Rectangle samusRunLeftRect = new Rectangle(0, 111, 460, 45);
+            m_samusMap = Game.Content.Load<Texture2D>("Sprites\\samusMap");
 
-            Rectangle samusJumpRightRect = new Rectangle(0, 0, 280, 32);
-            Rectangle samusJumpLeftRect = new Rectangle(0, 33, 280, 32);
+            samusTurnAnim = new AnimatedSprite(m_game, m_samusMap, samusTurnRect, 3, 24f);
+            samusTurnAnim.Initialize();
+            samusTurnAnim.Loop = false;
+            samusTurnAnim.Scale = new Vector2(3.0f, 3.0f);
 
-            samusRunRight = new AnimatedSprite(m_game, samusMap, samusRunRightRect, 10, 10f);
-            samusRunRight.Initialize();
-            samusRunRight.Scale = new Vector2(3.0f, 3.0f);
-            samusRunRight.Play();
+            samusTurnAnim.OnAnimEnd = this.AnimatedSpriteEnd;
 
-            samusRunLeft = new AnimatedSprite(m_game, samusMap, samusRunLeftRect, 10, 10f);
-            samusRunLeft.Initialize();
-            samusRunLeft.Scale = new Vector2(3.0f, 3.0f);
-            samusRunLeft.Play();
+            samusWaitRightAnim = new AnimatedSprite(m_game, m_samusMap, samusWaitRightRect, 5, 6f);
+            samusWaitRightAnim.Initialize();
+            samusWaitRightAnim.Scale = new Vector2(3.0f, 3.0f);
 
-            samusJumpRollRight = new AnimatedSprite(m_game, samusMap, samusJumpRightRect, 8, 8f);
-            samusJumpRollRight.Initialize();
+            samusWaitLeftAnim = new AnimatedSprite(m_game, m_samusMap, samusWaitLeftRect, 5, 6f);
+            samusWaitLeftAnim.Initialize();
+            samusWaitLeftAnim.Scale = new Vector2(3.0f, 3.0f);
 
-            samusJumpRollLeft = new AnimatedSprite(m_game, samusMap, samusJumpLeftRect, 8, 8f);
-            samusJumpRollLeft.Initialize();
+            samusRunRightAnim = new AnimatedSprite(m_game, m_samusMap, samusRunRightRect, 10, 10f);
+            samusRunRightAnim.Initialize();
+            samusRunRightAnim.Scale = new Vector2(3.0f, 3.0f);
 
-            Rectangle samusTurn = new Rectangle(0, 156, 78, 47);
-            Rectangle samusWaitRight = new Rectangle(0, 203, 140, 45);
-            Rectangle samusWaitLeft = new Rectangle(0, 248, 140, 45);
-            Rectangle samusJumpRight = new Rectangle(0, 293, 224, 47);
-            Rectangle samusJumpLeft = new Rectangle(0, 340, 224, 47);
+            samusRunLeftAnim = new AnimatedSprite(m_game, m_samusMap, samusRunLeftRect, 10, 10f);
+            samusRunLeftAnim.Initialize();
+            samusRunLeftAnim.Scale = new Vector2(3.0f, 3.0f);
 
-            AnimatedSprite turnAnim = new AnimatedSprite(m_game, samusMap, samusTurn, 3, 3f);
-            turnAnim.Initialize();
-            turnAnim.Scale = new Vector2(3.0f, 3.0f);
-            turnAnim.Reverse = true;
-            turnAnim.Play();
+            samusJumpRollRightAnim = new AnimatedSprite(m_game, m_samusMap, samusJumpRollRightRect, 8, 8f);
+            samusJumpRollRightAnim.Initialize();
+            samusJumpRollRightAnim.Scale = new Vector2(3.0f, 3.0f);
 
-            AnimatedSprite samusJumpLeftAnim = new AnimatedSprite(m_game, samusMap, samusJumpLeft, 8, 8f);
+            samusJumpRollLeftAnim = new AnimatedSprite(m_game, m_samusMap, samusJumpRollLeftRect, 8, 8f);
+            samusJumpRollLeftAnim.Initialize();
+            samusJumpRollLeftAnim.Scale = new Vector2(3.0f, 3.0f);
+
+            samusJumpRightAnim = new AnimatedSprite(m_game, m_samusMap, samusJumpRightRect, 8, 8f);
+            samusJumpRightAnim.Initialize();
+            samusJumpRightAnim.Scale = new Vector2(3.0f, 3.0f);
+
+            samusJumpLeftAnim = new AnimatedSprite(m_game, m_samusMap, samusJumpLeftRect, 8, 8f);
             samusJumpLeftAnim.Initialize();
             samusJumpLeftAnim.Scale = new Vector2(3.0f, 3.0f);
 
-            testAnim = turnAnim;  
+            m_playerState = PlayerState.Wait;
 
-            playTestAnim = false;
+            ///todo should we enter Wait with Wait state?
+            m_playerAnim = samusWaitRightAnim;
+            EnterState_Wait(m_playerState);
 
             base.Initialize();
         }
@@ -111,143 +147,319 @@ namespace Ivy
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         public override void Update(GameTime gameTime)
         {
-            // TODO: Add your update code here
-            // Get Player Input
-            samusDir = Vector2.Zero;
+            m_currentGamePadState = GamePad.GetState(PlayerIndex.One);
 
-            GamePadState gamePadState = GamePad.GetState(PlayerIndex.One);
-
-            float deadZone = 0.1f;
-
-            if (gamePadState.ThumbSticks.Left.X > deadZone)
+            float deadZone = 0.01f;
+            if (m_currentGamePadState.ThumbSticks.Left.X > deadZone)
             {
-                samusDir.X = 2f;
+                m_playerDir.X = 1.0f;
             }
-            else if (gamePadState.ThumbSticks.Left.X < -deadZone)
+            else if (m_currentGamePadState.ThumbSticks.Left.X < -deadZone)
             {
-                samusDir.X = -2f;
-            }
-            if (gamePadState.ThumbSticks.Left.Y < -deadZone)
-            {
-                samusDir.Y = 2f;
-            }
-            else if (gamePadState.ThumbSticks.Left.Y > deadZone)
-            {
-                samusDir.Y = -2f;
-            }
-
-            jump = false;
-            if (gamePadState.Buttons.A == ButtonState.Pressed)
-            {
-                jump = true;
-            }
-
-            if (gamePadState.Buttons.B == ButtonState.Pressed)
-            {
-                playTestAnim = true;
+                m_playerDir.X = -1.0f;
             }
             else
             {
-                playTestAnim = false;
+                m_playerDir.X = 0;
             }
 
-#if !XBOX
-            /*
-            KeyboardState keyboardState = Keyboard.GetState();
-            if (keyboardState.IsKeyDown(Keys.Left))
+            if (m_currentGamePadState.ThumbSticks.Left.Y > deadZone)
             {
-                samusDir.X -= 1;
+                m_playerDir.Y = -1.0f;
             }
-            */
-#endif
-            // Update player character position & clamp movement to world bounds
-            Point newPos = samusPos;
-            newPos.X += (int)samusDir.X;
-            newPos.Y += (int)samusDir.Y;
-            if (newPos.X < m_worldBounds.X)
+            else if (m_currentGamePadState.ThumbSticks.Left.Y < -deadZone)
             {
-                newPos.X = m_worldBounds.X;
+                m_playerDir.Y = 1.0f;
             }
-            if ((m_worldBounds.X + m_worldBounds.Width) < newPos.X)
+            else
             {
-                newPos.X = m_worldBounds.X + m_worldBounds.Width;
-            }
-            if (newPos.Y < m_worldBounds.Y)
-            {
-                newPos.Y = m_worldBounds.Y;
-            }
-            if ((m_worldBounds.Y + m_worldBounds.Height) < newPos.Y)
-            {
-                newPos.Y = m_worldBounds.Y + m_worldBounds.Height;
-            }
-             
-            samusPos = newPos;
-
-            // Update animations
-            if (playTestAnim)
-            {
-                testAnim.Update(gameTime);
+                m_playerDir.Y = 0;
             }
 
-            if (jump)
-            {
-                // Samus Jump
-                samusJumpRollLeft.Update(gameTime);
-                samusJumpRollRight.Update(gameTime);
-            }
-            else if ((samusDir.X * samusDir.X) > 0.001)
-            {
-                samusRunLeft.Update(gameTime);
-                samusRunRight.Update(gameTime);
-            }          
+            // update position, bounded by world
 
+            switch (m_playerState)
+            {
+                case PlayerState.Wait:
+                    ExecuteState_Wait();
+                    break;
+                case PlayerState.Run:
+                    ExecuteState_Run();
+                    break;
+                case PlayerState.JumpAscend:
+                    ExecuteState_JumpAscend();
+                    break;
+                case PlayerState.JumpDescend:
+                    ExecuteState_JumpDescend();
+                    break;
+                case PlayerState.Fall:
+                    ExecuteState_Fall();
+                    break;
+                default:
+                    //error!
+                    break;
+            };
+
+
+            m_playerAnim.Update(gameTime);
+
+            m_lastGamePadState = m_currentGamePadState;
 
             base.Update(gameTime);
         }
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            bool right = (samusDir.X > 0) ? true : false;
+            bool right = (m_playerDir.X > 0) ? true : false;
 
             Rectangle cameraRect = m_game.Camera.CameraRect;
 
             Point samusScreenPos;
-            samusScreenPos.X = (int)(((samusPos.X - cameraRect.X) / (float)cameraRect.Width) * 800); // screen width = 800
-            samusScreenPos.Y = (int)(((samusPos.Y - cameraRect.Y) / (float)cameraRect.Height) * 600); // screen height = 600
+            samusScreenPos.X = (int)(((m_playerPos.X - cameraRect.X) / (float)cameraRect.Width) * 800); // screen width = 800
+            samusScreenPos.Y = (int)(((m_playerPos.Y - cameraRect.Y) / (float)cameraRect.Height) * 600); // screen height = 600
 
-            if (jump)
+            if (m_playerAnim != null)
             {
-                if (right)
-                {
-                    samusJumpRollRight.Draw(spriteBatch, samusScreenPos);
-                }
-                else
-                {
-                    samusJumpRollLeft.Draw(spriteBatch, samusScreenPos);
-                }
-            }
-            else if (!playTestAnim)
-            {
-                if (right)
-                {
-                    samusRunRight.Draw(spriteBatch, samusScreenPos);
-                }
-                else
-                {
-                    samusRunLeft.Draw(spriteBatch, samusScreenPos);
-                }
-            }
-            else
-            {
-                testAnim.Draw(spriteBatch, samusScreenPos);
-            }
-
-            
+                m_playerAnim.Draw(spriteBatch, samusScreenPos);
+            }   
         }
 
         public Point PlayerPos
         {
-            get { return samusPos; }
+            get { return m_playerPos; }
         }
+
+        private bool ChangedDir()
+        {
+            bool changedDir = false;
+            if ((facingRight == true && (m_playerDir.X < 0)) ||
+               (facingRight == false && (m_playerDir.X > 0)))
+            {
+                changedDir = true;
+            }
+
+            return changedDir;
+        }
+
+        private void UpdatePosition()
+        {
+            m_playerPos.X += (int)m_playerDir.X;
+            m_playerPos.Y -= (int)m_playerDir.Y;
+        }
+
+        private void ChangeAnim(AnimatedSprite newAnim)
+        {
+            m_playerAnim.Stop();
+            m_playerAnim.Reset();
+            m_playerAnim = newAnim;
+            m_playerAnim.Reset();
+            m_playerAnim.Play();
+        }
+
+        private void EnterState_Wait(PlayerState prevState)
+        {
+            if (facingRight == true)
+            {
+                ChangeAnim(samusWaitRightAnim);
+            }
+            else
+            {
+                ChangeAnim(samusWaitLeftAnim);
+            }
+
+            m_playerState = PlayerState.Wait;
+            ExecuteState_Wait();
+        }
+
+        private void ExecuteState_Wait()
+        {
+            m_game.ConsoleStr += "STATE=WAIT\n";
+
+            if ((m_currentGamePadState.Buttons.A == ButtonState.Pressed) ||
+                (jumpElapsedTime >= jumpTime))
+            {
+                ExitState_Wait(PlayerState.JumpAscend);
+            }
+            else if (ChangedDir())
+            {
+                if (facingRight == true)
+                {
+                    samusTurnAnim.Reverse = false;
+                    ChangeAnim(samusTurnAnim);
+                }
+                else
+                {
+                    samusTurnAnim.Reverse = true;
+                    ChangeAnim(samusTurnAnim);
+                }
+                facingRight = !facingRight;
+
+            }
+
+            if ((!samusTurnAnim.IsPlaying) && (m_playerDir.X != 0))
+            {
+                ExitState_Wait(PlayerState.Run);
+            }
+        }
+        private void ExitState_Wait(PlayerState nextState)
+        {
+            switch (nextState)
+            {
+                case PlayerState.Run:
+                    EnterState_Run(PlayerState.Wait);
+                    break;
+                case PlayerState.JumpAscend:
+                    EnterState_JumpAscend(PlayerState.Wait);
+                    break;
+                default:
+                    // error
+                    break;
+            }
+        }
+
+        private void EnterState_Run(PlayerState prevState)
+        {
+            if (ChangedDir())
+            {
+                if (facingRight == true)
+                {
+                    samusTurnAnim.Reverse = false;
+                    ChangeAnim(samusTurnAnim);
+                }
+                else
+                {
+                    samusTurnAnim.Reverse = true;
+                    ChangeAnim(samusTurnAnim);
+                }
+                facingRight = !facingRight;
+            }
+            else
+            {
+                if (facingRight)
+                {
+                    ChangeAnim(samusRunRightAnim);
+                }
+                else
+                {
+                    ChangeAnim(samusRunLeftAnim);
+                }
+
+                m_playerState = PlayerState.Run;
+                ExecuteState_Run();
+            }
+        }
+        private void ExecuteState_Run()
+        {
+            m_game.ConsoleStr += "STATE=RUN\n";
+            
+            if ((m_currentGamePadState.Buttons.A == ButtonState.Pressed) ||
+                (jumpElapsedTime >= jumpTime))
+            {
+                ExitState_Run(PlayerState.JumpAscend);
+            }
+            else if (m_playerDir.X == 0)
+            {
+                ExitState_Run(PlayerState.Wait);
+            }
+
+            UpdatePosition();
+        }
+
+        private void ExitState_Run(PlayerState nextState)
+        {
+            switch (nextState)
+            {
+                case PlayerState.Wait:
+                    EnterState_Wait(PlayerState.Run); 
+                    break;
+                default:
+                    break;
+            };
+        }
+
+        #region Incomplete States
+        private void EnterState_JumpAscend(PlayerState prevState)
+        {
+            m_game.ConsoleStr += "STATE=JUMP_ASCEND\n";
+
+            m_playerDir.Y = 1.0f;
+
+            m_playerState = PlayerState.JumpAscend;
+            ExecuteState_JumpAscend();
+        }
+        private void ExecuteState_JumpAscend()
+        {
+            // if not holding A button, or time ran out
+            if ((m_currentGamePadState.Buttons.A == ButtonState.Released) ||
+                (jumpElapsedTime >= jumpTime))
+            {
+                ExitState_JumpAscend(PlayerState.JumpDescend);
+            }
+
+            if (facingRight == true)
+            {
+                ChangeAnim(samusJumpRightAnim);
+            }
+            else
+                
+            {
+                ChangeAnim(samusJumpLeftAnim);
+            }
+
+            UpdatePosition();
+        }
+        private void ExitState_JumpAscend(PlayerState nextState)
+        {
+            EnterState_JumpDescend(PlayerState.JumpAscend);
+        }
+
+        private void EnterState_JumpDescend(PlayerState prevState)
+        {
+            m_game.ConsoleStr += "STATE=JUMP_DESCEND\n";
+
+            m_playerDir.Y = -1.0f;
+
+            m_playerState = PlayerState.JumpDescend;
+            ExecuteState_JumpDescend();
+        }
+        private void ExecuteState_JumpDescend()
+        {
+            // if hit floor? check position, go to wait/erm transition next anim
+        }
+        private void ExitState_JumpDescend(PlayerState nextState)
+        {
+        }
+
+        private void EnterState_Fall(PlayerState prevState)
+        {
+            m_playerState = PlayerState.Fall;
+            ExecuteState_Fall();
+        }
+        private void ExecuteState_Fall()
+        {
+        }
+        private void ExitState_Fall(PlayerState nextState)
+        {
+        }
+        #endregion
+
+        private bool AnimatedSpriteEnd(AnimatedSprite anim)
+        {
+            switch (m_playerState)
+            {
+                case PlayerState.Wait:
+                    // do nothing for now---should go to run?
+                    break;
+                case PlayerState.Run:
+                    ExitState_Run(PlayerState.Wait);
+                    break;
+                default:
+                    // error
+                    break;
+            }
+
+            return true;
+        }
+
     }
 }

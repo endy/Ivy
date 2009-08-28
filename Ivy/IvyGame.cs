@@ -177,7 +177,7 @@ namespace Ivy
             // bg: 512x192, tl=48,873
             Rectangle srcRect = new Rectangle(48+cameraRect.X, 873+cameraRect.Y, cameraRect.Width, cameraRect.Height);
             Rectangle dstRect = new Rectangle(0, 0, 800, 600);
-            //spriteBatch.Draw(background, dstRect, srcRect, Color.White);
+            spriteBatch.Draw(background, dstRect, srcRect, Color.White);
 
             m_player.Draw(spriteBatch);
 

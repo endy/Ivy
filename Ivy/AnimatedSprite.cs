@@ -10,7 +10,7 @@ namespace Ivy
 {
     public class AnimatedSprite : Microsoft.Xna.Framework.GameComponent
     {
-        public delegate bool AnimatedSpriteEvent();
+        public delegate bool AnimatedSpriteEvent(AnimatedSprite anim);
 
         public AnimatedSpriteEvent OnAnimEnd;
 
@@ -76,6 +76,7 @@ namespace Ivy
         }
         public Point Center
         {
+            set { m_frameCenter = value; }
             get { return m_frameCenter; }
         }
         public bool IsPlaying
@@ -95,12 +96,12 @@ namespace Ivy
                 if (m_reverse != value)
                 {
                     m_reverse = value;
-                    Reset();
                 }
                 else
                 {
                     m_reverse = value;
                 }
+                Reset();
             }
         }
         #endregion
@@ -157,8 +158,12 @@ namespace Ivy
                 if (looped == true && Loop != true)
                 {
                     // Animation ended
-                    ///todo Fire AnimEnd event
                     Stop();
+
+                    if (OnAnimEnd != null)
+                    {
+                        OnAnimEnd(this);
+                    }
                 }
             }
         }
@@ -170,7 +175,7 @@ namespace Ivy
                                               m_frameWidth,
                                               m_animRect.Height);
 
-            Rectangle dstRect = new Rectangle(pos.X, pos.Y,
+            Rectangle dstRect = new Rectangle(Center.X + pos.X, Center.Y + pos.Y,
                                               (int)(srcRect.Width * Scale.X),
                                               (int)(srcRect.Height * Scale.Y));
 
