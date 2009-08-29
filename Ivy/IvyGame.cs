@@ -96,7 +96,7 @@ namespace Ivy
             background = Content.Load<Texture2D>("Sprites\\environment");
         
             consoleFont = Content.Load<SpriteFont>("Fonts\\Console");
-            consolePos = new Vector2(0, 30);
+            consolePos = new Vector2(0, 100);
         }
 
         /// <summary>
@@ -115,7 +115,7 @@ namespace Ivy
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            ConsoleStr = ""; 
+            ConsoleStr = "\n\n"; 
 
             // Allows the game to exit
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
@@ -142,12 +142,6 @@ namespace Ivy
             testPattern.Update(gameTime);
 
             base.Update(gameTime);
-        }
-
-        private bool OnAnimEnd()
-        {
-            ConsoleStr += "Test Anim End\n";
-            return true;
         }
 
         /// <summary>
@@ -191,7 +185,7 @@ namespace Ivy
             spriteBatch.DrawString(consoleFont, ConsoleStr, drawConsolePos, Color.LimeGreen,
                                    0, FontOrigin, 1.0f, SpriteEffects.None, 0.5f);
 
-            testPattern.Draw(spriteBatch, new Point(10, 10));
+            //testPattern.Draw(spriteBatch, new Point(10, 10));
 
             spriteBatch.End();
 

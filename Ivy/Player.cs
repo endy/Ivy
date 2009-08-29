@@ -23,6 +23,7 @@ namespace Ivy
         Rectangle m_worldBounds;
 
         Point m_playerPos;
+        Vector2 m_playerSpeed;
         Vector2 m_playerDir;
         bool facingRight;
 
@@ -67,6 +68,9 @@ namespace Ivy
         GamePadState m_lastGamePadState;
         GamePadState m_currentGamePadState;
 
+        ///todo move this somewhere...
+        GameTime m_gameTime;
+
         public Player(IvyGame game, Rectangle worldBounds)
             : base(game)
         {
@@ -86,9 +90,10 @@ namespace Ivy
             m_playerPos = new Point(m_worldBounds.X + (m_worldBounds.Width / 2),
                                  m_worldBounds.Y + (m_worldBounds.Height / 2));
             m_playerDir = Vector2.Zero;
+            m_playerSpeed = Vector2.One;
             facingRight = true;
 
-            jumpTime = 2000;
+            jumpTime = 500;
             jumpElapsedTime = 0;
 
             m_samusMap = Game.Content.Load<Texture2D>("Sprites\\samusMap");
@@ -147,9 +152,10 @@ namespace Ivy
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         public override void Update(GameTime gameTime)
         {
+            m_gameTime = gameTime;
             m_currentGamePadState = GamePad.GetState(PlayerIndex.One);
 
-            float deadZone = 0.01f;
+            float deadZone = 0.1f;
             if (m_currentGamePadState.ThumbSticks.Left.X > deadZone)
             {
                 m_playerDir.X = 1.0f;
@@ -161,19 +167,6 @@ namespace Ivy
             else
             {
                 m_playerDir.X = 0;
-            }
-
-            if (m_currentGamePadState.ThumbSticks.Left.Y > deadZone)
-            {
-                m_playerDir.Y = -1.0f;
-            }
-            else if (m_currentGamePadState.ThumbSticks.Left.Y < -deadZone)
-            {
-                m_playerDir.Y = 1.0f;
-            }
-            else
-            {
-                m_playerDir.Y = 0;
             }
 
             // update position, bounded by world
@@ -232,19 +225,21 @@ namespace Ivy
         private bool ChangedDir()
         {
             bool changedDir = false;
-            if ((facingRight == true && (m_playerDir.X < 0)) ||
-               (facingRight == false && (m_playerDir.X > 0)))
+            if (((facingRight == true) && (m_playerDir.X < 0)) ||
+                ((facingRight == false) && (m_playerDir.X > 0)))
             {
                 changedDir = true;
             }
 
+            m_game.ConsoleStr += "\nFACING RIGHT = " + facingRight + "\nPLAYER DIR = " + m_playerDir.X + "\n";
+            
             return changedDir;
         }
 
         private void UpdatePosition()
         {
-            m_playerPos.X += (int)m_playerDir.X;
-            m_playerPos.Y -= (int)m_playerDir.Y;
+            m_playerPos.X += (int)(m_playerDir.X * m_playerSpeed.X);
+            m_playerPos.Y -= (int)(m_playerDir.Y * m_playerSpeed.Y);
         }
 
         private void ChangeAnim(AnimatedSprite newAnim)
@@ -275,8 +270,7 @@ namespace Ivy
         {
             m_game.ConsoleStr += "STATE=WAIT\n";
 
-            if ((m_currentGamePadState.Buttons.A == ButtonState.Pressed) ||
-                (jumpElapsedTime >= jumpTime))
+            if (m_currentGamePadState.Buttons.A == ButtonState.Pressed)
             {
                 ExitState_Wait(PlayerState.JumpAscend);
             }
@@ -319,41 +313,23 @@ namespace Ivy
 
         private void EnterState_Run(PlayerState prevState)
         {
-            if (ChangedDir())
+            if (facingRight)
             {
-                if (facingRight == true)
-                {
-                    samusTurnAnim.Reverse = false;
-                    ChangeAnim(samusTurnAnim);
-                }
-                else
-                {
-                    samusTurnAnim.Reverse = true;
-                    ChangeAnim(samusTurnAnim);
-                }
-                facingRight = !facingRight;
+                ChangeAnim(samusRunRightAnim);
             }
             else
             {
-                if (facingRight)
-                {
-                    ChangeAnim(samusRunRightAnim);
-                }
-                else
-                {
-                    ChangeAnim(samusRunLeftAnim);
-                }
-
-                m_playerState = PlayerState.Run;
-                ExecuteState_Run();
+                ChangeAnim(samusRunLeftAnim);
             }
+
+            m_playerState = PlayerState.Run;
+            ExecuteState_Run();
         }
         private void ExecuteState_Run()
         {
             m_game.ConsoleStr += "STATE=RUN\n";
-            
-            if ((m_currentGamePadState.Buttons.A == ButtonState.Pressed) ||
-                (jumpElapsedTime >= jumpTime))
+
+            if (m_currentGamePadState.Buttons.A == ButtonState.Pressed)
             {
                 ExitState_Run(PlayerState.JumpAscend);
             }
@@ -361,8 +337,25 @@ namespace Ivy
             {
                 ExitState_Run(PlayerState.Wait);
             }
+            else
+            {
+                if (ChangedDir())
+                {
+                    if (facingRight == true)
+                    {
+                        samusTurnAnim.Reverse = false;
+                        ChangeAnim(samusTurnAnim);
+                    }
+                    else
+                    {
+                        samusTurnAnim.Reverse = true;
+                        ChangeAnim(samusTurnAnim);
+                    }
+                    facingRight = !facingRight;
+                }
 
-            UpdatePosition();
+                UpdatePosition();
+            }
         }
 
         private void ExitState_Run(PlayerState nextState)
@@ -372,41 +365,87 @@ namespace Ivy
                 case PlayerState.Wait:
                     EnterState_Wait(PlayerState.Run); 
                     break;
+                case PlayerState.JumpAscend:
+                    EnterState_JumpAscend(PlayerState.Run);
+                    break;
                 default:
                     break;
             };
         }
 
-        #region Incomplete States
+        private bool JumpRoll()
+        {
+            if ((m_playerAnim == samusJumpRollLeftAnim) ||
+                (m_playerAnim == samusJumpRollRightAnim))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         private void EnterState_JumpAscend(PlayerState prevState)
         {
-            m_game.ConsoleStr += "STATE=JUMP_ASCEND\n";
-
             m_playerDir.Y = 1.0f;
+
+            if (prevState == PlayerState.Wait)
+            {
+                if (facingRight == true)
+                {
+                    ChangeAnim(samusJumpRightAnim);
+                }
+                else
+                {
+                    ChangeAnim(samusJumpLeftAnim);
+                }
+            }
+            else if (prevState == PlayerState.Run)
+            {
+                if (facingRight == true)
+                {
+                    ChangeAnim(samusJumpRollRightAnim);
+                }
+                else
+                {
+                    ChangeAnim(samusJumpRollLeftAnim);
+                }
+            }
 
             m_playerState = PlayerState.JumpAscend;
             ExecuteState_JumpAscend();
         }
         private void ExecuteState_JumpAscend()
         {
+            m_game.ConsoleStr += "STATE=JUMP_ASCEND\n";
+            jumpElapsedTime += m_gameTime.ElapsedGameTime.Milliseconds;
+
             // if not holding A button, or time ran out
             if ((m_currentGamePadState.Buttons.A == ButtonState.Released) ||
                 (jumpElapsedTime >= jumpTime))
             {
+                jumpElapsedTime = 0;
                 ExitState_JumpAscend(PlayerState.JumpDescend);
             }
-
-            if (facingRight == true)
-            {
-                ChangeAnim(samusJumpRightAnim);
-            }
             else
-                
             {
-                ChangeAnim(samusJumpLeftAnim);
-            }
+                if (ChangedDir())
+                {
+                    if (facingRight == true)
+                    {
+                        
+                    }
+                    else
+                    {
+                        
+                    }
+                    facingRight = !facingRight;
+                }
 
-            UpdatePosition();
+                UpdatePosition();
+
+            }
         }
         private void ExitState_JumpAscend(PlayerState nextState)
         {
@@ -415,21 +454,64 @@ namespace Ivy
 
         private void EnterState_JumpDescend(PlayerState prevState)
         {
-            m_game.ConsoleStr += "STATE=JUMP_DESCEND\n";
-
             m_playerDir.Y = -1.0f;
+
+            if (!JumpRoll())
+            {
+                if (facingRight == true)
+                {
+                    ChangeAnim(samusJumpRightAnim);
+                }
+                else
+                {
+                    ChangeAnim(samusJumpLeftAnim);
+                }
+            }
 
             m_playerState = PlayerState.JumpDescend;
             ExecuteState_JumpDescend();
         }
         private void ExecuteState_JumpDescend()
         {
+            m_game.ConsoleStr += "STATE=JUMP_DESCEND\n";
+
             // if hit floor? check position, go to wait/erm transition next anim
+            if (m_playerPos.Y >= (m_worldBounds.Y + (m_worldBounds.Height / 2)))
+            {
+                ExitState_JumpDescend(PlayerState.Wait);
+            }
+            else
+            {   
+                /*
+                if (facingRight == true)
+                {
+                    ChangeAnim(samusJumpRightAnim);
+                }
+                else
+                {
+                    ChangeAnim(samusJumpLeftAnim);
+                }
+                 * */
+
+                UpdatePosition();
+            }
         }
         private void ExitState_JumpDescend(PlayerState nextState)
         {
+            m_playerDir.Y = 0;
+
+            switch (nextState)
+            {
+                case PlayerState.Wait:
+                    EnterState_Wait(PlayerState.JumpDescend);
+                    break;
+                default:
+                    // error
+                    break;
+            }
         }
 
+        #region Incomplete States
         private void EnterState_Fall(PlayerState prevState)
         {
             m_playerState = PlayerState.Fall;
@@ -437,6 +519,9 @@ namespace Ivy
         }
         private void ExecuteState_Fall()
         {
+            m_game.ConsoleStr += "STATE=JUMP_DESCEND\n";
+
+            UpdatePosition();
         }
         private void ExitState_Fall(PlayerState nextState)
         {
@@ -449,6 +534,7 @@ namespace Ivy
             {
                 case PlayerState.Wait:
                     // do nothing for now---should go to run?
+                    EnterState_Wait(PlayerState.Wait);
                     break;
                 case PlayerState.Run:
                     ExitState_Run(PlayerState.Wait);
