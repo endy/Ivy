@@ -38,8 +38,12 @@ namespace Ivy
         Rectangle samusRunLeftRect = new Rectangle(0, 111, 460, 45);
         Rectangle samusJumpRollRightRect = new Rectangle(0, 0, 280, 32);
         Rectangle samusJumpRollLeftRect = new Rectangle(0, 33, 280, 32);
-        Rectangle samusJumpRightRect = new Rectangle(0, 293, 224, 47);
-        Rectangle samusJumpLeftRect = new Rectangle(0, 340, 224, 47);
+        Rectangle samusJumpAscendRightRect = new Rectangle(0, 293, 56, 47);
+        Rectangle samusJumpAscendLeftRect = new Rectangle(0, 340, 56, 47);
+        Rectangle samusJumpDescendRightRect = new Rectangle(56, 293, 112, 47);
+        Rectangle samusJumpDescendLeftRect = new Rectangle(56, 340, 112, 47);
+        Rectangle samusJumpLandRightRect = new Rectangle(168, 293, 56, 47);
+        Rectangle samusJumpLandLeftRect = new Rectangle(168, 340, 56, 47);
 
         Texture2D m_samusMap;
         AnimatedSprite samusTurnAnim;
@@ -49,8 +53,12 @@ namespace Ivy
         AnimatedSprite samusRunLeftAnim;
         AnimatedSprite samusJumpRollRightAnim;
         AnimatedSprite samusJumpRollLeftAnim;
-        AnimatedSprite samusJumpRightAnim;
-        AnimatedSprite samusJumpLeftAnim;
+        AnimatedSprite samusJumpAscendRightAnim;
+        AnimatedSprite samusJumpAscendLeftAnim;
+        AnimatedSprite samusJumpDescendRightAnim;
+        AnimatedSprite samusJumpDescendLeftAnim;
+        AnimatedSprite samusJumpLandRightAnim;
+        AnimatedSprite samusJumpLandLeftAnim;
 
         // Player State Data
         enum PlayerState
@@ -93,7 +101,7 @@ namespace Ivy
             m_playerSpeed = Vector2.One;
             facingRight = true;
 
-            jumpTime = 500;
+            jumpTime = 2000;
             jumpElapsedTime = 0;
 
             m_samusMap = Game.Content.Load<Texture2D>("Sprites\\samusMap");
@@ -113,29 +121,53 @@ namespace Ivy
             samusWaitLeftAnim.Initialize();
             samusWaitLeftAnim.Scale = new Vector2(3.0f, 3.0f);
 
-            samusRunRightAnim = new AnimatedSprite(m_game, m_samusMap, samusRunRightRect, 10, 10f);
+            samusRunRightAnim = new AnimatedSprite(m_game, m_samusMap, samusRunRightRect, 10, 18f);
             samusRunRightAnim.Initialize();
             samusRunRightAnim.Scale = new Vector2(3.0f, 3.0f);
 
-            samusRunLeftAnim = new AnimatedSprite(m_game, m_samusMap, samusRunLeftRect, 10, 10f);
+            samusRunLeftAnim = new AnimatedSprite(m_game, m_samusMap, samusRunLeftRect, 10, 18f);
             samusRunLeftAnim.Initialize();
             samusRunLeftAnim.Scale = new Vector2(3.0f, 3.0f);
 
-            samusJumpRollRightAnim = new AnimatedSprite(m_game, m_samusMap, samusJumpRollRightRect, 8, 8f);
+            samusJumpRollRightAnim = new AnimatedSprite(m_game, m_samusMap, samusJumpRollRightRect, 8, 16f);
             samusJumpRollRightAnim.Initialize();
             samusJumpRollRightAnim.Scale = new Vector2(3.0f, 3.0f);
 
-            samusJumpRollLeftAnim = new AnimatedSprite(m_game, m_samusMap, samusJumpRollLeftRect, 8, 8f);
+            samusJumpRollLeftAnim = new AnimatedSprite(m_game, m_samusMap, samusJumpRollLeftRect, 8, 16f);
             samusJumpRollLeftAnim.Initialize();
             samusJumpRollLeftAnim.Scale = new Vector2(3.0f, 3.0f);
 
-            samusJumpRightAnim = new AnimatedSprite(m_game, m_samusMap, samusJumpRightRect, 8, 8f);
-            samusJumpRightAnim.Initialize();
-            samusJumpRightAnim.Scale = new Vector2(3.0f, 3.0f);
+            samusJumpAscendRightAnim = new AnimatedSprite(m_game, m_samusMap, samusJumpAscendRightRect, 2, 16f);
+            samusJumpAscendRightAnim.Initialize();
+            samusJumpAscendRightAnim.Loop = false;
+            samusJumpAscendRightAnim.Scale = new Vector2(3.0f, 3.0f);
 
-            samusJumpLeftAnim = new AnimatedSprite(m_game, m_samusMap, samusJumpLeftRect, 8, 8f);
-            samusJumpLeftAnim.Initialize();
-            samusJumpLeftAnim.Scale = new Vector2(3.0f, 3.0f);
+            samusJumpAscendLeftAnim = new AnimatedSprite(m_game, m_samusMap, samusJumpAscendLeftRect, 2, 16f);
+            samusJumpAscendLeftAnim.Initialize();
+            samusJumpAscendLeftAnim.Loop = false;
+            samusJumpAscendLeftAnim.Scale = new Vector2(3.0f, 3.0f);
+
+            samusJumpDescendRightAnim = new AnimatedSprite(m_game, m_samusMap, samusJumpDescendRightRect, 4, 16f);
+            samusJumpDescendRightAnim.Initialize();
+            samusJumpDescendRightAnim.Loop = false;
+            samusJumpDescendRightAnim.Scale = new Vector2(3.0f, 3.0f);
+            
+            samusJumpDescendLeftAnim = new AnimatedSprite(m_game, m_samusMap, samusJumpDescendLeftRect, 4, 16f);
+            samusJumpDescendLeftAnim.Initialize();
+            samusJumpDescendLeftAnim.Loop = false;
+            samusJumpDescendLeftAnim.Scale = new Vector2(3.0f, 3.0f);
+
+            samusJumpLandRightAnim = new AnimatedSprite(m_game, m_samusMap, samusJumpLandRightRect, 2, 16f);
+            samusJumpLandRightAnim.Initialize();
+            samusJumpLandRightAnim.Loop = false;
+            samusJumpLandRightAnim.OnAnimEnd += this.AnimatedSpriteEnd;
+            samusJumpLandRightAnim.Scale = new Vector2(3.0f, 3.0f);
+
+            samusJumpLandLeftAnim = new AnimatedSprite(m_game, m_samusMap, samusJumpLandLeftRect, 2, 16f);
+            samusJumpLandLeftAnim.Initialize();
+            samusJumpLandLeftAnim.Loop = false;
+            samusJumpLandLeftAnim.OnAnimEnd += this.AnimatedSpriteEnd;
+            samusJumpLandLeftAnim.Scale = new Vector2(3.0f, 3.0f);
 
             m_playerState = PlayerState.Wait;
 
@@ -238,14 +270,13 @@ namespace Ivy
 
         private void UpdatePosition()
         {
-            m_playerPos.X += (int)(m_playerDir.X * m_playerSpeed.X);
-            m_playerPos.Y -= (int)(m_playerDir.Y * m_playerSpeed.Y);
+            m_playerPos.X += (int)Math.Round((m_playerDir.X * m_playerSpeed.X));
+            m_playerPos.Y -= (int)Math.Round((m_playerDir.Y * m_playerSpeed.Y));
         }
 
         private void ChangeAnim(AnimatedSprite newAnim)
         {
             m_playerAnim.Stop();
-            m_playerAnim.Reset();
             m_playerAnim = newAnim;
             m_playerAnim.Reset();
             m_playerAnim.Play();
@@ -313,6 +344,7 @@ namespace Ivy
 
         private void EnterState_Run(PlayerState prevState)
         {
+            m_playerSpeed.X = 1.5f;
             if (facingRight)
             {
                 ChangeAnim(samusRunRightAnim);
@@ -360,6 +392,7 @@ namespace Ivy
 
         private void ExitState_Run(PlayerState nextState)
         {
+            m_playerSpeed.X = 1.4f;
             switch (nextState)
             {
                 case PlayerState.Wait:
@@ -394,11 +427,11 @@ namespace Ivy
             {
                 if (facingRight == true)
                 {
-                    ChangeAnim(samusJumpRightAnim);
+                    ChangeAnim(samusJumpAscendRightAnim);
                 }
                 else
                 {
-                    ChangeAnim(samusJumpLeftAnim);
+                    ChangeAnim(samusJumpAscendLeftAnim);
                 }
             }
             else if (prevState == PlayerState.Run)
@@ -430,15 +463,32 @@ namespace Ivy
             }
             else
             {
-                if (ChangedDir())
+                if (JumpRoll() == true)
+                {
+                    if (ChangedDir() == true)
+                    {
+                        if (facingRight == true)
+                        {
+                            ChangeAnim(samusJumpRollRightAnim);
+                        }
+                        else
+                        {
+                            ChangeAnim(samusJumpRollLeftAnim);
+                        }
+                        facingRight = !facingRight;
+                    }
+                }
+                else if (ChangedDir())
                 {
                     if (facingRight == true)
                     {
-                        
+                        ChangeAnim(samusJumpAscendRightAnim);
+                        samusJumpAscendRightAnim.SetFrame((uint)samusJumpAscendLeftAnim.CurrentFrame);
                     }
                     else
                     {
-                        
+                        ChangeAnim(samusJumpAscendLeftAnim);
+                        samusJumpAscendLeftAnim.SetFrame((uint)samusJumpAscendRightAnim.CurrentFrame);
                     }
                     facingRight = !facingRight;
                 }
@@ -460,12 +510,16 @@ namespace Ivy
             {
                 if (facingRight == true)
                 {
-                    ChangeAnim(samusJumpRightAnim);
+                    ChangeAnim(samusJumpDescendRightAnim);
                 }
                 else
                 {
-                    ChangeAnim(samusJumpLeftAnim);
+                    ChangeAnim(samusJumpDescendLeftAnim);
                 }
+            }
+            else
+            {
+
             }
 
             m_playerState = PlayerState.JumpDescend;
@@ -478,20 +532,50 @@ namespace Ivy
             // if hit floor? check position, go to wait/erm transition next anim
             if (m_playerPos.Y >= (m_worldBounds.Y + (m_worldBounds.Height / 2)))
             {
-                ExitState_JumpDescend(PlayerState.Wait);
+                if (m_playerDir.Y != 0)
+                {
+                    m_playerDir.Y = 0;
+                    if (facingRight == true)
+                    {
+                        ChangeAnim(samusJumpLandRightAnim);
+                    }
+                    else
+                    {
+                        ChangeAnim(samusJumpLandLeftAnim);
+                    }
+                }
             }
             else
-            {   
-                /*
-                if (facingRight == true)
+            {
+                if (JumpRoll() == true)
                 {
-                    ChangeAnim(samusJumpRightAnim);
+                    if (ChangedDir() == true)
+                    {
+                        if (facingRight == true)
+                        {
+                            ChangeAnim(samusJumpRollRightAnim);
+                        }
+                        else
+                        {
+                            ChangeAnim(samusJumpRollLeftAnim);
+                        }
+                        facingRight = !facingRight;
+                    }
                 }
-                else
+                else if (ChangedDir())
                 {
-                    ChangeAnim(samusJumpLeftAnim);
+                    if (facingRight == true)
+                    {
+                        ChangeAnim(samusJumpDescendRightAnim);
+                        samusJumpDescendRightAnim.SetFrame(samusJumpDescendLeftAnim.CurrentFrame);
+                    }
+                    else
+                    {
+                        ChangeAnim(samusJumpDescendLeftAnim);
+                        samusJumpDescendLeftAnim.SetFrame(samusJumpDescendRightAnim.CurrentFrame);
+                    }
+                    facingRight = !facingRight;
                 }
-                 * */
 
                 UpdatePosition();
             }
@@ -538,6 +622,9 @@ namespace Ivy
                     break;
                 case PlayerState.Run:
                     ExitState_Run(PlayerState.Wait);
+                    break;
+                case PlayerState.JumpDescend:
+                    ExitState_JumpDescend(PlayerState.Wait);
                     break;
                 default:
                     // error

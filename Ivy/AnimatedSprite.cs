@@ -20,25 +20,25 @@ namespace Ivy
         // Sprite Properties
         private Texture2D m_texture;
         private Rectangle m_animRect;
-        private int m_frameCount;
+        private uint m_frameCount;
         private float m_framesPerSecond;
 
         private Vector2 m_scale;             // amount to scale the animation
 
-        private int m_frameWidth;
+        private uint m_frameWidth;
         private Point m_frameCenter;
 
         // Animation Properties
         private bool m_playing;             // true if animation is playing
         private bool m_loop;                // loop animation
         private bool m_reverse;             // play frames in reverse order
-        private int m_currentFrame;         // current frame
+        private uint m_currentFrame;        // current frame
 
         // Private Animation Data
         private float m_timePerFrame;       // milliseconds per frame
         private float m_timeElapsed;        // time elapsed in milliseconds
 
-        public AnimatedSprite(IvyGame game, Texture2D texture, Rectangle animRect, int frameCount,
+        public AnimatedSprite(IvyGame game, Texture2D texture, Rectangle animRect, uint frameCount,
                               float framesPerSecond) 
                               : 
                               base(game)
@@ -61,8 +61,8 @@ namespace Ivy
         {
             if (m_frameCount != 0)
             {
-                m_frameWidth = m_animRect.Width / m_frameCount;
-                m_frameCenter = new Point(m_frameWidth / 2, m_animRect.Height / 2);
+                m_frameWidth = (uint)m_animRect.Width / m_frameCount;
+                m_frameCenter = new Point((int)m_frameWidth / 2, m_animRect.Height / 2);
             }
 
             m_timePerFrame = ((1.0f / m_framesPerSecond) * 1000.0f);
@@ -104,7 +104,19 @@ namespace Ivy
                 Reset();
             }
         }
+        public uint CurrentFrame
+        {
+            get { return m_currentFrame; }
+        }
         #endregion
+
+        public void SetFrame(uint frameNumber)
+        {
+            if (frameNumber < m_frameCount)
+            {
+                m_currentFrame = frameNumber;
+            }
+        }
 
         public void Play()
         {
@@ -125,44 +137,67 @@ namespace Ivy
             Play();
         }
 
+        private bool IsLastFrame()
+        {
+            bool lastFrame = false;
+
+            if (((Reverse == true) && (m_currentFrame == 0)) ||
+                ((Reverse != true) && ((m_currentFrame + 1) == m_frameCount)))
+            {
+                lastFrame = true;
+            }
+
+            return lastFrame;
+        }
+
+        private void NextFrame()
+        {
+            if (Reverse == true)
+            {
+                m_currentFrame--;
+                if (m_currentFrame < 0)
+                {
+                    m_currentFrame = m_frameCount - 1;
+                }
+            }
+            else
+            {
+                m_currentFrame++;
+                if (m_currentFrame >= m_frameCount)
+                {
+                    m_currentFrame = 0;
+                }
+            }
+        }
+
         public override void Update(GameTime gameTime)
         {
             if (IsPlaying)
             {
                 m_timeElapsed += gameTime.ElapsedGameTime.Milliseconds;
 
-                bool looped = false;
                 if (m_timeElapsed > m_timePerFrame)
                 {
-                    if (Reverse)
+                    if (IsLastFrame() == false)
                     {
-                        m_currentFrame--;
-                        if (m_currentFrame < 0)
-                        {
-                            m_currentFrame = m_frameCount - 1;
-                            looped = true;
-                        }
+                        NextFrame();                       
+                        m_timeElapsed = 0;
                     }
-                    else
+                    else 
                     {
-                        m_currentFrame++;
-                        if (m_currentFrame >= m_frameCount)
+                        if (Loop == true)
                         {
-                            m_currentFrame = 0;
-                            looped = true;
+                            NextFrame();
+                            m_timeElapsed = 0;
                         }
-                    }
-                    m_timeElapsed = 0;
-                }
-
-                if (looped == true && Loop != true)
-                {
-                    // Animation ended
-                    Stop();
-
-                    if (OnAnimEnd != null)
-                    {
-                        OnAnimEnd(this);
+                        else
+                        {
+                            Stop();
+                            if (OnAnimEnd != null)
+                            {
+                                OnAnimEnd(this);
+                            }
+                        }
                     }
                 }
             }
@@ -170,9 +205,9 @@ namespace Ivy
 
         public void Draw(SpriteBatch spriteBatch, Point pos)
         {
-            Rectangle srcRect = new Rectangle(m_animRect.X + (m_frameWidth * m_currentFrame),
+            Rectangle srcRect = new Rectangle((int)(m_animRect.X + (m_frameWidth * m_currentFrame)),
                                               m_animRect.Y,
-                                              m_frameWidth,
+                                              (int)m_frameWidth,
                                               m_animRect.Height);
 
             Rectangle dstRect = new Rectangle(Center.X + pos.X, Center.Y + pos.Y,

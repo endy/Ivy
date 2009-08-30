@@ -154,10 +154,7 @@ namespace Ivy
             ConsoleStr += "FPS: " + fps + "\n";
 
             GraphicsDevice.Clear(Color.Black);
-            
-            // TODO: Add your drawing code here
-
-            //this.GraphicsDevice.
+    
             spriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None, Matrix.Identity);
             graphics.GraphicsDevice.SamplerStates[0].MagFilter = TextureFilter.Point;
             graphics.GraphicsDevice.SamplerStates[0].MinFilter = TextureFilter.Point;
