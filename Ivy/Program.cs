@@ -9,7 +9,7 @@ namespace Ivy
         /// </summary>
         static void Main(string[] args)
         {
-            using (IvyGame game = new IvyGame())
+            using (IvyGame game = IvyGame.Get())
             {
                 game.Run();
             }

@@ -43,11 +43,12 @@ namespace Ivy
         Texture2D animTestPattern;
         AnimatedSprite testPattern;
 
-        public IvyGame()
+        private static IvyGame m_self = null;
+
+        private IvyGame()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
-            
 
             worldBounds = new Rectangle(0, 0, 512, 192);
 
@@ -58,9 +59,19 @@ namespace Ivy
 
             m_player = new Player(this, worldBounds);
 
-            box = new Box(this, new Rectangle(0, 0, 200, 200));
-            
+            box = new Box(this, new Rectangle(0, 0, 200, 200));           
         }
+        
+        public static IvyGame Get()
+        {
+            if (m_self == null)
+            {
+                m_self = new IvyGame();
+            }
+
+            return m_self;
+        }
+        
 
         /// <summary>
         /// Allows the game to perform any initialization it needs to before starting to run.
@@ -127,7 +138,7 @@ namespace Ivy
 
             // focus pos shouldn't be character position
             // it should also be calculated by camera, most like
-            Point focusPos = new Point(m_player.PlayerPos.X, m_player.PlayerPos.Y);
+            Point focusPos = new Point(m_player.Position.X, m_player.Position.Y);
             m_camera.Update(focusPos);
 
             // Camera Info

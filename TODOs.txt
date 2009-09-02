@@ -1,0 +1,15 @@
+
+Short-term TODOs:
+
+Rename AnimatedSprite to Animation (it could handle many animations)
+
+
+
+
+
+Niceties:
+
+Cut-scene support
+Debug Console (possibly with input feature)
+XML State Loading + Sprite Management
+

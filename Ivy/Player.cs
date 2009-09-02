@@ -60,6 +60,13 @@ namespace Ivy
         AnimatedSprite samusJumpLandRightAnim;
         AnimatedSprite samusJumpLandLeftAnim;
 
+        Weapon m_armCannon;
+
+        SoundEffect m_rollEffect;
+        SoundEffectInstance m_rollInstance;
+
+        SoundEffect m_landEffect;
+
         // Player State Data
         enum PlayerState
         {
@@ -101,7 +108,7 @@ namespace Ivy
             m_playerSpeed = Vector2.One;
             facingRight = true;
 
-            jumpTime = 2000;
+            jumpTime = 800;
             jumpElapsedTime = 0;
 
             m_samusMap = Game.Content.Load<Texture2D>("Sprites\\samusMap");
@@ -113,7 +120,7 @@ namespace Ivy
 
             samusTurnAnim.OnAnimEnd = this.AnimatedSpriteEnd;
 
-            samusWaitRightAnim = new AnimatedSprite(m_game, m_samusMap, samusWaitRightRect, 5, 6f);
+            samusWaitRightAnim = new AnimatedSprite(IvyGame.Get(), m_samusMap, samusWaitRightRect, 5, 6f);
             samusWaitRightAnim.Initialize();
             samusWaitRightAnim.Scale = new Vector2(3.0f, 3.0f);
 
@@ -171,11 +178,32 @@ namespace Ivy
 
             m_playerState = PlayerState.Wait;
 
+            m_armCannon = new Weapon(IvyGame.Get(), this, new Point(10, 10), m_playerDir);
+            m_armCannon.Initialize();
+
+            m_landEffect = Game.Content.Load<SoundEffect>("Audio\\samus_land");
+            m_rollEffect = Game.Content.Load<SoundEffect>("Audio\\samus_jump_roll");
+            m_rollInstance = m_rollEffect.CreateInstance();
+ 
             ///todo should we enter Wait with Wait state?
             m_playerAnim = samusWaitRightAnim;
             EnterState_Wait(m_playerState);
 
             base.Initialize();
+        }
+
+        private bool PlayerMoving()
+        {
+            bool moving = false;
+
+            float deadZone = 0.1f;
+            if ((m_currentGamePadState.ThumbSticks.Left.X > deadZone)||
+                (m_currentGamePadState.ThumbSticks.Left.X < -deadZone))
+            {
+                moving = true;
+            }
+
+            return moving;
         }
 
         /// <summary>
@@ -187,6 +215,8 @@ namespace Ivy
             m_gameTime = gameTime;
             m_currentGamePadState = GamePad.GetState(PlayerIndex.One);
 
+            // update position, bounded by world
+
             float deadZone = 0.1f;
             if (m_currentGamePadState.ThumbSticks.Left.X > deadZone)
             {
@@ -196,12 +226,6 @@ namespace Ivy
             {
                 m_playerDir.X = -1.0f;
             }
-            else
-            {
-                m_playerDir.X = 0;
-            }
-
-            // update position, bounded by world
 
             switch (m_playerState)
             {
@@ -225,6 +249,7 @@ namespace Ivy
                     break;
             };
 
+            m_armCannon.Update(gameTime);
 
             m_playerAnim.Update(gameTime);
 
@@ -243,15 +268,22 @@ namespace Ivy
             samusScreenPos.X = (int)(((m_playerPos.X - cameraRect.X) / (float)cameraRect.Width) * 800); // screen width = 800
             samusScreenPos.Y = (int)(((m_playerPos.Y - cameraRect.Y) / (float)cameraRect.Height) * 600); // screen height = 600
 
+            m_armCannon.Draw(spriteBatch);
+
             if (m_playerAnim != null)
             {
                 m_playerAnim.Draw(spriteBatch, samusScreenPos);
             }   
         }
 
-        public Point PlayerPos
+        public Point Position
         {
             get { return m_playerPos; }
+        }
+
+        public Vector2 Direction
+        {
+            get { return m_playerDir; }
         }
 
         private bool ChangedDir()
@@ -270,7 +302,10 @@ namespace Ivy
 
         private void UpdatePosition()
         {
-            m_playerPos.X += (int)Math.Round((m_playerDir.X * m_playerSpeed.X));
+            if (PlayerMoving())
+            {
+                m_playerPos.X += (int)Math.Round((m_playerDir.X * m_playerSpeed.X));
+            }
             m_playerPos.Y -= (int)Math.Round((m_playerDir.Y * m_playerSpeed.Y));
         }
 
@@ -280,6 +315,11 @@ namespace Ivy
             m_playerAnim = newAnim;
             m_playerAnim.Reset();
             m_playerAnim.Play();
+        }
+
+        private void FireWeapon()
+        {
+            m_armCannon.Fire();
         }
 
         private void EnterState_Wait(PlayerState prevState)
@@ -321,7 +361,19 @@ namespace Ivy
 
             }
 
-            if ((!samusTurnAnim.IsPlaying) && (m_playerDir.X != 0))
+            if ((m_currentGamePadState.Buttons.B == ButtonState.Pressed) &&
+                (m_lastGamePadState.Buttons.B == ButtonState.Released))
+            {
+                FireWeapon();
+            }
+
+            //hack
+            if (samusTurnAnim == m_playerAnim)
+            {
+                UpdatePosition();
+            }
+
+            if ((!samusTurnAnim.IsPlaying) && (PlayerMoving() == true))
             {
                 ExitState_Wait(PlayerState.Run);
             }
@@ -365,7 +417,7 @@ namespace Ivy
             {
                 ExitState_Run(PlayerState.JumpAscend);
             }
-            else if (m_playerDir.X == 0)
+            else if (PlayerMoving() == false)
             {
                 ExitState_Run(PlayerState.Wait);
             }
@@ -387,6 +439,12 @@ namespace Ivy
                 }
 
                 UpdatePosition();
+
+                if ((m_currentGamePadState.Buttons.B == ButtonState.Pressed) &&
+                    (m_lastGamePadState.Buttons.B == ButtonState.Released))
+                {
+                    FireWeapon();
+                }
             }
         }
 
@@ -444,6 +502,7 @@ namespace Ivy
                 {
                     ChangeAnim(samusJumpRollLeftAnim);
                 }
+                m_rollInstance.Play();
             }
 
             m_playerState = PlayerState.JumpAscend;
@@ -543,7 +602,12 @@ namespace Ivy
                     {
                         ChangeAnim(samusJumpLandLeftAnim);
                     }
+
+                    m_rollInstance.Stop();
+                    m_landEffect.Play();
                 }
+
+                UpdatePosition();
             }
             else
             {
