@@ -5,26 +5,15 @@ using System.Text;
 
 namespace Ivy
 {
-    class State
+    abstract class State
     {
         public State()
         {
 
         }
 
-        public void Enter()
-        {
-
-        }
-
-        public void Execute()
-        {
-
-        }
-
-        public void Exit()
-        {
-
-        }
+        public abstract void Enter(Entity e);
+        public abstract void Execute(Entity e);
+        public abstract void Exit(Entity e);
     }
 }
