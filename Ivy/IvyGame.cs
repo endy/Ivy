@@ -16,21 +16,20 @@ namespace Ivy
     /// <summary>
     /// This is the main type for your game
     /// </summary>
-    public class IvyGame : Microsoft.Xna.Framework.Game
+    public class IvyGame : Microsoft.Xna.Framework.Game,
+                           IMessageSender
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-
-        private Rectangle worldBounds;
 
         private SpriteFont consoleFont;
         private Vector2 consolePos;
 
         Texture2D background;
 
+        private World m_world;
         private Camera2D m_camera;
         private Player m_player;
-        
 
         GamePadState previousGamePadState = GamePad.GetState(PlayerIndex.One);
         KeyboardState previousKeyboardState = Keyboard.GetState();
@@ -43,35 +42,37 @@ namespace Ivy
         Texture2D animTestPattern;
         AnimatedSprite testPattern;
 
-        private static IvyGame m_self = null;
+        private static IvyGame m_instance = null;
 
         private IvyGame()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
 
-            worldBounds = new Rectangle(0, 0, 512, 192);
+            Rectangle worldBounds = new Rectangle(0, 0, 512, 192);
+
+            m_world = new World(worldBounds);
+            m_world.Initialize();
 
             int width = 192 * (800 / 600);
             Rectangle screenRect = new Rectangle(0, 0, width, 192);
 
-            m_camera = new Camera2D(worldBounds, screenRect);
+            m_camera = new Camera2D(m_world.Bounds, screenRect);
 
-            m_player = new Player(this, worldBounds);
+            m_player = new Player(this);
 
             box = new Box(this, new Rectangle(0, 0, 200, 200));           
         }
         
         public static IvyGame Get()
         {
-            if (m_self == null)
+            if (m_instance == null)
             {
-                m_self = new IvyGame();
+                m_instance = new IvyGame();
             }
 
-            return m_self;
-        }
-        
+            return m_instance;
+        }       
 
         /// <summary>
         /// Allows the game to perform any initialization it needs to before starting to run.
@@ -89,6 +90,34 @@ namespace Ivy
             animTestPattern = Content.Load<Texture2D>("Sprites\\animTestPattern");
             testPattern = new AnimatedSprite(this, animTestPattern, new Rectangle(0, 0, 84, 50), 3, 0.5f);
             testPattern.Initialize();
+
+            // Movement
+            InputMgr.Get().RegisterGamePadButton(Buttons.LeftThumbstickLeft, OnGamePadDirectionEvent);
+            InputMgr.Get().RegisterGamePadButton(Buttons.LeftThumbstickRight, OnGamePadDirectionEvent);
+            InputMgr.Get().RegisterGamePadButton(Buttons.LeftThumbstickUp, OnGamePadDirectionEvent);
+            InputMgr.Get().RegisterGamePadButton(Buttons.LeftThumbstickDown, OnGamePadDirectionEvent);
+
+            InputMgr.Get().RegisterGamePadButton(Buttons.DPadLeft, OnGamePadDirectionEvent);
+            InputMgr.Get().RegisterGamePadButton(Buttons.DPadRight, OnGamePadDirectionEvent);
+            InputMgr.Get().RegisterGamePadButton(Buttons.DPadUp, OnGamePadDirectionEvent);
+            InputMgr.Get().RegisterGamePadButton(Buttons.DPadDown, OnGamePadDirectionEvent);
+
+            InputMgr.Get().RegisterKey(Keys.Up, OnKeyboardDirectionEvent);
+            InputMgr.Get().RegisterKey(Keys.Down, OnKeyboardDirectionEvent);
+            InputMgr.Get().RegisterKey(Keys.Left, OnKeyboardDirectionEvent);
+            InputMgr.Get().RegisterKey(Keys.Right, OnKeyboardDirectionEvent);
+
+            // Actions
+            InputMgr.Get().RegisterGamePadButton(Buttons.A, OnGamePadButtonEvent); // Run/Alt
+            InputMgr.Get().RegisterGamePadButton(Buttons.B, OnGamePadButtonEvent); // Jump
+            InputMgr.Get().RegisterGamePadButton(Buttons.Y, OnGamePadButtonEvent); // Fire Weapon
+
+            // Keyboard Actions
+            InputMgr.Get().RegisterKey(Keys.F, OnKeyboardEvent);                    // Fire
+            InputMgr.Get().RegisterKey(Keys.Space, OnKeyboardEvent);                // Jump
+
+
+            ConsoleStr = "\n";
 
             base.Initialize();
         }
@@ -126,13 +155,18 @@ namespace Ivy
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            ConsoleStr = "\n\n"; 
+            //ConsoleStr = "\n\n"; 
 
             // Allows the game to exit
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
 
             // TODO: Add your update logic here
+
+            // Send any messages that were queued last update
+            MessageDispatcher.Get().Update(gameTime);
+
+            InputMgr.Get().Update();
 
             m_player.Update(gameTime);
 
@@ -144,8 +178,8 @@ namespace Ivy
             // Camera Info
             Rectangle cameraRect = m_camera.CameraRect;     // camera rect in world space
 
-            ConsoleStr += "Camera Rect (X:" + cameraRect.X + " Y:" + cameraRect.Y + ")\n";
-            ConsoleStr += "\n";
+            //ConsoleStr += "Camera Rect (X:" + cameraRect.X + " Y:" + cameraRect.Y + ")\n";
+            //ConsoleStr += "\n";
 
 
             box.Update(gameTime);
@@ -162,7 +196,7 @@ namespace Ivy
         protected override void Draw(GameTime gameTime)
         {
             float fps = (1 / (float)gameTime.ElapsedGameTime.Milliseconds) * 1000;
-            ConsoleStr += "FPS: " + fps + "\n";
+            //ConsoleStr += "FPS: " + fps + "\n";
 
             GraphicsDevice.Clear(Color.Black);
     
@@ -203,6 +237,125 @@ namespace Ivy
             base.Draw(gameTime);
         }
 
+
+        bool OnGamePadDirectionEvent(GamePadButtonEvent e)
+        {
+            /// todo design some way to map events to messages to avoid switch code like this
+            if (e.Button == Buttons.LeftThumbstickLeft)
+            {
+                if (e.EventType == InputEventType.Pressed)
+                {
+                    Message msg = new Message(MessageType.MoveLeft, this, m_player);
+                    MessageDispatcher.Get().SendMessage(msg);
+                }
+                else if (e.EventType == InputEventType.Released)
+                {
+                    Message msg = new Message(MessageType.Stand, this, m_player);
+                    MessageDispatcher.Get().SendMessage(msg);
+                }
+            }
+            else if (e.Button == Buttons.LeftThumbstickRight)
+            {
+                if (e.EventType == InputEventType.Pressed)
+                {
+                    Message msg = new Message(MessageType.MoveRight, this, m_player);
+                    MessageDispatcher.Get().SendMessage(msg);
+                }
+                else if (e.EventType == InputEventType.Released)
+                {
+                    Message msg = new Message(MessageType.Stand, this, m_player);
+                    MessageDispatcher.Get().SendMessage(msg);
+                }
+            }
+            
+            return true;
+        }
+
+        bool OnKeyboardDirectionEvent(KeyboardEvent e)
+        {
+            /// todo design some way to map events to messages to avoid switch code like this
+            
+            // todo add some intelligence here to make sure that left and right keys are mutually exclusive
+            if (e.Key == Keys.Left)
+            {
+                if (e.EventType == InputEventType.Pressed)
+                {
+                    Message msg = new Message(MessageType.MoveLeft, this, m_player);
+                    MessageDispatcher.Get().SendMessage(msg);
+                }
+                else if (e.EventType == InputEventType.Released)
+                {
+                    Message msg = new Message(MessageType.Stand, this, m_player);
+                    MessageDispatcher.Get().SendMessage(msg);
+                }
+            }
+            else if (e.Key == Keys.Right)
+            {
+                if (e.EventType == InputEventType.Pressed)
+                {
+                    Message msg = new Message(MessageType.MoveRight, this, m_player);
+                    MessageDispatcher.Get().SendMessage(msg);
+                }
+                else if (e.EventType == InputEventType.Released)
+                {
+                    Message msg = new Message(MessageType.Stand, this, m_player);
+                    MessageDispatcher.Get().SendMessage(msg);
+                }
+            }
+
+            return true;
+        }
+
+        bool OnGamePadButtonEvent(GamePadButtonEvent e)
+        {
+            if (e.Button == Buttons.B)
+            {
+                if (e.EventType == InputEventType.Pressed)
+                {
+                    // start jump
+                }
+                else if (e.EventType == InputEventType.Released)
+                {
+                    // end jump!
+                }
+            }
+
+            if ((e.Button == Buttons.Y) && (e.EventType == InputEventType.Pressed))
+            {
+                // Fire
+                Message msg = new Message(MessageType.FireWeapon, this, m_player);
+                MessageDispatcher.Get().SendMessage(msg);
+            }
+
+            return true;
+        }
+
+        bool OnKeyboardEvent(KeyboardEvent e)
+        {
+            // Jump!
+            if (e.Key == Keys.Space)
+            {
+                if (e.EventType == InputEventType.Pressed)
+                {
+                    // start jump
+                }
+                else if (e.EventType == InputEventType.Released)
+                {
+                    // end jump
+                }
+            }
+
+            if ((e.Key == Keys.F) && (e.EventType == InputEventType.Pressed))
+            {
+                // Fire
+                Message msg = new Message(MessageType.FireWeapon, this, m_player);
+                MessageDispatcher.Get().SendMessage(msg);
+            }
+
+            return true;
+        }
+
+
         public Camera2D Camera
         {
             get { return m_camera; }
@@ -212,6 +365,11 @@ namespace Ivy
         {
             get { return m_consoleString; }
             set { m_consoleString = value; }
+        }
+
+        public World World
+        {
+            get { return m_world; }
         }
     }
 }

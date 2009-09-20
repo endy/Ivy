@@ -5,15 +5,17 @@ using System.Text;
 
 namespace Ivy
 {
-    abstract class State
+    abstract public class State
     {
-        public State()
+        protected State()
         {
 
         }
 
-        public abstract void Enter(Entity e);
-        public abstract void Execute(Entity e);
-        public abstract void Exit(Entity e);
+        public abstract void Enter(Entity entity);
+        public abstract void Execute(Entity entity);
+        public abstract void Exit(Entity entity);
+
+        public abstract void HandleMessage(Entity entity, Message msg);
     }
 }
