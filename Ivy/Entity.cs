@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework;
 
 namespace Ivy
 {
-    public class Entity : Microsoft.Xna.Framework.GameComponent, IMessageReceiver
+    public class Entity : Microsoft.Xna.Framework.GameComponent, IMessageReceiver, IMessageSender
     {
         protected World m_world;        ///< Cache the World
         public Point Position { get; set; }
@@ -16,6 +16,8 @@ namespace Ivy
         public bool Moving { get; set; }
 
         protected Vector2 m_speed;
+
+        public Vector2 CurrentSpeed { get; set; }
 
         // TODO: query this in the jump state?
         //int jumpTime = 800;
@@ -37,7 +39,8 @@ namespace Ivy
 
             Moving = false;
 
-            m_speed = new Vector2(0.4f, 0f);
+            m_speed = new Vector2(0.4f, 0.4f);
+            CurrentSpeed = Vector2.Zero;
 
             m_entityStateMgr = new StateMgr(this);
             m_entityStateMgr.Initialize();
@@ -60,11 +63,31 @@ namespace Ivy
 
             if (msg.Type == MessageType.MoveLeft)
             {
-                Direction = new Vector2(-1, Direction.Y);
+                Direction = new Vector2(-1f, Direction.Y);
+                CurrentSpeed = new Vector2(m_speed.X, CurrentSpeed.Y);
             }
             else if (msg.Type == MessageType.MoveRight)
             {
                 Direction = new Vector2(1f, Direction.Y);
+                CurrentSpeed = new Vector2(m_speed.X, CurrentSpeed.Y);
+            }
+            else if (msg.Type == MessageType.Stand)
+            {
+                CurrentSpeed = new Vector2(0f, CurrentSpeed.Y);
+            }
+            else if (msg.Type == MessageType.Jump)
+            {
+                Direction = new Vector2(Direction.X, -1f);
+                CurrentSpeed = new Vector2(CurrentSpeed.X, m_speed.Y);
+            }
+            else if (msg.Type == MessageType.Fall)
+            {
+                Direction = new Vector2(Direction.X, 1f);
+                CurrentSpeed = new Vector2(CurrentSpeed.X, m_speed.Y);
+            }
+            else if (msg.Type == MessageType.Land)
+            {
+                CurrentSpeed = new Vector2(CurrentSpeed.X, 0f);
             }
 
             // if moving message...update direction?
@@ -83,8 +106,8 @@ namespace Ivy
 
         private void UpdatePosition(GameTime gameTime)
         {
-            int dx = (int)(m_speed.X * Direction.X * gameTime.ElapsedGameTime.Milliseconds);
-            int dy = (int)(m_speed.Y * Direction.Y * gameTime.ElapsedGameTime.Milliseconds);
+            int dx = (int)(CurrentSpeed.X * Direction.X * gameTime.ElapsedGameTime.Milliseconds);
+            int dy = (int)(CurrentSpeed.Y * Direction.Y * gameTime.ElapsedGameTime.Milliseconds);
 
             Position = new Point(Position.X + dx, Position.Y + dy);
         }

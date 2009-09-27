@@ -63,20 +63,35 @@ namespace Ivy
 
             Texture2D samusMap = Game.Content.Load<Texture2D>("Sprites\\samusMap");
 
-            IAnimGraphNode samusTurnLeftNode = m_animGraph.AddTransitionAnim(
-                new AnimatedSprite(IvyGame.Get(), samusMap, samusTurnRect, 3, 24f));
-            samusTurnLeftNode.Anim.Initialize();
-            samusTurnLeftNode.Anim.Loop = false;
-            samusTurnLeftNode.Anim.Scale = new Vector2(3.0f, 3.0f);
-            samusTurnLeftNode.Anim.Name = "SamusTurnLeft";
+            AnimatedSprite samusTurnLeftAnim = new AnimatedSprite(IvyGame.Get(), samusMap, samusTurnRect, 3, 24f);
 
-            IAnimGraphNode samusTurnRightNode = m_animGraph.AddTransitionAnim(
-                new AnimatedSprite(IvyGame.Get(), samusMap, samusTurnRect, 3, 24f));
-            samusTurnRightNode.Anim.Initialize();
-            samusTurnRightNode.Anim.Loop = false;
-            samusTurnRightNode.Anim.Reverse = true;
-            samusTurnRightNode.Anim.Scale = new Vector2(3.0f, 3.0f);
-            samusTurnRightNode.Anim.Name = "SamusTurnRight";
+            IAnimGraphNode samusTurnLeftToWaitNode = m_animGraph.AddTransitionAnim(samusTurnLeftAnim);
+            samusTurnLeftToWaitNode.Anim.Initialize();
+            samusTurnLeftToWaitNode.Anim.Loop = false;
+            samusTurnLeftToWaitNode.Anim.Scale = new Vector2(3.0f, 3.0f);
+            samusTurnLeftToWaitNode.Anim.Name = "SamusTurnLeft";
+
+            AnimatedSprite samusTurnRightAnim = new AnimatedSprite(IvyGame.Get(), samusMap, samusTurnRect, 3, 24f);
+
+            IAnimGraphNode samusTurnRightToWaitNode = m_animGraph.AddTransitionAnim(samusTurnRightAnim);
+            samusTurnRightToWaitNode.Anim.Initialize();
+            samusTurnRightToWaitNode.Anim.Loop = false;
+            samusTurnRightToWaitNode.Anim.Reverse = true;
+            samusTurnRightToWaitNode.Anim.Scale = new Vector2(3.0f, 3.0f);
+            samusTurnRightToWaitNode.Anim.Name = "SamusTurnRight";
+
+            IAnimGraphNode samusTurnLeftToRunNode = m_animGraph.AddTransitionAnim(samusTurnLeftAnim);
+            samusTurnLeftToRunNode.Anim.Initialize();
+            samusTurnLeftToRunNode.Anim.Loop = false;
+            samusTurnLeftToRunNode.Anim.Scale = new Vector2(3.0f, 3.0f);
+            samusTurnLeftToRunNode.Anim.Name = "SamusTurnLeft";
+
+            IAnimGraphNode samusTurnRightToRunNode = m_animGraph.AddTransitionAnim(samusTurnRightAnim);
+            samusTurnRightToRunNode.Anim.Initialize();
+            samusTurnRightToRunNode.Anim.Loop = false;
+            samusTurnRightToRunNode.Anim.Reverse = true;
+            samusTurnRightToRunNode.Anim.Scale = new Vector2(3.0f, 3.0f);
+            samusTurnRightToRunNode.Anim.Name = "SamusTurnRight";
 
             IAnimGraphNode samusWaitLeftNode = m_animGraph.AddAnim(
                 new AnimatedSprite(IvyGame.Get(), samusMap, samusWaitLeftRect, 5, 6f));
@@ -90,17 +105,11 @@ namespace Ivy
             samusWaitRightNode.Anim.Scale = new Vector2(3.0f, 3.0f);
             samusWaitRightNode.Anim.Name = "SamusWaitRight";
 
-            m_animGraph.AddTransition(samusWaitRightNode, MessageType.MoveLeft, samusTurnLeftNode, samusWaitLeftNode);
-            m_animGraph.AddTransition(samusWaitLeftNode, MessageType.MoveRight, samusTurnRightNode, samusWaitRightNode);
-
             IAnimGraphNode samusRunLeftNode = m_animGraph.AddAnim(
                 new AnimatedSprite(IvyGame.Get(), samusMap, samusRunLeftRect, 10, 18f));
             samusRunLeftNode.Anim.Initialize();
             samusRunLeftNode.Anim.Scale = new Vector2(3f, 3f);
             samusRunLeftNode.Anim.Name = "SamusRunLeft";
-
-            m_animGraph.AddTransition(samusWaitLeftNode, MessageType.MoveLeft, samusRunLeftNode);
-            m_animGraph.AddTransition(samusRunLeftNode, MessageType.Stand, samusWaitLeftNode);
 
             IAnimGraphNode samusRunRightNode = m_animGraph.AddAnim(
                 new AnimatedSprite(IvyGame.Get(), samusMap, samusRunRightRect, 10, 18f));
@@ -108,28 +117,43 @@ namespace Ivy
             samusRunRightNode.Anim.Scale = new Vector2(3f, 3f);
             samusRunRightNode.Anim.Name = "SamusRunRight";
 
+            // Stand & Run code
+            m_animGraph.AddTransition(samusWaitLeftNode, MessageType.MoveLeft, samusRunLeftNode);
+            m_animGraph.AddTransition(samusRunLeftNode, MessageType.Stand, samusWaitLeftNode);
+
             m_animGraph.AddTransition(samusWaitRightNode, MessageType.MoveRight, samusRunRightNode);
             m_animGraph.AddTransition(samusRunRightNode, MessageType.Stand, samusWaitRightNode);
 
-            m_animGraph.AddTransition(samusRunLeftNode, MessageType.MoveRight, samusTurnRightNode, samusRunRightNode);
-            m_animGraph.AddTransition(samusRunRightNode, MessageType.MoveLeft, samusTurnLeftNode, samusRunLeftNode);
+            // Turn Code
+
+            // Turning Left to Right
+            m_animGraph.AddTransition(samusWaitLeftNode, MessageType.MoveRight, samusTurnRightToRunNode, samusRunRightNode);
+            m_animGraph.AddTransition(samusRunLeftNode, MessageType.MoveRight, samusTurnRightToRunNode, samusRunRightNode);
+            m_animGraph.AddTransition(samusTurnRightToRunNode, MessageType.Stand, samusTurnRightToWaitNode, samusWaitRightNode);
+            
+            // Turning Right to Left            
+            m_animGraph.AddTransition(samusWaitRightNode, MessageType.MoveLeft, samusTurnLeftToRunNode, samusRunLeftNode);
+            m_animGraph.AddTransition(samusRunRightNode, MessageType.MoveLeft, samusTurnLeftToRunNode, samusRunLeftNode);
+            m_animGraph.AddTransition(samusTurnLeftToRunNode, MessageType.Stand, samusTurnLeftToWaitNode, samusWaitLeftNode);
+            
+            // Change turn direction           
+            m_animGraph.AddTransition(samusTurnLeftToRunNode, MessageType.MoveRight, samusTurnRightToRunNode);
+            m_animGraph.AddTransition(samusTurnRightToRunNode, MessageType.MoveLeft, samusTurnLeftToRunNode);
+
+            m_animGraph.AddTransition(samusTurnLeftToWaitNode, MessageType.MoveRight, samusTurnRightToRunNode);
+            m_animGraph.AddTransition(samusTurnRightToWaitNode, MessageType.MoveLeft, samusTurnLeftToRunNode);
+
 
             IAnimGraphNode samusJumpRollLeftNode = m_animGraph.AddAnim(
                 new AnimatedSprite(IvyGame.Get(), samusMap, samusJumpRollLeftRect, 8, 16f));
             samusJumpRollLeftNode.Anim.Initialize();
             samusJumpRollLeftNode.Anim.Scale = new Vector2(3f, 3f);
 
-            m_animGraph.AddTransition(samusRunLeftNode, MessageType.Jump, samusJumpRollLeftNode);
 
             IAnimGraphNode samusJumpRollRightNode = m_animGraph.AddAnim(
                 new AnimatedSprite(IvyGame.Get(), samusMap, samusJumpRollRightRect, 8, 16f));
             samusJumpRollRightNode.Anim.Initialize();
             samusJumpRollRightNode.Anim.Scale = new Vector2(3f, 3f);
-
-            m_animGraph.AddTransition(samusRunRightNode, MessageType.Jump, samusJumpRollRightNode);
-
-            m_animGraph.AddTransition(samusJumpRollLeftNode, MessageType.MoveRight, samusJumpRollRightNode);
-            m_animGraph.AddTransition(samusJumpRollRightNode, MessageType.MoveLeft, samusJumpRollLeftNode);
 
             IAnimGraphNode samusJumpAscendLeftNode = m_animGraph.AddAnim(
                 new AnimatedSprite(IvyGame.Get(), samusMap, samusJumpAscendLeftRect, 2, 16f));
@@ -137,15 +161,11 @@ namespace Ivy
             samusJumpAscendLeftNode.Anim.Loop = false;
             samusJumpAscendLeftNode.Anim.Scale = new Vector2(3.0f, 3.0f);
 
-            m_animGraph.AddTransition(samusWaitLeftNode, MessageType.Jump, samusJumpAscendLeftNode);
-
             IAnimGraphNode samusJumpAscendRightNode = m_animGraph.AddAnim(
                 new AnimatedSprite(IvyGame.Get(), samusMap, samusJumpAscendRightRect, 2, 16f));
             samusJumpAscendRightNode.Anim.Initialize();
             samusJumpAscendRightNode.Anim.Loop = false;
             samusJumpAscendRightNode.Anim.Scale = new Vector2(3.0f, 3.0f);
-
-            m_animGraph.AddTransition(samusWaitRightNode, MessageType.Jump, samusJumpAscendRightNode);
 
             IAnimGraphNode samusJumpDescendLeftNode = m_animGraph.AddAnim(
                 new AnimatedSprite(IvyGame.Get(), samusMap, samusJumpDescendLeftRect, 4, 16f));
@@ -153,15 +173,11 @@ namespace Ivy
             samusJumpDescendLeftNode.Anim.Loop = false;
             samusJumpDescendLeftNode.Anim.Scale = new Vector2(3.0f, 3.0f);
 
-            m_animGraph.AddTransition(samusJumpAscendLeftNode, MessageType.Fall, samusJumpDescendLeftNode);
-
             IAnimGraphNode samusJumpDescendRightNode = m_animGraph.AddAnim(
                 new AnimatedSprite(IvyGame.Get(), samusMap, samusJumpDescendRightRect, 4, 16f));
             samusJumpDescendRightNode.Anim.Initialize();
             samusJumpDescendRightNode.Anim.Loop = false;
             samusJumpDescendRightNode.Anim.Scale = new Vector2(3.0f, 3.0f);
-
-            m_animGraph.AddTransition(samusJumpAscendRightNode, MessageType.Fall, samusJumpDescendRightNode);
 
             IAnimGraphNode samusJumpLandLeftNode = m_animGraph.AddTransitionAnim(
                 new AnimatedSprite(IvyGame.Get(), samusMap, samusJumpLandLeftRect, 2, 16f));
@@ -175,12 +191,32 @@ namespace Ivy
             samusJumpLandRightNode.Anim.Loop = false;
             samusJumpLandRightNode.Anim.Scale = new Vector2(3.0f, 3.0f);
 
-            m_animGraph.AddTransition(samusJumpRollLeftNode, MessageType.Land, samusJumpLandLeftNode);
-            m_animGraph.AddTransition(samusJumpRollRightNode, MessageType.Land, samusJumpLandRightNode);
+            // Jump Ascend & Descend
+            m_animGraph.AddTransition(samusRunLeftNode, MessageType.Jump, samusJumpRollLeftNode);
+            m_animGraph.AddTransition(samusRunRightNode, MessageType.Jump, samusJumpRollRightNode);
 
-            m_animGraph.AddTransition(samusJumpDescendLeftNode, MessageType.Land, samusJumpLandLeftNode, samusWaitLeftNode);
-            m_animGraph.AddTransition(samusJumpDescendRightNode, MessageType.Land, samusJumpLandRightNode, samusWaitRightNode);
+            m_animGraph.AddTransition(samusWaitLeftNode, MessageType.Jump, samusJumpAscendLeftNode);
+            m_animGraph.AddTransition(samusWaitRightNode, MessageType.Jump, samusJumpAscendRightNode);
 
+            m_animGraph.AddTransition(samusJumpAscendLeftNode, MessageType.Fall, samusJumpDescendLeftNode);
+            m_animGraph.AddTransition(samusJumpAscendRightNode, MessageType.Fall, samusJumpDescendRightNode);
+
+            // Jump Turn
+            m_animGraph.AddTransition(samusJumpRollLeftNode, MessageType.MoveRight, samusJumpRollRightNode);
+            m_animGraph.AddTransition(samusJumpRollRightNode, MessageType.MoveLeft, samusJumpRollLeftNode);
+            m_animGraph.AddTransition(samusJumpAscendLeftNode, MessageType.MoveRight, samusJumpAscendRightNode);
+            m_animGraph.AddTransition(samusJumpAscendRightNode, MessageType.MoveLeft, samusJumpAscendLeftNode);
+            m_animGraph.AddTransition(samusJumpDescendLeftNode, MessageType.MoveRight, samusJumpDescendRightNode);
+            m_animGraph.AddTransition(samusJumpDescendRightNode, MessageType.MoveLeft, samusJumpDescendLeftNode);
+
+            // Land
+            m_animGraph.AddTransition(samusJumpRollLeftNode, MessageType.Land, samusJumpLandLeftNode, samusRunLeftNode);
+            m_animGraph.AddTransition(samusJumpRollRightNode, MessageType.Land, samusJumpLandRightNode, samusRunRightNode);
+
+            m_animGraph.AddTransition(samusJumpDescendLeftNode, MessageType.Land, samusJumpLandLeftNode, samusRunLeftNode);
+            m_animGraph.AddTransition(samusJumpDescendRightNode, MessageType.Land, samusJumpLandRightNode, samusRunRightNode);
+            
+            
             m_animGraph.SetCurrentNode(samusWaitRightNode);            
 
             base.Initialize();

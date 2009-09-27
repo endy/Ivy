@@ -28,12 +28,28 @@ namespace Ivy
             entity.Moving = true;
         }
 
+        public override void Execute(Entity entity)
+        {
+            if (entity.Position.Y == 250)
+            {
+                Message msg = new Message(MessageType.Land, entity, entity);
+                MessageDispatcher.Get().SendMessage(msg);
+            }
+        }
+
         public override void HandleMessage(Entity entity, Message msg)
         {
             switch (msg.Type)
             {
                 case MessageType.Land:
-                    entity.ChangeState(EntityStateStand.Get());
+                    if (entity.CurrentSpeed.X != 0f)
+                    {
+                        entity.ChangeState(EntityStateRun.Get());
+                    }
+                    else
+                    {
+                        entity.ChangeState(EntityStateStand.Get());
+                    }
                     break;
                 default:
                     // TODO: error!
