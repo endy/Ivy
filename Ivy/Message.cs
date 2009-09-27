@@ -14,6 +14,9 @@ namespace Ivy
         Fall,
         Land,
         FireWeapon,
+
+        // Test Messages
+        ActivateSkree,
     }
 
     public class Message

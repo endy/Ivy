@@ -104,12 +104,12 @@ namespace Ivy
 
         public void Update(Point focusPos)
         {
-            ///@todo Determine focus point in camera? or in game logic?
-            ///      because focus point changes based on character direction!
-            ///      Probably makes sense to have the camera be a little smarter 
-            ///      (i.e. also knows character direction)
+            // TODO: Determine focus point in camera? or in game logic?
+            //       because focus point changes based on character direction!
+            //       Probably makes sense to have the camera be a little smarter 
+            //       (i.e. also knows character direction)
 
-            ///@todo Clamp Focus To World Bounds?            
+            // TODO: Clamp Focus To World Bounds?            
 
             // center always
             m_cameraRect.X = focusPos.X - (m_cameraBounds.Width / 2);

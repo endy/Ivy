@@ -30,7 +30,7 @@ namespace Ivy
         public VariableInputType InputType { get; private set; }
         public Vector2 Value { get; private set; }
 
-        /// todo: put DX/DY value in to show change relative to last position
+        // TODO:  put DX/DY value in to show change relative to last position
 
         public VariableInputEvent(InputEventType eventType, VariableInputType inputType, Vector2 value)
         {

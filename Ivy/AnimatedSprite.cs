@@ -14,6 +14,9 @@ namespace Ivy
 
         public AnimatedSpriteEvent OnAnimEnd;
 
+        // temp data
+        public string Name { get; set; }
+
         // Component Data
         IvyGame m_game;
 
@@ -55,6 +58,8 @@ namespace Ivy
             m_reverse = false;
 
             m_scale = new Vector2(1.0f, 1.0f);
+
+            Name = "Animation";
         }
 
         public override void Initialize()

@@ -80,17 +80,18 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AnimTree.cs" />
+    <Compile Include="AnimGraph.cs" />
     <Compile Include="Box.cs" />
     <Compile Include="Camera2D.cs" />
     <Compile Include="EntityStateFall.cs" />
     <Compile Include="EntityStateJump.cs" />
-    <Compile Include="EntityStateMove.cs" />
+    <Compile Include="EntityStateRun.cs" />
     <Compile Include="EntityStateStand.cs" />
     <Compile Include="InputEvent.cs" />
     <Compile Include="InputMgr.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="MessageDispatcher.cs" />
+    <Compile Include="Skree.cs" />
     <Compile Include="StateMgr.cs" />
     <Compile Include="Entity.cs" />
     <Compile Include="Player.cs" />

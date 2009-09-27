@@ -47,8 +47,6 @@ namespace Ivy
         /// </summary>
         public override void Initialize()
         {
-            // TODO: Add your initialization code here
-
             InitializeVertexes();
             InitializeTransform();
             InitializeEffect();
@@ -111,9 +109,6 @@ namespace Ivy
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         public override void Update(GameTime gameTime)
         {
-            // TODO: Add your update code here
-
-
             Rectangle cameraRect = ivyGame.Camera.CameraRect;
 
 

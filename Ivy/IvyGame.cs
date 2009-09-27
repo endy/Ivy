@@ -31,6 +31,9 @@ namespace Ivy
         private Camera2D m_camera;
         private Player m_player;
 
+        private Skree m_skreeOne;
+        private Skree m_skreeTwo;
+
         GamePadState previousGamePadState = GamePad.GetState(PlayerIndex.One);
         KeyboardState previousKeyboardState = Keyboard.GetState();
 
@@ -60,6 +63,8 @@ namespace Ivy
             m_camera = new Camera2D(m_world.Bounds, screenRect);
 
             m_player = new Player(this);
+            m_skreeOne = new Skree(this);
+            m_skreeTwo = new Skree(this);
 
             box = new Box(this, new Rectangle(0, 0, 200, 200));           
         }
@@ -82,15 +87,22 @@ namespace Ivy
         /// </summary>
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
-
             m_player.Initialize();
+            m_player.Position = new Point(100, 250);
+
+            m_skreeOne.Initialize();
+            m_skreeOne.Position = new Point(100, 100);
+
+            m_skreeTwo.Initialize();
+            m_skreeTwo.Position = new Point(300, 100);
+
             box.Initialize();
 
             animTestPattern = Content.Load<Texture2D>("Sprites\\animTestPattern");
             testPattern = new AnimatedSprite(this, animTestPattern, new Rectangle(0, 0, 84, 50), 3, 0.5f);
             testPattern.Initialize();
 
+    
             // Movement
             InputMgr.Get().RegisterGamePadButton(Buttons.LeftThumbstickLeft, OnGamePadDirectionEvent);
             InputMgr.Get().RegisterGamePadButton(Buttons.LeftThumbstickRight, OnGamePadDirectionEvent);
@@ -116,6 +128,8 @@ namespace Ivy
             InputMgr.Get().RegisterKey(Keys.F, OnKeyboardEvent);                    // Fire
             InputMgr.Get().RegisterKey(Keys.Space, OnKeyboardEvent);                // Jump
 
+            // Debug Actions
+            InputMgr.Get().RegisterGamePadButton(Buttons.X, DebugOnGamePadButtonEvent);
 
             ConsoleStr = "\n";
 
@@ -130,8 +144,6 @@ namespace Ivy
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            // TODO: use this.Content to load your game content here
 
             background = Content.Load<Texture2D>("Sprites\\environment");
         
@@ -161,8 +173,6 @@ namespace Ivy
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
 
-            // TODO: Add your update logic here
-
             // Send any messages that were queued last update
             MessageDispatcher.Get().Update(gameTime);
 
@@ -173,7 +183,7 @@ namespace Ivy
             // focus pos shouldn't be character position
             // it should also be calculated by camera, most like
             Point focusPos = new Point(m_player.Position.X, m_player.Position.Y);
-            m_camera.Update(focusPos);
+            //m_camera.Update(focusPos);
 
             // Camera Info
             Rectangle cameraRect = m_camera.CameraRect;     // camera rect in world space
@@ -185,6 +195,9 @@ namespace Ivy
             box.Update(gameTime);
 
             testPattern.Update(gameTime);
+
+            m_skreeOne.Update(gameTime);
+            m_skreeTwo.Update(gameTime);
 
             base.Update(gameTime);
         }
@@ -229,9 +242,12 @@ namespace Ivy
 
             //testPattern.Draw(spriteBatch, new Point(10, 10));
 
+            m_skreeOne.Draw(spriteBatch);
+            m_skreeTwo.Draw(spriteBatch);
+
             spriteBatch.End();
 
-            box.Draw(gameTime);
+            //box.Draw(gameTime);
             
 
             base.Draw(gameTime);
@@ -240,29 +256,39 @@ namespace Ivy
 
         bool OnGamePadDirectionEvent(GamePadButtonEvent e)
         {
-            /// todo design some way to map events to messages to avoid switch code like this
-            if (e.Button == Buttons.LeftThumbstickLeft)
+            // TODO: design some way to map events to messages to avoid switch code like this
+            if ((e.Button == Buttons.LeftThumbstickLeft) ||
+                (e.Button == Buttons.DPadLeft))
             {
                 if (e.EventType == InputEventType.Pressed)
                 {
                     Message msg = new Message(MessageType.MoveLeft, this, m_player);
                     MessageDispatcher.Get().SendMessage(msg);
                 }
-                else if (e.EventType == InputEventType.Released)
+                else if ((e.EventType == InputEventType.Released) &&
+                         (InputMgr.Get().GamePadState.IsButtonUp(Buttons.LeftThumbstickRight)) &&
+                         (InputMgr.Get().GamePadState.IsButtonUp(Buttons.DPadRight)))
                 {
+                    // TODO: need a better way of handling mutually exclusive button inputs
+
                     Message msg = new Message(MessageType.Stand, this, m_player);
                     MessageDispatcher.Get().SendMessage(msg);
                 }
             }
-            else if (e.Button == Buttons.LeftThumbstickRight)
+            else if ((e.Button == Buttons.LeftThumbstickRight) ||
+                     (e.Button == Buttons.DPadRight))
             {
                 if (e.EventType == InputEventType.Pressed)
                 {
                     Message msg = new Message(MessageType.MoveRight, this, m_player);
                     MessageDispatcher.Get().SendMessage(msg);
                 }
-                else if (e.EventType == InputEventType.Released)
+                else if ((e.EventType == InputEventType.Released) &&
+                         (InputMgr.Get().GamePadState.IsButtonUp(Buttons.LeftThumbstickLeft)) &&
+                         (InputMgr.Get().GamePadState.IsButtonUp(Buttons.DPadLeft)))
                 {
+                    // TODO: need a better way of handling mutually exclusive button inputs
+
                     Message msg = new Message(MessageType.Stand, this, m_player);
                     MessageDispatcher.Get().SendMessage(msg);
                 }
@@ -273,9 +299,9 @@ namespace Ivy
 
         bool OnKeyboardDirectionEvent(KeyboardEvent e)
         {
-            /// todo design some way to map events to messages to avoid switch code like this
-            
-            // todo add some intelligence here to make sure that left and right keys are mutually exclusive
+            // TODO: design some way to map events to messages to avoid switch code like this
+
+            // TODO:  add some intelligence here to make sure that left and right keys are mutually exclusive
             if (e.Key == Keys.Left)
             {
                 if (e.EventType == InputEventType.Pressed)
@@ -313,10 +339,14 @@ namespace Ivy
                 if (e.EventType == InputEventType.Pressed)
                 {
                     // start jump
+                    Message msg = new Message(MessageType.Jump, this, m_player);
+                    MessageDispatcher.Get().SendMessage(msg);
                 }
                 else if (e.EventType == InputEventType.Released)
                 {
                     // end jump!
+                    Message msg = new Message(MessageType.Fall, this, m_player);
+                    MessageDispatcher.Get().SendMessage(msg);
                 }
             }
 
@@ -325,6 +355,27 @@ namespace Ivy
                 // Fire
                 Message msg = new Message(MessageType.FireWeapon, this, m_player);
                 MessageDispatcher.Get().SendMessage(msg);
+            }
+
+            return true;
+        }
+
+        bool DebugOnGamePadButtonEvent(GamePadButtonEvent e)
+        {
+            if (e.Button == Buttons.X)
+            {
+                if (e.EventType == InputEventType.Pressed)
+                {
+                    Message msg = new Message(MessageType.ActivateSkree, this, m_skreeOne);
+                    MessageDispatcher.Get().SendMessage(msg);
+
+                    ConsoleStr = "";
+                }
+                else if (e.EventType == InputEventType.Released)
+                {
+                    Message msg = new Message(MessageType.ActivateSkree, this, m_skreeTwo);
+                    MessageDispatcher.Get().SendMessage(msg);
+                }
             }
 
             return true;

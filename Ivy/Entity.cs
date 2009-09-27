@@ -10,14 +10,14 @@ namespace Ivy
     public class Entity : Microsoft.Xna.Framework.GameComponent, IMessageReceiver
     {
         protected World m_world;        ///< Cache the World
-        public Point Position { get; protected set; }
-        public Vector2 Direction { get; protected set; }
+        public Point Position { get; set; }
+        public Vector2 Direction { get; set; }
 
         public bool Moving { get; set; }
 
         protected Vector2 m_speed;
 
-        ///todo query this in the jump state?
+        // TODO: query this in the jump state?
         //int jumpTime = 800;
         //int jumpElapsedTime = 0;
 
@@ -37,7 +37,7 @@ namespace Ivy
 
             Moving = false;
 
-            m_speed = new Vector2(0.1f, 0f);
+            m_speed = new Vector2(0.4f, 0f);
 
             m_entityStateMgr = new StateMgr(this);
             m_entityStateMgr.Initialize();
@@ -45,18 +45,17 @@ namespace Ivy
 
         public override void Update(GameTime gameTime)
         {
+            base.Update(gameTime);
+
             m_entityStateMgr.Update();
 
             if (Moving)
             {
                 UpdatePosition(gameTime);
             }
-
-            base.Update(gameTime);
         }
         public virtual void ReceiveMessage(Message msg)
         {
-            IvyGame.Get().ConsoleStr += msg.Type + "\n";
             m_entityStateMgr.HandleMessage(msg);
 
             if (msg.Type == MessageType.MoveLeft)
@@ -77,9 +76,9 @@ namespace Ivy
         {
             m_entityStateMgr.ChangeState(nextState);
 
-            // todo update entity properties based on new state
-            //      or should this be in a seperate entity method that the state calls?
-            //      does it matter?  -- maybe it does -- so the state has more 'control' over the entity
+            // TODO: update entity properties based on new state
+            //       or should this be in a seperate entity method that the state calls?
+            //       does it matter?  -- maybe it does -- so the state has more 'control' over the entity
         }
 
         private void UpdatePosition(GameTime gameTime)

@@ -3,22 +3,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using Microsoft.Xna.Framework;
+
 namespace Ivy
 {
-    class EntityStateFall : State
+    class EntityStateRun : State
     {
-        private static EntityStateFall m_instance = null;
+        private static EntityStateRun m_instance = null;
 
-        private EntityStateFall()
+        private EntityStateRun()
         {
 
         }
 
-        static public EntityStateFall Get()
+        public static EntityStateRun Get()
         {
             if (m_instance == null)
             {
-                m_instance = new EntityStateFall();
+                m_instance = new EntityStateRun();
             }
             return m_instance;
         }
@@ -32,8 +34,14 @@ namespace Ivy
         {
             switch (msg.Type)
             {
-                case MessageType.Land:
+                case MessageType.Stand:
                     entity.ChangeState(EntityStateStand.Get());
+                    break;
+                case MessageType.Jump:
+                    entity.ChangeState(EntityStateJump.Get());
+                    break;
+                case MessageType.Fall:
+                    entity.ChangeState(EntityStateFall.Get());
                     break;
                 default:
                     // TODO: error!
