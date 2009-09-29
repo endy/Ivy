@@ -3,7 +3,7 @@ Short-term TODOs:
 
 Rename AnimatedSprite to Animation (it could handle many animations)
 
-
+Switch git to something other than unix LF 
 
 
 
