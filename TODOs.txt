@@ -1,14 +1,27 @@
 
-Short-term TODOs:
+TODOs:
+
+-allow for different transition endpoints by msg type
+
+-World collisions
+-collision between entities
+
+-Room transition on collsion with door region?
+
+-Weapon projectiles at correct offset
+-projectiles collision with objects
+
+-Camera interpolation
+-Add AnimGraph visualization
+
+Trivialities:
 
 Rename AnimatedSprite to Animation (it could handle many animations)
 
 
-
-
-
 Niceties:
 
+Unserialization of game elements from XML to game objects
 Cut-scene support
 Debug Console (possibly with input feature)
 XML State Loading + Sprite Management
