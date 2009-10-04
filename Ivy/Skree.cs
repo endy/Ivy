@@ -56,16 +56,16 @@ namespace Ivy
             m_animGraph.Update(gameTime);
         }
 
-        public void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch spriteBatch)
         {
-            //m_animGraph.Draw(spriteBatch);
+            m_animGraph.Draw(spriteBatch);
         }
 
         public override void ReceiveMessage(Message msg)
         {
             base.ReceiveMessage(msg);
 
-            //m_animGraph.ReceiveMessage(msg);
+            m_animGraph.ReceiveMessage(msg);
         }
     }
 }

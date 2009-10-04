@@ -25,48 +25,20 @@ namespace Ivy
         private SpriteFont consoleFont;
         private Vector2 consolePos;
 
-        Texture2D background;
-
         private World m_world;
         private Camera2D m_camera;
-        private Player m_player;
-
-        private Skree m_skreeOne;
-        private Skree m_skreeTwo;
-
-        GamePadState previousGamePadState = GamePad.GetState(PlayerIndex.One);
-        KeyboardState previousKeyboardState = Keyboard.GetState();
-
-        // prototype vars
-        Box box;
 
         private string m_consoleString;
 
-        Texture2D animTestPattern;
-        AnimatedSprite testPattern;
-
         private static IvyGame m_instance = null;
+
+        private Player m_playerOne;
 
         private IvyGame()
         {
+            // Move this back to initialize
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
-
-            Rectangle worldBounds = new Rectangle(0, 0, 512, 192);
-
-            m_world = new World(worldBounds);
-            m_world.Initialize();
-
-            int width = 192 * (800 / 600);
-            Rectangle screenRect = new Rectangle(0, 0, width, 192);
-
-            m_camera = new Camera2D(m_world.Bounds, screenRect);
-
-            m_player = new Player(this);
-            m_skreeOne = new Skree(this);
-            m_skreeTwo = new Skree(this);
-
-            box = new Box(this, new Rectangle(0, 0, 200, 200));           
         }
         
         public static IvyGame Get()
@@ -87,21 +59,39 @@ namespace Ivy
         /// </summary>
         protected override void Initialize()
         {
-            m_player.Initialize();
-            m_player.Position = new Point(100, 250);
+            // TODO: Find out if components need to be individually initialized here,
+            //       XNA may provide a way of doing this.
 
-            m_skreeOne.Initialize();
-            m_skreeOne.Position = new Point(100, 100);
+            // Build World & Rooms
+            m_world = new World();
 
-            m_skreeTwo.Initialize();
-            m_skreeTwo.Position = new Point(300, 100);
+            Rectangle roomBounds = new Rectangle(0, 0, 512, 192);
+            Room mainRoom = new Room(m_world, roomBounds);
+            mainRoom.Initialize();
 
-            box.Initialize();
+            // Add Room Entities
+            Skree skree = new Skree(this);
+            skree.Initialize();
+            skree.Position = new Point(100, 100);
+            mainRoom.AddEntity(skree);
 
-            animTestPattern = Content.Load<Texture2D>("Sprites\\animTestPattern");
-            testPattern = new AnimatedSprite(this, animTestPattern, new Rectangle(0, 0, 84, 50), 3, 0.5f);
-            testPattern.Initialize();
+            skree = new Skree(this);
+            skree.Initialize();
+            skree.Position = new Point(300, 100);
+            mainRoom.AddEntity(skree);
 
+            m_world.SetCurrentRoom(mainRoom);
+
+            // Add Player
+            m_playerOne = new Player(this);
+            m_playerOne.Initialize();
+            m_world.AddPlayer(m_playerOne);
+
+            // Create Camera
+            int width = 192 * (800 / 600);
+            Rectangle screenRect = new Rectangle(0, 0, width, 192);
+
+            m_camera = new Camera2D(m_world.GetCurrentRoom().Bounds, screenRect);
     
             // Movement
             InputMgr.Get().RegisterGamePadButton(Buttons.LeftThumbstickLeft, OnGamePadDirectionEvent);
@@ -133,6 +123,7 @@ namespace Ivy
 
             ConsoleStr = "\n";
 
+            // Initialize components
             base.Initialize();
         }
 
@@ -144,8 +135,6 @@ namespace Ivy
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            background = Content.Load<Texture2D>("Sprites\\environment");
         
             consoleFont = Content.Load<SpriteFont>("Fonts\\Console");
             consolePos = new Vector2(0, 100);
@@ -173,31 +162,19 @@ namespace Ivy
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
 
-            // Send any messages that were queued last update
+            // Dispatch queued messages
             MessageDispatcher.Get().Update(gameTime);
 
+            // Input
             InputMgr.Get().Update();
 
-            m_player.Update(gameTime);
+            // Update World
+            m_world.Update(gameTime);
 
-            // focus pos shouldn't be character position
-            // it should also be calculated by camera, most like
-            Point focusPos = new Point(m_player.Position.X, m_player.Position.Y);
-            //m_camera.Update(focusPos);
+            // Update Camera based on Player Position
+            m_camera.Update(m_playerOne.Position);
 
-            // Camera Info
-            Rectangle cameraRect = m_camera.CameraRect;     // camera rect in world space
-
-            //ConsoleStr += "Camera Rect (X:" + cameraRect.X + " Y:" + cameraRect.Y + ")\n";
-            //ConsoleStr += "\n";
-
-
-            box.Update(gameTime);
-
-            testPattern.Update(gameTime);
-
-            m_skreeOne.Update(gameTime);
-            m_skreeTwo.Update(gameTime);
+            // Update Sound FX?
 
             base.Update(gameTime);
         }
@@ -218,17 +195,7 @@ namespace Ivy
             graphics.GraphicsDevice.SamplerStates[0].MinFilter = TextureFilter.Point;
             graphics.GraphicsDevice.SamplerStates[0].MipFilter = TextureFilter.Point;
 
-            // Draw Background
-            Rectangle cameraRect = m_camera.CameraRect;     // camera rect in world space
-
-            //int width = 192 * (800 / 600);
-
-            // bg: 512x192, tl=48,873
-            Rectangle srcRect = new Rectangle(48+cameraRect.X, 873+cameraRect.Y, cameraRect.Width, cameraRect.Height);
-            Rectangle dstRect = new Rectangle(0, 0, 800, 600);
-            spriteBatch.Draw(background, dstRect, srcRect, Color.White);
-
-            m_player.Draw(spriteBatch);
+            m_world.Draw(spriteBatch);
 
             // Draw Console           
             // Find the center of the string
@@ -240,19 +207,12 @@ namespace Ivy
             spriteBatch.DrawString(consoleFont, ConsoleStr, drawConsolePos, Color.LimeGreen,
                                    0, FontOrigin, 1.0f, SpriteEffects.None, 0.5f);
 
-            //testPattern.Draw(spriteBatch, new Point(10, 10));
-
-            m_skreeOne.Draw(spriteBatch);
-            m_skreeTwo.Draw(spriteBatch);
-
-            spriteBatch.End();
-
-            //box.Draw(gameTime);
-            
+            spriteBatch.End();           
 
             base.Draw(gameTime);
         }
 
+        #region Input Handlers
 
         bool OnGamePadDirectionEvent(GamePadButtonEvent e)
         {
@@ -262,7 +222,7 @@ namespace Ivy
             {
                 if (e.EventType == InputEventType.Pressed)
                 {
-                    Message msg = new Message(MessageType.MoveLeft, this, m_player);
+                    Message msg = new Message(MessageType.MoveLeft, this, m_playerOne);
                     MessageDispatcher.Get().SendMessage(msg);
                 }
                 else if ((e.EventType == InputEventType.Released) &&
@@ -271,7 +231,7 @@ namespace Ivy
                 {
                     // TODO: need a better way of handling mutually exclusive button inputs
 
-                    Message msg = new Message(MessageType.Stand, this, m_player);
+                    Message msg = new Message(MessageType.Stand, this, m_playerOne);
                     MessageDispatcher.Get().SendMessage(msg);
                 }
             }
@@ -280,7 +240,7 @@ namespace Ivy
             {
                 if (e.EventType == InputEventType.Pressed)
                 {
-                    Message msg = new Message(MessageType.MoveRight, this, m_player);
+                    Message msg = new Message(MessageType.MoveRight, this, m_playerOne);
                     MessageDispatcher.Get().SendMessage(msg);
                 }
                 else if ((e.EventType == InputEventType.Released) &&
@@ -289,7 +249,7 @@ namespace Ivy
                 {
                     // TODO: need a better way of handling mutually exclusive button inputs
 
-                    Message msg = new Message(MessageType.Stand, this, m_player);
+                    Message msg = new Message(MessageType.Stand, this, m_playerOne);
                     MessageDispatcher.Get().SendMessage(msg);
                 }
             }
@@ -306,12 +266,12 @@ namespace Ivy
             {
                 if (e.EventType == InputEventType.Pressed)
                 {
-                    Message msg = new Message(MessageType.MoveLeft, this, m_player);
+                    Message msg = new Message(MessageType.MoveLeft, this, m_playerOne);
                     MessageDispatcher.Get().SendMessage(msg);
                 }
                 else if (e.EventType == InputEventType.Released)
                 {
-                    Message msg = new Message(MessageType.Stand, this, m_player);
+                    Message msg = new Message(MessageType.Stand, this, m_playerOne);
                     MessageDispatcher.Get().SendMessage(msg);
                 }
             }
@@ -319,12 +279,12 @@ namespace Ivy
             {
                 if (e.EventType == InputEventType.Pressed)
                 {
-                    Message msg = new Message(MessageType.MoveRight, this, m_player);
+                    Message msg = new Message(MessageType.MoveRight, this, m_playerOne);
                     MessageDispatcher.Get().SendMessage(msg);
                 }
                 else if (e.EventType == InputEventType.Released)
                 {
-                    Message msg = new Message(MessageType.Stand, this, m_player);
+                    Message msg = new Message(MessageType.Stand, this, m_playerOne);
                     MessageDispatcher.Get().SendMessage(msg);
                 }
             }
@@ -339,13 +299,13 @@ namespace Ivy
                 if (e.EventType == InputEventType.Pressed)
                 {
                     // start jump
-                    Message msg = new Message(MessageType.Jump, this, m_player);
+                    Message msg = new Message(MessageType.Jump, this, m_playerOne);
                     MessageDispatcher.Get().SendMessage(msg);
                 }
                 else if (e.EventType == InputEventType.Released)
                 {
                     // end jump!
-                    Message msg = new Message(MessageType.Fall, this, m_player);
+                    Message msg = new Message(MessageType.Fall, this, m_playerOne);
                     MessageDispatcher.Get().SendMessage(msg);
                 }
             }
@@ -353,7 +313,7 @@ namespace Ivy
             if ((e.Button == Buttons.Y) && (e.EventType == InputEventType.Pressed))
             {
                 // Fire
-                Message msg = new Message(MessageType.FireWeapon, this, m_player);
+                Message msg = new Message(MessageType.FireWeapon, this, m_playerOne);
                 MessageDispatcher.Get().SendMessage(msg);
             }
 
@@ -362,22 +322,6 @@ namespace Ivy
 
         bool DebugOnGamePadButtonEvent(GamePadButtonEvent e)
         {
-            if (e.Button == Buttons.X)
-            {
-                if (e.EventType == InputEventType.Pressed)
-                {
-                    Message msg = new Message(MessageType.ActivateSkree, this, m_skreeOne);
-                    MessageDispatcher.Get().SendMessage(msg);
-
-                    ConsoleStr = "";
-                }
-                else if (e.EventType == InputEventType.Released)
-                {
-                    Message msg = new Message(MessageType.ActivateSkree, this, m_skreeTwo);
-                    MessageDispatcher.Get().SendMessage(msg);
-                }
-            }
-
             return true;
         }
 
@@ -399,13 +343,14 @@ namespace Ivy
             if ((e.Key == Keys.F) && (e.EventType == InputEventType.Pressed))
             {
                 // Fire
-                Message msg = new Message(MessageType.FireWeapon, this, m_player);
+                Message msg = new Message(MessageType.FireWeapon, this, m_playerOne);
                 MessageDispatcher.Get().SendMessage(msg);
             }
 
             return true;
         }
 
+        #endregion
 
         public Camera2D Camera
         {

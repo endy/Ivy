@@ -41,11 +41,11 @@ namespace Ivy
                     m_graph.SetCurrentNode(m_adjacentNodes[msg.Type]);
                     handledMessage = true;
 
-                    IvyGame.Get().ConsoleStr += " Handled Message: " + msg.Type + " in " + Anim.Name + "\n";
+                    //IvyGame.Get().ConsoleStr += " Handled Message: " + msg.Type + " in " + Anim.Name + "\n";
                 }
                 else
                 {
-                    IvyGame.Get().ConsoleStr += " Unhandled Message: " + msg.Type + " in " + Anim.Name + "\n";
+                    //IvyGame.Get().ConsoleStr += " Unhandled Message: " + msg.Type + " in " + Anim.Name + "\n";
                 }
 
                 return handledMessage;
@@ -166,7 +166,7 @@ namespace Ivy
             {
                 if (m_currentNode != null)
                 {
-                    IvyGame.Get().ConsoleStr += "Change Node: " + m_currentNode.Anim.Name + " -> " + node.Anim.Name + "\n";
+                    //IvyGame.Get().ConsoleStr += "Change Node: " + m_currentNode.Anim.Name + " -> " + node.Anim.Name + "\n";
                     m_currentNode.Anim.Stop();
 
                     // a hack for syncing animations

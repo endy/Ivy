@@ -91,6 +91,7 @@
     <Compile Include="InputMgr.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="MessageDispatcher.cs" />
+    <Compile Include="Room.cs" />
     <Compile Include="Skree.cs" />
     <Compile Include="StateMgr.cs" />
     <Compile Include="Entity.cs" />

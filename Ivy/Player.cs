@@ -236,7 +236,7 @@ namespace Ivy
 
         }
 
-        public void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch spriteBatch)
         {
             Rectangle cameraRect = IvyGame.Get().Camera.CameraRect;
 

@@ -59,13 +59,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Sprites\animTestPattern.png">
-      <Name>animTestPattern</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="Audio\weapon_fire.wav">
       <Name>weapon_fire</Name>
       <Importer>WavImporter</Importer>

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Ivy
 {
@@ -57,6 +58,12 @@ namespace Ivy
                 UpdatePosition(gameTime);
             }
         }
+
+        public virtual void Draw(SpriteBatch spriteBatch)
+        {
+
+        }
+
         public virtual void ReceiveMessage(Message msg)
         {
             m_entityStateMgr.HandleMessage(msg);
