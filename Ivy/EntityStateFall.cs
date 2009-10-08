@@ -30,7 +30,7 @@ namespace Ivy
 
         public override void Execute(Entity entity)
         {
-            if (entity.Position.Y == 250)
+            if (entity.Position.Y >= 100)
             {
                 Message msg = new Message(MessageType.Land, entity, entity);
                 MessageDispatcher.Get().SendMessage(msg);

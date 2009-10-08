@@ -65,20 +65,31 @@ namespace Ivy
             // Build World & Rooms
             m_world = new World();
 
-            Rectangle roomBounds = new Rectangle(0, 0, 512, 192);
-            Room mainRoom = new Room(m_world, roomBounds);
+
+            Texture2D roomBackground = IvyGame.Get().Content.Load<Texture2D>("Sprites\\environment");
+
+            Rectangle shaftRoomRect = new Rectangle(21, 94, 256, 705);
+            Rectangle openRoomRect = new Rectangle(329, 50, 512, 192);
+            Rectangle stairsRoomRect = new Rectangle(334, 333, 512, 448);
+            Rectangle labRoomRect = new Rectangle(48, 873, 512, 192);
+            Rectangle corridorRoomRect = new Rectangle(704, 690, 512, 192);
+            Rectangle encounterRoomRect = new Rectangle(565, 1133, 256, 192);
+
+            Rectangle roomBounds = new Rectangle(0, 0, shaftRoomRect.Width, shaftRoomRect.Height);
+            Room mainRoom = new Room(m_world, roomBounds, roomBackground, shaftRoomRect);
             mainRoom.Initialize();
 
             // Add Room Entities
-            Skree skree = new Skree(this);
-            skree.Initialize();
-            skree.Position = new Point(100, 100);
-            mainRoom.AddEntity(skree);
+            Skree skree = null;
 
-            skree = new Skree(this);
-            skree.Initialize();
-            skree.Position = new Point(300, 100);
-            mainRoom.AddEntity(skree);
+            Random r = new Random();
+            for (int i = 0; i < 0; i++)
+            {
+                skree = new Skree(this);
+                skree.Initialize();
+                skree.Position = new Point(r.Next() % 400, r.Next() % 150);
+                mainRoom.AddEntity(skree);
+            }
 
             m_world.SetCurrentRoom(mainRoom);
 
@@ -88,10 +99,13 @@ namespace Ivy
             m_world.AddPlayer(m_playerOne);
 
             // Create Camera
-            int width = 192 * (800 / 600);
-            Rectangle screenRect = new Rectangle(0, 0, width, 192);
+            Rectangle screenRect = new Rectangle(0, 0, 800, 600);
 
-            m_camera = new Camera2D(m_world.GetCurrentRoom().Bounds, screenRect);
+            int cameraHeight = 192; // roomBounds.Height;
+            int cameraWidth = 256; // (int)(roomBounds.Height * (screenRect.Width / (float)screenRect.Height));
+            Rectangle cameraBounds = new Rectangle(0, 0, cameraWidth, cameraHeight);
+
+            m_camera = new Camera2D(roomBounds, cameraBounds, screenRect);
     
             // Movement
             InputMgr.Get().RegisterGamePadButton(Buttons.LeftThumbstickLeft, OnGamePadDirectionEvent);
@@ -137,7 +151,7 @@ namespace Ivy
             spriteBatch = new SpriteBatch(GraphicsDevice);
         
             consoleFont = Content.Load<SpriteFont>("Fonts\\Console");
-            consolePos = new Vector2(0, 100);
+            consolePos = new Vector2(40, 50);
         }
 
         /// <summary>
@@ -156,7 +170,7 @@ namespace Ivy
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            //ConsoleStr = "\n\n"; 
+            ConsoleStr = "\n\n"; 
 
             // Allows the game to exit
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
@@ -172,7 +186,7 @@ namespace Ivy
             m_world.Update(gameTime);
 
             // Update Camera based on Player Position
-            m_camera.Update(m_playerOne.Position);
+            m_camera.Update(gameTime, m_playerOne);
 
             // Update Sound FX?
 
@@ -205,9 +219,11 @@ namespace Ivy
                         
             // Draw the string
             spriteBatch.DrawString(consoleFont, ConsoleStr, drawConsolePos, Color.LimeGreen,
-                                   0, FontOrigin, 1.0f, SpriteEffects.None, 0.5f);
+                                   0, FontOrigin, 1.2f, SpriteEffects.None, 0.5f);
 
-            spriteBatch.End();           
+            spriteBatch.End();
+
+            m_world.Draw3D();
 
             base.Draw(gameTime);
         }
@@ -333,10 +349,14 @@ namespace Ivy
                 if (e.EventType == InputEventType.Pressed)
                 {
                     // start jump
+                    Message msg = new Message(MessageType.Jump, this, m_playerOne);
+                    MessageDispatcher.Get().SendMessage(msg);
                 }
                 else if (e.EventType == InputEventType.Released)
                 {
                     // end jump
+                    Message msg = new Message(MessageType.Fall, this, m_playerOne);
+                    MessageDispatcher.Get().SendMessage(msg);
                 }
             }
 
@@ -349,7 +369,6 @@ namespace Ivy
 
             return true;
         }
-
         #endregion
 
         public Camera2D Camera

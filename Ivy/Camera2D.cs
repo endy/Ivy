@@ -10,34 +10,26 @@ namespace Ivy
 {
     public class Camera2D
     {
-        #region Transition Data
-        private int m_staticWidth;
-        private int m_staticHeight;
-        private int m_transWidth;
-        private int m_transHeight;
-        #endregion
+        private Rectangle m_roomBounds;
+        private Rectangle m_cameraBounds;   // in room coordinates
+        private Rectangle m_screenRect;     // in screen coordinates
 
-        private Rectangle m_worldBounds;
-        private Rectangle m_cameraBounds;
+        // calculated camera rect
+        private Rectangle m_cameraRect;     // in room coordinates
 
-        private Rectangle m_cameraRect;  // in world coordinates
+        private Vector2 m_speed;
 
-        public Camera2D(Rectangle worldBounds, Rectangle cameraBounds)
+        public Camera2D(Rectangle roomBounds, Rectangle cameraBounds, Rectangle screenRect)
         {
-            m_worldBounds = worldBounds;
-            
+            m_roomBounds = roomBounds;            
             m_cameraBounds = cameraBounds;
+            m_screenRect = screenRect;
 
             m_cameraRect = Rectangle.Empty;
             m_cameraRect.Width = cameraBounds.Width;
             m_cameraRect.Height = cameraBounds.Height;
 
-            #region Transition Data
-            m_staticWidth = (int)(m_worldBounds.Width * 0.05f);
-            m_staticHeight = (int)(m_worldBounds.Height * 0.01f);
-            m_transWidth = (int)(m_worldBounds.Width * 0.10f);
-            m_transHeight = (int)(m_worldBounds.Height * 0.0f);
-            #endregion
+            m_speed = new Vector2(.3f, .3f);
         }
 
         public Rectangle CameraRect
@@ -48,189 +40,112 @@ namespace Ivy
             }
         }
 
-        #region Transition Helpers
-        private bool InCenterX(Point focusPos)
+        public Vector2 GetRoomPointForScreenPoint(Vector2 screenPoint)
         {
-            bool inCenter = false;
+            Vector2 roomPoint = Vector2.Zero;
 
-            if ((focusPos.X > (m_staticWidth + m_transWidth)) &&
-                (focusPos.X < (m_worldBounds.Width - (m_staticWidth + m_transWidth))))
+            if ((m_screenRect.Left <= screenPoint.X) &&
+                (screenPoint.X < m_screenRect.Right) &&
+                (m_screenRect.Top <= screenPoint.Y) &&
+                (screenPoint.Y < m_screenRect.Bottom))
             {
-                inCenter = true;
+                roomPoint.X = m_cameraRect.X + ((screenPoint.X / (float)m_screenRect.Width) * m_cameraRect.Width);
+                roomPoint.Y = m_cameraRect.Y + ((screenPoint.Y / (float)m_screenRect.Height) * m_cameraRect.Height);
+            }
+            else
+            {
+                // TODO: probably an error
             }
 
-            return inCenter;
+            return roomPoint;
         }
 
-        private bool InCenterY(Point focusPos)
+        public Vector2 GetScreenPointForRoomPoint(Vector2 roomPoint)
         {
-            bool inCenter = false;
+            Vector2 screenPoint = Vector2.Zero;
 
-            if ((focusPos.Y > (m_staticHeight + m_transHeight)) &&
-                (focusPos.Y < (m_worldBounds.Height - (m_staticHeight + m_transHeight))))
+            if ((m_roomBounds.Left <= roomPoint.X) &&
+                (roomPoint.X < m_roomBounds.Right) &&
+                (m_roomBounds.Top <= roomPoint.Y) &&
+                (roomPoint.Y < m_roomBounds.Bottom))
             {
-                inCenter = true;
+                screenPoint.X = ((roomPoint.X - m_cameraRect.X) / (float)m_cameraRect.Width) * m_screenRect.Width;
+                screenPoint.Y = ((roomPoint.Y - m_cameraRect.Y) / (float)m_cameraRect.Height) * m_screenRect.Height;
+            }
+            else
+            {
+                // TODO: probably an error
             }
 
-            return inCenter;
+            return screenPoint;
         }
 
-        private bool InStaticX(Point focusPos)
+        public void Update(GameTime gameTime, Entity target)
         {
-            bool inStatic = false;
-
-            if ((focusPos.X < m_staticWidth) ||
-                (focusPos.X > (m_worldBounds.Width - m_staticWidth)))
-            {
-                inStatic = true;
-            }
-
-            return inStatic;
-        }
-
-        private bool InStaticY(Point focusPos)
-        {
-            bool inStatic = false;
-
-            if ((focusPos.Y < m_staticHeight) ||
-                (focusPos.Y > (m_worldBounds.Height - m_staticHeight)))
-            {
-                inStatic = true;
-            }
-
-            return inStatic;
-        }
-        #endregion
-
-        public void Update(Point focusPos)
-        {
-            // TODO: Determine focus point in camera? or in game logic?
-            //       because focus point changes based on character direction!
-            //       Probably makes sense to have the camera be a little smarter 
-            //       (i.e. also knows character direction)
-
-            // TODO: Clamp Focus To World Bounds?            
-
-            // center always
-            m_cameraRect.X = focusPos.X - (m_cameraBounds.Width / 2);
-            m_cameraRect.Y = focusPos.Y - (m_cameraBounds.Height / 2);
-
-            #region Prototype Transition Code
-            /*
             
-            int worldCenterX = m_worldBounds.Width / 2;
-            int worldCenterY = m_worldBounds.Height / 2;
-             
-            if (m_staticWidth * 2 >= m_worldBounds.Width)
-            {
-                // camera is always static, no need to do anything
-            }
-            else if ((m_staticWidth * 2 + m_transWidth * 2) >= m_worldBounds.Width)
-            {
-                // transition from static to static
-                if (InStaticX(focusPos))
-                {
+            Vector2 actualCameraCenter = new Vector2(m_cameraRect.Center.X, m_cameraRect.Center.Y);
 
-                }
-                else
-                {
-                    // in transition
-                }
-            }
-            else
+            Vector2 idealCameraCenter = new Vector2(target.Position.X + (1 / 5f * ((float)m_cameraBounds.Width * target.Direction.X)),
+                                        target.Position.Y + (1 / 10f * m_cameraBounds.Height * target.Direction.Y));
+
+            IvyGame.Get().ConsoleStr += "Ideal Center: " + idealCameraCenter + "\n";
+            IvyGame.Get().ConsoleStr += "Actual Center: " + actualCameraCenter + "\n";
+
+            if (target.Moving)
             {
-                // center exists
-                if (InCenterX(focusPos))
-                {
-                    int halfCameraWidth = m_cameraBounds.Width / 2;
-                    m_cameraRect.X = focusPos.X - halfCameraWidth;
+                Vector2 maxTravelDist = new Vector2((m_speed.X * gameTime.ElapsedGameTime.Milliseconds),
+                                                    (m_speed.Y * gameTime.ElapsedGameTime.Milliseconds));
 
-                    bInCenterX = true;
-                    bInStaticX = false;
+                Vector2 newCameraCenter = idealCameraCenter;
+                
+                if (Math.Abs(idealCameraCenter.X - actualCameraCenter.X) > maxTravelDist.X)
+                {
+                    // transition!
+                    if ((idealCameraCenter.X - actualCameraCenter.X) < 0)
+                    {
+                        newCameraCenter.X = actualCameraCenter.X - maxTravelDist.X;
+                    }
+                    else if ((idealCameraCenter.X - actualCameraCenter.X) > 0)
+                    {
+                        newCameraCenter.X = actualCameraCenter.X + maxTravelDist.X;
+                    }
                 }
-                else if (InStaticX(focusPos))
-                {
-                    bInStaticX = true;
-                    bInCenterX = false;
 
+                if (Math.Abs(idealCameraCenter.Y - actualCameraCenter.Y) > maxTravelDist.Y)
+                {
+                    // transition!
                     
+                    //newCameraCenter.Y = actualCameraCenter.Y + (maxTravelDist.Y * target.Direction.Y);
                 }
-                else
+                
+                
+                IvyGame.Get().ConsoleStr += "new camera center: " + newCameraCenter + "\n";
+
+                m_cameraRect.X = (int)(newCameraCenter.X - (m_cameraBounds.Width / 2f));
+                m_cameraRect.Y = (int)(newCameraCenter.Y - (m_cameraBounds.Height / 2f));
+                
+                //*
+                if (m_cameraRect.X < 0)
                 {
-                    bInCenterX = false;
-                    bInStaticX = false;
-
-                    if (focusPos.X < worldCenterX)
-                    {
-                        // focus is left of world center
-
-                        float leftWorldEdge = m_worldBounds.X;
-                        float leftStaticEdge = leftWorldEdge + m_staticWidth;
-                        float leftTransEdge = leftStaticEdge + m_transWidth;
-
-                        float percentPassedTrans = (focusPos.X - leftStaticEdge) / (leftTransEdge - leftStaticEdge);
-
-                        float leftCameraEdgeAtTrans = (leftTransEdge - (m_cameraRect.Width / 2.0f));
-                        m_cameraRect.X = (int)(leftCameraEdgeAtTrans * percentPassedTrans);
-
-                    }
-                    else
-                    {
-                        float rightWorldEdge = m_worldBounds.X + m_worldBounds.Width;
-                        float rightStaticEdge = rightWorldEdge - m_staticWidth;
-                        float rightTransEdge = rightStaticEdge - m_transWidth;
-
-                        float percentPassedTrans = (focusPos.X - rightTransEdge) / (rightStaticEdge - rightTransEdge);
-
-                        float rightCameraEdgeAtTrans = (rightTransEdge + m_cameraRect.Width / 2.0f);
-                        float transDelta = (rightWorldEdge - rightCameraEdgeAtTrans) * percentPassedTrans;
-
-                        m_cameraRect.X = (int)(rightCameraEdgeAtTrans + transDelta) - m_cameraRect.Width;
-
-                    }
-
-                }  
+                    m_cameraRect.X = 0;
+                }
+                if ((m_cameraRect.X + m_cameraRect.Width) > (m_roomBounds.X + m_roomBounds.Width))
+                {
+                    m_cameraRect.X = (m_roomBounds.X + m_roomBounds.Width) - m_cameraRect.Width;
+                }
+                if (m_cameraRect.Y < 0)
+                {
+                    m_cameraRect.Y = 0;
+                }
+                if ((m_cameraRect.Y + m_cameraRect.Height) > (m_roomBounds.Y + m_roomBounds.Height))
+                {
+                    m_cameraRect.Y = (m_roomBounds.Y + m_roomBounds.Height) - m_cameraRect.Height;
+                }
+                //*/
             }
-            */
 
-            /*
-            if (m_staticHeight * 2 >= m_worldBounds.Height)
-            {
-                // camera is always static
-            }
-            else if ((m_staticHeight * 2 + m_transHeight * 2) >= m_worldBounds.Height)
-            {
-                // transition from static to static
-            }
-            else
-            {
-                // center exists
-            }
-            */
-            #endregion
-
-            if (m_cameraRect.X < 0)
-            {
-                m_cameraRect.X = 0;
-            }
-            if ((m_cameraRect.X + m_cameraRect.Width) > (m_worldBounds.X + m_worldBounds.Width))
-            {
-                m_cameraRect.X = (m_worldBounds.X + m_worldBounds.Width) - m_cameraRect.Width;
-            }
-            if (m_cameraRect.Y < 0)
-            {
-                m_cameraRect.Y = 0;
-            }
-            if ((m_cameraRect.Y + m_cameraRect.Height) > (m_worldBounds.Y + m_worldBounds.Height))
-            {
-                m_cameraRect.Y = (m_worldBounds.Y + m_worldBounds.Height) - m_cameraRect.Height;
-            }
-        }
-
-        public void Draw(SpriteBatch spriteBatch)
-        {
-            // draw camera info here (call to console?)
-        }
-       
+            IvyGame.Get().ConsoleStr += "Room Bounds: " + m_roomBounds + "\n";
+            IvyGame.Get().ConsoleStr += "Camera Rect: " + m_cameraRect + "\n";
+        }       
     }
 }

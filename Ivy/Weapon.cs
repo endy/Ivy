@@ -69,7 +69,7 @@ namespace Ivy
 
         public Vector2 Direction
         {
-            get { return m_direction; }
+            get { return new Vector2(m_direction.X, 0); }
             set { m_direction = value; }
         }
 

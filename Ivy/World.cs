@@ -88,5 +88,13 @@ namespace Ivy
                 m_currentRoom.Draw(spriteBatch);
             }
         }
+
+        public void Draw3D()
+        {
+            if (m_currentRoom != null)
+            {
+                m_currentRoom.Draw3D();
+            }
+        }
     }
 }

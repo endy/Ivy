@@ -14,37 +14,40 @@ namespace Ivy
 
         public AnimatedSpriteEvent OnAnimEnd;
 
-        // temp data
-        public string Name { get; set; }
-
         // Component Data
         IvyGame m_game;
 
         // Sprite Properties
         private Texture2D m_texture;
         private Rectangle m_animRect;
-        private uint m_frameCount;
-        private float m_framesPerSecond;
-
-        private Vector2 m_scale;             // amount to scale the animation
-
-        private uint m_frameWidth;
-        private Point m_frameCenter;
 
         // Animation Properties
-        private bool m_playing;             // true if animation is playing
-        private bool m_loop;                // loop animation
-        private bool m_reverse;             // play frames in reverse order
-        private uint m_currentFrame;        // current frame
+        public Vector2 Scale { get; set; }              // amount to scale the animation
+
+        public bool Playing { get; private set; }       // true if animation is playing
+        public bool Loop { get; set; }                  // loop animation
+        public uint CurrentFrame { get; private set; }  // current frame
+
+        private Rectangle m_frameRect;                  // dimensions of a single frame
+        private bool m_reverse;                         // play frames in reverse order
 
         // Private Animation Data
+        private uint m_frameCount;
+        private float m_framesPerSecond;
         private float m_timePerFrame;       // milliseconds per frame
         private float m_timeElapsed;        // time elapsed in milliseconds
 
-        public AnimatedSprite(IvyGame game, Texture2D texture, Rectangle animRect, uint frameCount,
-                              float framesPerSecond) 
-                              : 
-                              base(game)
+        public string Name { get; set; }    // Anim name   // TODO: remove
+        private Box m_dbgBox;               // Frame box   // TODO: remove
+
+        public AnimatedSprite(
+            IvyGame game, 
+            Texture2D texture, 
+            Rectangle animRect, 
+            uint frameCount,
+            float framesPerSecond) 
+            : 
+            base(game)
         {
             m_game = game;
             
@@ -53,131 +56,38 @@ namespace Ivy
             m_frameCount = frameCount;
             m_framesPerSecond = framesPerSecond;
 
-            m_playing = false;
-            m_loop = true;
+            Playing = false;
+            Loop = true;
             m_reverse = false;
 
-            m_scale = new Vector2(1.0f, 1.0f);
+            Scale = new Vector2(1.0f, 1.0f);
+
+            if (m_frameCount != 0)
+            {
+                m_frameRect = new Rectangle(0, 0, m_animRect.Width / (int)m_frameCount, m_animRect.Height);
+            }
+            else
+            {
+                m_frameRect = Rectangle.Empty;
+            }
+
+            m_timePerFrame = ((1.0f / m_framesPerSecond) * 1000.0f);
+
+
+            m_dbgBox = new Box(IvyGame.Get(), GetFrameBounds());
+            m_dbgBox.Initialize();
 
             Name = "Animation";
         }
 
         public override void Initialize()
         {
-            if (m_frameCount != 0)
-            {
-                m_frameWidth = (uint)m_animRect.Width / m_frameCount;
-                m_frameCenter = new Point((int)m_frameWidth / 2, m_animRect.Height / 2);
-            }
-
-            m_timePerFrame = ((1.0f / m_framesPerSecond) * 1000.0f);
+            // TODO: refactor code into initialize method
         }
-
-        #region Properties
-        public Vector2 Scale
-        {
-            get { return m_scale; }
-            set { m_scale = value; }
-        }
-        public Point Center
-        {
-            set { m_frameCenter = value; }
-            get { return m_frameCenter; }
-        }
-        public bool IsPlaying
-        {
-            get { return m_playing; }
-        }
-        public bool Loop
-        {
-            get { return m_loop; }
-            set { m_loop = value; }
-        }
-        public bool Reverse
-        {
-            get { return m_reverse; }
-            set
-            {
-                if (m_reverse != value)
-                {
-                    m_reverse = value;
-                }
-                else
-                {
-                    m_reverse = value;
-                }
-                Reset();
-            }
-        }
-        public uint CurrentFrame
-        {
-            get { return m_currentFrame; }
-        }
-        #endregion
-
-        public void SetFrame(uint frameNumber)
-        {
-            if (frameNumber < m_frameCount)
-            {
-                m_currentFrame = frameNumber;
-            }
-        }
-
-        public void Play()
-        {
-            m_playing = true;
-        }
-        public void Stop()
-        {
-            m_playing = false;
-        }
-        public void Reset()
-        {
-            m_currentFrame = (Reverse) ? (m_frameCount - 1) : 0;
-            m_timeElapsed = 0;
-        }
-        public void Replay()
-        {
-            Reset();
-            Play();
-        }
-
-        private bool IsLastFrame()
-        {
-            bool lastFrame = false;
-
-            if (((Reverse == true) && (m_currentFrame == 0)) ||
-                ((Reverse != true) && ((m_currentFrame + 1) == m_frameCount)))
-            {
-                lastFrame = true;
-            }
-
-            return lastFrame;
-        }
-
-        private void NextFrame()
-        {
-            if (Reverse == true)
-            {
-                m_currentFrame--;
-                if (m_currentFrame < 0)
-                {
-                    m_currentFrame = m_frameCount - 1;
-                }
-            }
-            else
-            {
-                m_currentFrame++;
-                if (m_currentFrame >= m_frameCount)
-                {
-                    m_currentFrame = 0;
-                }
-            }
-        }
-
+     
         public override void Update(GameTime gameTime)
         {
-            if (IsPlaying)
+            if (Playing)
             {
                 m_timeElapsed += gameTime.ElapsedGameTime.Milliseconds;
 
@@ -210,16 +120,107 @@ namespace Ivy
 
         public void Draw(SpriteBatch spriteBatch, Point pos)
         {
-            Rectangle srcRect = new Rectangle((int)(m_animRect.X + (m_frameWidth * m_currentFrame)),
+            Rectangle srcRect = new Rectangle((m_animRect.X + (m_frameRect.Width * (int)CurrentFrame)),
                                               m_animRect.Y,
-                                              (int)m_frameWidth,
+                                              m_frameRect.Width,
                                               m_animRect.Height);
 
-            Rectangle dstRect = new Rectangle(Center.X + pos.X, Center.Y + pos.Y,
+            Rectangle dstRect = new Rectangle(m_frameRect.Center.X + pos.X, 
+                                              m_frameRect.Center.Y + pos.Y,
                                               (int)(srcRect.Width * Scale.X),
                                               (int)(srcRect.Height * Scale.Y));
 
             spriteBatch.Draw(m_texture, dstRect, srcRect, Color.White);
+        }
+
+        public void Draw3D()
+        {
+            m_dbgBox.Draw(Point.Zero);
+        }
+
+        public bool Reverse
+        {
+            get { return m_reverse; }
+            set
+            {
+                if (m_reverse != value)
+                {
+                    m_reverse = value;
+                }
+                else
+                {
+                    m_reverse = value;
+                }
+                Reset();
+            }
+        }
+
+        public Rectangle GetFrameBounds()
+        {
+            return new Rectangle(0,
+                                 0, 
+                                (int)(m_frameRect.Width * Scale.X),
+                                (int)(m_frameRect.Height * Scale.Y));
+        }
+
+        public void SetFrame(uint frameNumber)
+        {
+            if (frameNumber < m_frameCount)
+            {
+                CurrentFrame = frameNumber;
+            }
+        }
+
+        public void Play()
+        {
+            Playing = true;
+        }
+        public void Stop()
+        {
+            Playing = false;
+        }
+        public void Reset()
+        {
+            CurrentFrame = (Reverse) ? (m_frameCount - 1) : 0;
+            m_timeElapsed = 0;
+        }
+        public void Replay()
+        {
+            Reset();
+            Play();
+        }
+
+        private bool IsLastFrame()
+        {
+            bool lastFrame = false;
+
+            if (((Reverse == true) && (CurrentFrame == 0)) ||
+                ((Reverse != true) && ((CurrentFrame + 1) == m_frameCount)))
+            {
+                lastFrame = true;
+            }
+
+            return lastFrame;
+        }
+
+        private void NextFrame()
+        {
+            if (Reverse == true)
+            {
+                CurrentFrame--;
+                if (CurrentFrame < 0)
+                {
+                    CurrentFrame = m_frameCount - 1;
+                }
+            }
+            else
+            {
+                CurrentFrame++;
+                if (CurrentFrame >= m_frameCount)
+                {
+                    CurrentFrame = 0;
+                }
+            }
         }
     }
 }

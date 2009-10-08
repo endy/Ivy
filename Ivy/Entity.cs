@@ -35,12 +35,12 @@ namespace Ivy
         public override void Initialize()
         {
             m_world = IvyGame.Get().World;
-            Position = new Point(100, 100);
+            Position = new Point(150, 100);
             Direction = new Vector2(1f, 0f);
 
             Moving = false;
 
-            m_speed = new Vector2(0.4f, 0.4f);
+            m_speed = new Vector2(0.2f, 0.3f);
             CurrentSpeed = Vector2.Zero;
 
             m_entityStateMgr = new StateMgr(this);
@@ -60,6 +60,11 @@ namespace Ivy
         }
 
         public virtual void Draw(SpriteBatch spriteBatch)
+        {
+
+        }
+
+        public virtual void Draw3D()
         {
 
         }

@@ -115,7 +115,6 @@ namespace Ivy
 
         Entity m_owner;
         AnimGraphNode m_currentNode;
-
         List<AnimGraphNode> m_nodeList;
 
         public AnimGraph(Entity owner)
@@ -148,8 +147,22 @@ namespace Ivy
         {
             if (m_currentNode != null)
             {
-                m_currentNode.Anim.Draw(spriteBatch, m_owner.Position);
+                Vector2 roomPos = new Vector2(m_owner.Position.X, m_owner.Position.Y);
+                Vector2 screenPos = IvyGame.Get().Camera.GetScreenPointForRoomPoint(roomPos);
+
+                Point screenPosPoint = new Point((int)screenPos.X, (int)screenPos.Y);
+
+                m_currentNode.Anim.Draw(spriteBatch, screenPosPoint);
+
+
+                IvyGame.Get().ConsoleStr += this + " Position (room): " + roomPos + "\n";
+                IvyGame.Get().ConsoleStr += this + " Position (screen): " + screenPos + "\n";
             }
+        }
+
+        public void Draw3D()
+        {
+            m_currentNode.Anim.Draw3D();
         }
 
         public IAnimGraphNode GetCurrentNode()

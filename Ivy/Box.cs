@@ -115,7 +115,7 @@ namespace Ivy
             base.Update(gameTime);
         }
 
-        public void Draw(GameTime gameTime)
+        public void Draw(Point Position)
         {          
             basicEffect.Begin();
 
