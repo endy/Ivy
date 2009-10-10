@@ -162,7 +162,7 @@ namespace Ivy
 
         public void Draw3D()
         {
-            m_currentNode.Anim.Draw3D();
+            // does nothing currently
         }
 
         public IAnimGraphNode GetCurrentNode()

@@ -16,6 +16,9 @@ namespace Ivy
 
         public bool Moving { get; set; }
 
+        protected AnimGraph m_animGraph;
+        protected Box m_box;
+
         protected Vector2 m_speed;
 
         public Vector2 CurrentSpeed { get; set; }
@@ -35,7 +38,7 @@ namespace Ivy
         public override void Initialize()
         {
             m_world = IvyGame.Get().World;
-            Position = new Point(150, 100);
+            Position = new Point(0, 0);
             Direction = new Vector2(1f, 0f);
 
             Moving = false;
@@ -45,6 +48,9 @@ namespace Ivy
 
             m_entityStateMgr = new StateMgr(this);
             m_entityStateMgr.Initialize();
+
+            m_box = new Box(Game);
+            m_box.Initialize();
         }
 
         public override void Update(GameTime gameTime)
@@ -66,7 +72,20 @@ namespace Ivy
 
         public virtual void Draw3D()
         {
+            Rectangle animRect = m_animGraph.GetCurrentNode().Anim.GetFrameBounds();
+            animRect.Width = (int)(animRect.Width / 256f * 800);
+            animRect.Height = (int)(animRect.Height / 192f * 600);
 
+            m_box.UpdateRect(animRect);
+
+            m_box.Draw(Position); 
+        }
+
+        public Rectangle CollisionRect()
+        {
+            Rectangle animRect = m_animGraph.GetCurrentNode().Anim.GetFrameBounds();
+
+            return new Rectangle(Position.X, Position.Y, animRect.Width, animRect.Height);
         }
 
         public virtual void ReceiveMessage(Message msg)

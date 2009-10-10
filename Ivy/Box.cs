@@ -20,7 +20,8 @@ namespace Ivy
     public class Box : Microsoft.Xna.Framework.GameComponent
                        //Microsoft.Xna.Framework.IDrawable
     {
-        IvyGame ivyGame;
+        Matrix scaleMatrix;
+        Matrix transMatrix;
 
         Matrix worldMatrix;
         Matrix viewMatrix;
@@ -34,11 +35,10 @@ namespace Ivy
 
         Rectangle m_rect;
 
-        public Box(IvyGame game, Rectangle rect)
+        public Box(Game game)
             : base(game)
         {
-            ivyGame = game;
-            m_rect = rect;
+            m_rect = new Rectangle(0, 0, 1, 1);
         }
 
         /// <summary>
@@ -96,11 +96,17 @@ namespace Ivy
             basicEffect = new BasicEffect(Game.GraphicsDevice, null);
             basicEffect.VertexColorEnabled = true;
 
-            worldMatrix = Matrix.CreateTranslation(0, 0, 0);
+            scaleMatrix = Matrix.CreateScale(1f);
+            transMatrix = Matrix.CreateTranslation(0, 0, 0);
 
             basicEffect.World      = worldMatrix;
             basicEffect.View       = viewMatrix;
             basicEffect.Projection = projectionMatrix;
+        }
+
+        public void UpdateRect(Rectangle rect)
+        {
+            scaleMatrix = Matrix.CreateScale(rect.Width, rect.Height, 1);
         }
 
         /// <summary>
@@ -109,14 +115,17 @@ namespace Ivy
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         public override void Update(GameTime gameTime)
         {
-            Rectangle cameraRect = ivyGame.Camera.CameraRect;
-
+            Rectangle cameraRect = IvyGame.Get().Camera.CameraRect;
 
             base.Update(gameTime);
         }
 
         public void Draw(Point Position)
-        {          
+        {
+            Vector2 screenPos = IvyGame.Get().Camera.GetScreenPointForRoomPoint(new Vector2(Position.X, Position.Y));
+            transMatrix = Matrix.CreateTranslation(screenPos.X, screenPos.Y, 0);
+            basicEffect.World = scaleMatrix * transMatrix;
+            
             basicEffect.Begin();
 
             foreach (EffectPass pass in basicEffect.CurrentTechnique.Passes)

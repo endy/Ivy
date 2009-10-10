@@ -20,8 +20,6 @@ namespace Ivy
     public class Player : Entity
     {
         Weapon m_armCannon;
-
-        AnimGraph m_animGraph;
        
         // Sound Effects
         SoundEffect m_rollEffect;
@@ -63,7 +61,7 @@ namespace Ivy
 
             Texture2D samusMap = Game.Content.Load<Texture2D>("Sprites\\samusMap");
 
-            float scale = 3f;
+            float scale = 1f;
 
             #region Animation Setup
             AnimatedSprite samusTurnLeftAnim = new AnimatedSprite(IvyGame.Get(), samusMap, samusTurnRect, 3, 24f);
@@ -152,7 +150,6 @@ namespace Ivy
             samusJumpRollLeftNode.Anim.Initialize();
             samusJumpRollLeftNode.Anim.Scale = new Vector2(scale, scale);
 
-
             IAnimGraphNode samusJumpRollRightNode = m_animGraph.AddAnim(
                 new AnimatedSprite(IvyGame.Get(), samusMap, samusJumpRollRightRect, 8, 16f));
             samusJumpRollRightNode.Anim.Initialize();
@@ -216,10 +213,9 @@ namespace Ivy
             m_animGraph.AddTransition(samusJumpRollLeftNode, MessageType.Land, samusJumpLandLeftNode, samusRunLeftNode);
             m_animGraph.AddTransition(samusJumpRollRightNode, MessageType.Land, samusJumpLandRightNode, samusRunRightNode);
 
-            m_animGraph.AddTransition(samusJumpDescendLeftNode, MessageType.Land, samusJumpLandLeftNode, samusRunLeftNode);
-            m_animGraph.AddTransition(samusJumpDescendRightNode, MessageType.Land, samusJumpLandRightNode, samusRunRightNode);
-            
-            
+            m_animGraph.AddTransition(samusJumpDescendLeftNode, MessageType.Land, samusJumpLandLeftNode, samusWaitLeftNode); //samusRunLeftNode);
+            m_animGraph.AddTransition(samusJumpDescendRightNode, MessageType.Land, samusJumpLandRightNode, samusWaitRightNode); //samusRunRightNode);
+                        
             m_animGraph.SetCurrentNode(samusWaitRightNode);
             #endregion
 
@@ -235,20 +231,13 @@ namespace Ivy
             base.Update(gameTime);
 
             m_animGraph.Update(gameTime);
-
             m_armCannon.Update(gameTime);
         }
 
         public override void Draw(SpriteBatch spriteBatch)
         {
             m_armCannon.Draw(spriteBatch);
-
             m_animGraph.Draw(spriteBatch);
-        }
-
-        public override void Draw3D()
-        {
-            m_animGraph.Draw3D();
         }
 
         public override void ReceiveMessage(Message msg)

@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ivy
 {
-    public class Room
+    public class Room : IMessageSender
     {
         World m_world;
         List<Entity> m_entities;
@@ -16,7 +16,11 @@ namespace Ivy
         Texture2D m_background;
         Rectangle m_bgRect;
 
+        List<Rectangle> m_platforms;
+
         public Rectangle Bounds { get; private set; }
+
+        private Box m_box;
 
         public Room(World world, Rectangle bounds, Texture2D background, Rectangle bgRect)
         {
@@ -26,6 +30,19 @@ namespace Ivy
 
             m_background = background;
             m_bgRect = bgRect;
+
+            m_platforms = new List<Rectangle>();
+
+
+            m_platforms.Add(new Rectangle(2, bounds.Height-1, bounds.Width-4, 1));
+
+            m_platforms.Add(new Rectangle(181 - bgRect.X, 446 - bgRect.Y, 64, 16));
+            m_platforms.Add(new Rectangle(53 - bgRect.X, 462 - bgRect.Y, 64, 16));
+            m_platforms.Add(new Rectangle(117 - bgRect.X, 558 - bgRect.Y, 64, 16));
+            m_platforms.Add(new Rectangle(53 - bgRect.X, 654 - bgRect.Y, 80, 16));
+
+            m_box = new Box(IvyGame.Get());
+            m_box.Initialize();
         }
 
         public void Initialize()
@@ -66,6 +83,24 @@ namespace Ivy
             }
 
             // update background based on player position (distance moved this timestep, curr position)
+
+            // do collision detection on every entity vs world
+
+            // do collision detection on every entity vs entity
+            foreach (Entity e in m_entities)
+            {
+                foreach (Rectangle r in m_platforms)
+                {
+                    Rectangle cr = e.CollisionRect();
+                    if (r.Intersects(cr) == true)
+                    {
+                        Message msg = new Message(MessageType.CollideWithRoom, this, e);
+                        MessageDispatcher.Get().SendMessage(msg);
+                        break;
+                    }
+                }
+            }
+
         }
 
         public void Draw(SpriteBatch spriteBatch)
@@ -88,6 +123,14 @@ namespace Ivy
             foreach (Entity e in m_entities)
             {
                 e.Draw3D();
+            }
+
+            foreach (Rectangle r in m_platforms)
+            {
+
+                Rectangle newRect = new Rectangle(0, 0, (int)(r.Width/256f * 800f), (int)(r.Height/ 192f * 600f));
+                m_box.UpdateRect(newRect);
+                m_box.Draw(r.Location);
             }
         }
     }

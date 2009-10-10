@@ -38,7 +38,6 @@ namespace Ivy
         private float m_timeElapsed;        // time elapsed in milliseconds
 
         public string Name { get; set; }    // Anim name   // TODO: remove
-        private Box m_dbgBox;               // Frame box   // TODO: remove
 
         public AnimatedSprite(
             IvyGame game, 
@@ -72,10 +71,6 @@ namespace Ivy
             }
 
             m_timePerFrame = ((1.0f / m_framesPerSecond) * 1000.0f);
-
-
-            m_dbgBox = new Box(IvyGame.Get(), GetFrameBounds());
-            m_dbgBox.Initialize();
 
             Name = "Animation";
         }
@@ -125,17 +120,12 @@ namespace Ivy
                                               m_frameRect.Width,
                                               m_animRect.Height);
 
-            Rectangle dstRect = new Rectangle(m_frameRect.Center.X + pos.X, 
-                                              m_frameRect.Center.Y + pos.Y,
-                                              (int)(srcRect.Width * Scale.X),
-                                              (int)(srcRect.Height * Scale.Y));
+            Rectangle dstRect = new Rectangle(pos.X, 
+                                              pos.Y,
+                                              (int)(srcRect.Width / 256f * 800f * Scale.X),
+                                              (int)(srcRect.Height / 192f * 600f * Scale.Y));
 
             spriteBatch.Draw(m_texture, dstRect, srcRect, Color.White);
-        }
-
-        public void Draw3D()
-        {
-            m_dbgBox.Draw(Point.Zero);
         }
 
         public bool Reverse

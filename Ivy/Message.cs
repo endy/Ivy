@@ -15,6 +15,8 @@ namespace Ivy
         Land,
         FireWeapon,
 
+        CollideWithRoom,
+
         // Test Messages
         ActivateSkree,
     }

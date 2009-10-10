@@ -30,17 +30,17 @@ namespace Ivy
 
         public override void Execute(Entity entity)
         {
-            if (entity.Position.Y >= 100)
-            {
-                Message msg = new Message(MessageType.Land, entity, entity);
-                MessageDispatcher.Get().SendMessage(msg);
-            }
+
         }
 
         public override void HandleMessage(Entity entity, Message msg)
         {
             switch (msg.Type)
             {
+                case MessageType.CollideWithRoom:
+                    Message newMsg = new Message(MessageType.Land, entity, entity);
+                    MessageDispatcher.Get().SendMessage(newMsg);
+                    break;
                 case MessageType.Land:
                     if (entity.CurrentSpeed.X != 0f)
                     {
