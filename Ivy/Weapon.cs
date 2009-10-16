@@ -115,7 +115,6 @@ namespace Ivy
         {
             m_projectileAnim = new AnimatedSprite(IvyGame.Get(), m_weaponMap, m_projectileRect, 2, 10f);
             m_projectileAnim.Initialize();
-            m_projectileAnim.Scale = new Vector2(3f, 3f);
 
             m_explosionAnim = new AnimatedSprite(IvyGame.Get(), m_weaponMap, m_explosionRect, 6, 6f);
             m_explosionAnim.Initialize();

@@ -78,8 +78,8 @@ namespace Ivy
             Vector2 idealCameraCenter = new Vector2(target.Position.X + (1 / 5f * ((float)CameraBounds.Width * target.Direction.X)),
                                         target.Position.Y + (1 / 10f * CameraBounds.Height * target.Direction.Y));
 
-            IvyGame.Get().ConsoleStr += "Ideal Center: " + idealCameraCenter + "\n";
-            IvyGame.Get().ConsoleStr += "Actual Center: " + actualCameraCenter + "\n";
+            //IvyGame.Get().ConsoleStr += "Ideal Center: " + idealCameraCenter + "\n";
+            //IvyGame.Get().ConsoleStr += "Actual Center: " + actualCameraCenter + "\n";
 
             if (target.Moving)
             {
@@ -115,7 +115,7 @@ namespace Ivy
                 }
                 
                 
-                IvyGame.Get().ConsoleStr += "new camera center: " + newCameraCenter + "\n";
+                //IvyGame.Get().ConsoleStr += "new camera center: " + newCameraCenter + "\n";
 
                 Rectangle newCameraRect = new Rectangle(
                     (int)(newCameraCenter.X - (CameraBounds.Width / 2f)),
@@ -143,8 +143,8 @@ namespace Ivy
                 CameraRect = newCameraRect;
             }
 
-            IvyGame.Get().ConsoleStr += "Room Bounds: " + m_roomBounds + "\n";
-            IvyGame.Get().ConsoleStr += "Camera Rect: " + CameraRect + "\n";
+            //IvyGame.Get().ConsoleStr += "Room Bounds: " + m_roomBounds + "\n";
+            //IvyGame.Get().ConsoleStr += "Camera Rect: " + CameraRect + "\n";
         }       
     }
 }

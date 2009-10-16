@@ -109,10 +109,9 @@ namespace Ivy
             get { return m_dead; }
         }
 
-        public bool OnAnimEnd(AnimatedSprite anim)
+        public void OnAnimEnd(AnimatedSprite anim)
         {
             m_dead = true;
-            return true;
         }
     }
 }

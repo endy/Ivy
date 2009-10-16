@@ -59,6 +59,7 @@ namespace Ivy
         /// </summary>
         protected override void Initialize()
         {
+
             // TODO: Find out if components need to be individually initialized here,
             //       XNA may provide a way of doing this.
 
@@ -170,7 +171,7 @@ namespace Ivy
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            ConsoleStr = "\n\n"; 
+            //ConsoleStr = "\n\n"; 
 
             // Allows the game to exit
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)

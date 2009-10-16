@@ -23,7 +23,6 @@ namespace Ivy
         Matrix scaleMatrix;
         Matrix transMatrix;
 
-        Matrix worldMatrix;
         Matrix viewMatrix;
         Matrix projectionMatrix;
 
@@ -99,7 +98,7 @@ namespace Ivy
             scaleMatrix = Matrix.CreateScale(1f);
             transMatrix = Matrix.CreateTranslation(0, 0, 0);
 
-            basicEffect.World      = worldMatrix;
+            basicEffect.World      = scaleMatrix * transMatrix;
             basicEffect.View       = viewMatrix;
             basicEffect.Projection = projectionMatrix;
         }

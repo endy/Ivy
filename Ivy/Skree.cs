@@ -10,7 +10,7 @@ namespace Ivy
 {
     public class Skree : Entity
     {
-        private AnimGraph m_animGraph;
+        //private AnimGraph m_animGraph;
 
         private Texture2D m_spriteMap;
 

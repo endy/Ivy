@@ -10,7 +10,7 @@ namespace Ivy
 {
     public class AnimatedSprite : Microsoft.Xna.Framework.GameComponent
     {
-        public delegate bool AnimatedSpriteEvent(AnimatedSprite anim);
+        public delegate void AnimatedSpriteEvent(AnimatedSprite anim);
 
         public AnimatedSpriteEvent OnAnimEnd;
 
@@ -23,13 +23,13 @@ namespace Ivy
 
         // Animation Properties
         public Vector2 Scale { get; set; }              // amount to scale the animation
+        public bool Reverse { get; set; }              // play frames in reverse order
 
         public bool Playing { get; private set; }       // true if animation is playing
         public bool Loop { get; set; }                  // loop animation
         public uint CurrentFrame { get; private set; }  // current frame
 
         private Rectangle m_frameRect;                  // dimensions of a single frame
-        private bool m_reverse;                         // play frames in reverse order
 
         // Private Animation Data
         private uint m_frameCount;
@@ -57,7 +57,7 @@ namespace Ivy
 
             Playing = false;
             Loop = true;
-            m_reverse = false;
+            Reverse = false;
 
             Scale = new Vector2(1.0f, 1.0f);
 
@@ -120,29 +120,13 @@ namespace Ivy
                                               m_frameRect.Width,
                                               m_animRect.Height);
 
+            // TODO: Refactor scaling to camera 
             Rectangle dstRect = new Rectangle(pos.X, 
                                               pos.Y,
                                               (int)(srcRect.Width / 256f * 800f * Scale.X),
                                               (int)(srcRect.Height / 192f * 600f * Scale.Y));
 
             spriteBatch.Draw(m_texture, dstRect, srcRect, Color.White);
-        }
-
-        public bool Reverse
-        {
-            get { return m_reverse; }
-            set
-            {
-                if (m_reverse != value)
-                {
-                    m_reverse = value;
-                }
-                else
-                {
-                    m_reverse = value;
-                }
-                Reset();
-            }
         }
 
         public Rectangle GetFrameBounds()

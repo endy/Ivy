@@ -21,94 +21,90 @@ namespace Ivy
         {
             public AnimatedSprite Anim { get; private set; }
 
-            protected AnimGraph m_graph;
+            private AnimGraph m_graph;
+            private Dictionary<MessageType, AnimGraphNode> m_nextNodesOnMessage;
 
-            private Dictionary<MessageType, AnimGraphNode> m_adjacentNodes;
+            private AnimGraphNode m_nextNodeOnAnimEnd;
+            private AnimGraphNode m_defaultNextNodeOnAnimEnd;
+            private Dictionary<MessageType, AnimGraphNode> m_altNextNodesOnAnimEnd;
+
 
             public AnimGraphNode(AnimGraph graph, AnimatedSprite anim)
             {
                 m_graph = graph;
                 Anim = anim;
 
-                m_adjacentNodes = new Dictionary<MessageType, AnimGraphNode>();
+                Anim.OnAnimEnd += AnimatedSpriteEnd;
+
+                m_nextNodesOnMessage = new Dictionary<MessageType, AnimGraphNode>();
+                m_altNextNodesOnAnimEnd = new Dictionary<MessageType, AnimGraphNode>();
             }
 
             public virtual bool HandleMessage(Message msg)
             {
-                bool handledMessage = false;
-                if (m_adjacentNodes.ContainsKey(msg.Type) == true)
+                bool handledMessage = true;
+                if (m_nextNodesOnMessage.ContainsKey(msg.Type) == true)
                 {
-                    m_graph.SetCurrentNode(m_adjacentNodes[msg.Type]);
-                    handledMessage = true;
+                    m_graph.SetCurrentNode(m_nextNodesOnMessage[msg.Type]);
+                    m_nextNodeOnAnimEnd = m_defaultNextNodeOnAnimEnd;
+
+                    //IvyGame.Get().ConsoleStr += " Handled Message: " + msg.Type + " in " + Anim.Name + "\n";
+                }
+                else if (m_altNextNodesOnAnimEnd.ContainsKey(msg.Type) == true)
+                {
+                    m_nextNodeOnAnimEnd = m_altNextNodesOnAnimEnd[msg.Type];
 
                     //IvyGame.Get().ConsoleStr += " Handled Message: " + msg.Type + " in " + Anim.Name + "\n";
                 }
                 else
                 {
-                    //IvyGame.Get().ConsoleStr += " Unhandled Message: " + msg.Type + " in " + Anim.Name + "\n";
+                    handledMessage = false;
                 }
 
                 return handledMessage;
             }
 
-            public virtual bool AddTransition(MessageType msgType, AnimGraphNode endNode)
+            public virtual bool AddTransition(MessageType msgType, AnimGraphNode nextNode)
             {
                 bool added = false;
-                if (m_adjacentNodes.ContainsKey(msgType) == false)
+                if (m_nextNodesOnMessage.ContainsKey(msgType) == false)
                 {
-                    m_adjacentNodes.Add(msgType, endNode);
+                    m_nextNodesOnMessage.Add(msgType, nextNode);
+                    added = true;
+                }
+
+                return added;
+            }
+            public virtual bool AddTransitionOnAnimEnd(AnimGraphNode nextNode)
+            {
+                m_defaultNextNodeOnAnimEnd = nextNode;
+                m_nextNodeOnAnimEnd = m_defaultNextNodeOnAnimEnd;
+
+                return true;
+            }
+
+            public virtual bool AddTransitionOnAnimEnd(MessageType msgType, AnimGraphNode nextNode)
+            {
+                bool added = false;
+                if (m_altNextNodesOnAnimEnd.ContainsKey(msgType) == false)
+                {
+                    m_altNextNodesOnAnimEnd.Add(msgType, nextNode);
                     added = true;
                 }
 
                 return added;
             }
 
-            public virtual bool AddTransition(AnimGraphNode previousNode, AnimGraphNode nextNode)
+            public void AnimatedSpriteEnd(AnimatedSprite anim)
             {
-                return false;
-            }
-
-            public virtual bool RemoveTransition(MessageType msgType)
-            {
-                bool removed = false;
-                if (m_adjacentNodes.ContainsKey(msgType) == true)
+                if ((m_graph.GetCurrentNode() == this) && (m_nextNodeOnAnimEnd != null))
                 {
-                    m_adjacentNodes.Remove(msgType);
-                    removed = true;
+                    m_graph.SetCurrentNode(m_nextNodeOnAnimEnd);
+                    m_nextNodeOnAnimEnd = m_defaultNextNodeOnAnimEnd;
                 }
-
-                return removed;
-            }
-        }
-
-        private class AnimGraphTransitionNode : AnimGraphNode
-        {
-            private AnimGraphNode m_previousNode;
-            private AnimGraphNode m_nextNode;
-
-            public AnimGraphTransitionNode(AnimGraph graph, AnimatedSprite anim)
-                : base(graph, anim)
-            {
-                Anim.OnAnimEnd += AnimatedSpriteEnd;
             }
             
-            public override bool AddTransition(AnimGraphNode previousNode, AnimGraphNode nextNode)
-            {
-                m_previousNode = previousNode;
-                m_nextNode = nextNode;
-
-                return true;
-            }
-
-            public bool AnimatedSpriteEnd(AnimatedSprite anim)
-            {
-                if (m_graph.GetCurrentNode() == this)
-                {
-                    m_graph.SetCurrentNode(m_nextNode);
-                }
-
-                return true;
-            } 
+            // TODO: Add function to remove transitions
         }
 
         #endregion
@@ -155,8 +151,8 @@ namespace Ivy
                 m_currentNode.Anim.Draw(spriteBatch, screenPosPoint);
 
 
-                IvyGame.Get().ConsoleStr += this + " Position (room): " + roomPos + "\n";
-                IvyGame.Get().ConsoleStr += this + " Position (screen): " + screenPos + "\n";
+                //IvyGame.Get().ConsoleStr += this + " Position (room): " + roomPos + "\n";
+                //IvyGame.Get().ConsoleStr += this + " Position (screen): " + screenPos + "\n";
             }
         }
 
@@ -184,7 +180,7 @@ namespace Ivy
 
                     // a hack for syncing animations
                     // TODO: expose some way of turning this sync 'off'
-                    if (m_currentNode.Anim != node.Anim)
+                    //if (m_currentNode.Anim != node.Anim)
                     {
                         node.Anim.Reset();
                     }
@@ -202,15 +198,6 @@ namespace Ivy
         public IAnimGraphNode AddAnim(AnimatedSprite anim)
         {
             AnimGraphNode node = new AnimGraphNode(this, anim);
-
-            m_nodeList.Add(node);
-
-            return node;
-        }
-
-        public IAnimGraphNode AddTransitionAnim(AnimatedSprite anim)
-        {
-            AnimGraphNode node = new AnimGraphTransitionNode(this, anim);
 
             m_nodeList.Add(node);
 
@@ -237,23 +224,37 @@ namespace Ivy
             return added;
         }
 
-        public bool AddTransition(IAnimGraphNode iStartNode, MessageType msgType, IAnimGraphNode iTransNode, IAnimGraphNode iEndNode)
+        public bool AddTransitionOnAnimEnd(IAnimGraphNode startNode, IAnimGraphNode endNode)
         {
-            AnimGraphNode startNode = GetNode(iStartNode);
-            AnimGraphNode transNode = GetNode(iTransNode);
-            AnimGraphNode endNode = GetNode(iEndNode);
+            AnimGraphNode internalStartNode = GetNode(startNode);
+            AnimGraphNode internalEndNode = GetNode(endNode);
 
             bool added = false;
 
-            if ((startNode != null) && (endNode != null) && (transNode != null))
+            if ((internalStartNode != null) && (internalEndNode != null))
             {
-                if ((startNode.AddTransition(msgType, transNode) == true) &&
-                    (transNode.AddTransition(startNode, endNode) == true))
+                if (internalStartNode.AddTransitionOnAnimEnd(internalEndNode) == true)
                 {
                     added = true;
                 }
             }
+            return added;
+        }
 
+        public bool AddTransitionOnAnimEnd(IAnimGraphNode startNode, MessageType msgType, IAnimGraphNode endNode)
+        {
+            AnimGraphNode internalStartNode = GetNode(startNode);
+            AnimGraphNode internalEndNode = GetNode(endNode);
+
+            bool added = false;
+
+            if ((internalStartNode != null) && (internalEndNode != null))
+            {
+                if (internalStartNode.AddTransitionOnAnimEnd(msgType, internalEndNode) == true)
+                {
+                    added = true;
+                }
+            }
             return added;
         }
 
