@@ -16,8 +16,8 @@ namespace Ivy
     /// <summary>
     /// This is the main type for your game
     /// </summary>
-    public class IvyGame : Microsoft.Xna.Framework.Game,
-                           IMessageSender
+    public abstract class IvyGame : Microsoft.Xna.Framework.Game,
+                                    IMessageSender
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
@@ -34,23 +34,26 @@ namespace Ivy
 
         private Player m_playerOne;
 
-        private IvyGame()
+        protected IvyGame()
         {
             // Move this back to initialize
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+
+            m_instance = this;
         }
         
         public static IvyGame Get()
         {
             if (m_instance == null)
             {
-                m_instance = new IvyGame();
+                //@TODO debug!
+                // uh oh!  shouldn't even happen!
             }
 
             return m_instance;
-        }       
-
+        }
+       
         /// <summary>
         /// Allows the game to perform any initialization it needs to before starting to run.
         /// This is where it can query for any required services and load any non-graphic

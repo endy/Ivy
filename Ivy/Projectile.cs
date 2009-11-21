@@ -88,7 +88,7 @@ namespace Ivy
         {
             Rectangle cameraRect = IvyGame.Get().Camera.CameraRect;
 
-            Point projectilePos;
+            Point projectilePos = new Point();
             projectilePos.X = (int)(((m_position.X - cameraRect.X) / (float)cameraRect.Width) * 800); // screen width = 800
             projectilePos.Y = (int)(((m_position.Y - cameraRect.Y) / (float)cameraRect.Height) * 600); // screen height = 600
 
