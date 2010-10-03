@@ -83,31 +83,27 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AnimGraph.cs" />
-    <Compile Include="Box.cs" />
-    <Compile Include="Camera2D.cs" />
-    <Compile Include="EntityStateFall.cs" />
-    <Compile Include="EntityStateJump.cs" />
-    <Compile Include="EntityStateRun.cs" />
-    <Compile Include="EntityStateStand.cs" />
-    <Compile Include="InputEvent.cs" />
-    <Compile Include="InputMgr.cs" />
-    <Compile Include="IvyGame.cs">
+    <Compile Include="src\AnimGraph.cs" />
+    <Compile Include="src\Box.cs" />
+    <Compile Include="src\Camera2D.cs" />
+    <Compile Include="src\EntityStateFall.cs" />
+    <Compile Include="src\EntityStateJump.cs" />
+    <Compile Include="src\EntityStateRun.cs" />
+    <Compile Include="src\EntityStateStand.cs" />
+    <Compile Include="src\InputEvent.cs" />
+    <Compile Include="src\InputMgr.cs" />
+    <Compile Include="src\IvyGame.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Message.cs" />
-    <Compile Include="MessageDispatcher.cs" />
-    <Compile Include="Room.cs" />
-    <Compile Include="Skree.cs" />
-    <Compile Include="StateMgr.cs" />
-    <Compile Include="Entity.cs" />
-    <Compile Include="Player.cs" />
-    <Compile Include="Projectile.cs" />
+    <Compile Include="src\Message.cs" />
+    <Compile Include="src\MessageDispatcher.cs" />
+    <Compile Include="src\WorldZone.cs" />
+    <Compile Include="src\StateMgr.cs" />
+    <Compile Include="src\Entity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="AnimatedSprite.cs" />
-    <Compile Include="State.cs" />
-    <Compile Include="Weapon.cs" />
-    <Compile Include="World.cs" />
+    <Compile Include="src\AnimatedSprite.cs" />
+    <Compile Include="src\State.cs" />
+    <Compile Include="src\World.cs" />
   </ItemGroup>
   <ItemGroup>
     <NestedContentProject Include="Content\Content.contentproj">

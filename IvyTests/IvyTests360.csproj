@@ -56,10 +56,10 @@
     <XnaCompressContent>true</XnaCompressContent>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="ParticleSystem.cs" />
+    <Compile Include="src\ParticleSystem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Program.cs" />
-    <Compile Include="IvyTests.cs" />
+    <Compile Include="src\Program.cs" />
+    <Compile Include="src\IvyTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Ivy.ico" />

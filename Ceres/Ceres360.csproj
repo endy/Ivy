@@ -12,7 +12,8 @@
     <XnaFrameworkVersion>v3.1</XnaFrameworkVersion>
     <XnaPlatform>Xbox 360</XnaPlatform>
     <XnaCrossPlatformGroupID>8549e726-f728-49d5-9da2-c09e95d743ec</XnaCrossPlatformGroupID>
-    <ApplicationIcon>Ceres.ico</ApplicationIcon>
+    <ApplicationIcon>
+    </ApplicationIcon>
     <Thumbnail>CeresThumbnail.png</Thumbnail>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
@@ -57,14 +58,17 @@
     <XnaCompressContent>true</XnaCompressContent>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Ceres.cs" />
+    <Compile Include="src\Ceres.cs" />
+    <Compile Include="src\Player.cs" />
+    <Compile Include="src\Program.cs" />
+    <Compile Include="src\Projectile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="src\Skree.cs" />
+    <Compile Include="src\Weapon.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Ceres.ico" />
     <Content Include="CeresThumbnail.png" />
-    <Content Include="Game.ico" />
   </ItemGroup>
   <ItemGroup>
     <NestedContentProject Include="Content\Content.contentproj">
