@@ -77,8 +77,8 @@
     <Compile Include="src\MessageDispatcher.cs" />
     <Compile Include="src\State.cs" />
     <Compile Include="src\StateMgr.cs" />
-    <Compile Include="src\World.cs" />
     <Compile Include="src\WorldZone.cs" />
+    <Compile Include="src\ZonePortal.cs" />
   </ItemGroup>
   <ItemGroup>
     <NestedContentProject Include="Content\Content.contentproj">

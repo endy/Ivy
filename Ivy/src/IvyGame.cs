@@ -16,18 +16,19 @@ namespace Ivy
     /// <summary>
     /// This is the main type for your game
     /// </summary>
-    public abstract class IvyGame : Microsoft.Xna.Framework.Game,
-                                    IMessageSender
+    public abstract class IvyGame : Microsoft.Xna.Framework.Game, IMessageSender, IMessageReceiver
     {
         private static IvyGame m_instance = null;
 
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
-        public World World { get; private set; }
+        // World Data
+        private WorldZone m_currentZone;
+
         public Camera2D Camera { get; private set; }
 
-        public Entity CameraTarget { get; set; }
+        public Entity m_cameraTarget;
 
         // refactor into Console class
         public string ConsoleStr { get; set; }
@@ -69,10 +70,6 @@ namespace Ivy
         /// </summary>
         protected override void Initialize()
         {
-
-            // Create World
-            World = new World();
-
             Camera = new Camera2D();
     
             ConsoleStr = "\n";
@@ -126,10 +123,15 @@ namespace Ivy
             InputMgr.Get().Update();
 
             // Update World
-            World.Update(gameTime);
+
+            // if multiple rooms are active in a game, they should all be updated here
+            if (m_currentZone != null)
+            {
+                m_currentZone.Update(gameTime);
+            }
 
             // Update Camera based on Player Position
-            Camera.Update(gameTime, CameraTarget);
+            Camera.Update(gameTime);
 
             // Update Sound FX?
 
@@ -152,7 +154,11 @@ namespace Ivy
             graphics.GraphicsDevice.SamplerStates[0].MinFilter = TextureFilter.Point;
             graphics.GraphicsDevice.SamplerStates[0].MipFilter = TextureFilter.Point;
 
-            World.Draw(spriteBatch);
+            // if multiple rooms are active, only the current one is drawn
+            if (m_currentZone != null)
+            {
+                m_currentZone.Draw(spriteBatch);
+            }
 
             // Draw Console           
             // Find the center of the string
@@ -170,11 +176,62 @@ namespace Ivy
 
             spriteBatch.End();
 
-            World.Draw3D();
+            if (m_currentZone != null)
+            {
+                m_currentZone.Draw3D();
+            }
 
             base.Draw(gameTime);
         }
 
+        protected void SetCameraTarget(Entity target)
+        {
+            m_cameraTarget = target;
+            Camera.SetTarget(target);
+        }
 
+        /// World Methods
+        ///
+
+        public WorldZone GetCurrentZone()
+        {
+            return m_currentZone;
+        }
+
+        public void SetCurrentZone(WorldZone room)
+        {
+            m_currentZone = room;
+        }
+
+        public void ReceiveMessage(Message msg)
+        {
+            if (msg.Type == MessageType.ChangeZone)
+            {
+                // Pause, Transition Room, Then Pass Message onto both rooms
+
+                ChangeZoneMsg czMsg = (ChangeZoneMsg)msg;
+
+                if (m_currentZone != null)
+                {
+                    MessageDispatcher.Get().SendMessage(
+                        new ChangeZoneMsg(this, m_currentZone, czMsg.Entity, czMsg.DestZone, czMsg.DestPosition));
+                }
+
+                if (czMsg.DestZone != null)
+                {
+                    MessageDispatcher.Get().SendMessage(
+                        new ChangeZoneMsg(this, czMsg.DestZone, czMsg.Entity, czMsg.DestZone, czMsg.DestPosition));
+                }
+
+                if (czMsg.Entity == m_cameraTarget)
+                {
+                    SetCurrentZone(czMsg.DestZone);
+                    Camera.SetZoneBounds(czMsg.DestZone.Bounds);
+
+                    // 
+                    Camera.SetTarget(czMsg.Entity);
+                }
+            }
+        }
     }
 }

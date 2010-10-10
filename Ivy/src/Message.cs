@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using Microsoft.Xna.Framework;
+
 namespace Ivy
 {
     public enum MessageType
@@ -15,10 +17,23 @@ namespace Ivy
         Land,
         FireWeapon,
 
+        CollideWithEntity,
         CollideWithRoom,
+        ChangeZone,
 
         // Test Messages
         ActivateSkree,
+    }
+
+    public class EntityCollisionData
+    {
+        public Entity entity;
+    }
+
+    public class PortalMessageData
+    {
+        public Entity entity;
+        public WorldZone targetZone;
     }
 
     public class Message
@@ -42,6 +57,32 @@ namespace Ivy
             Receiver = receiver;
             Sender = sender;
             SendTime = sendTime;
+        }
+    }
+
+    public class EntityCollisionMsg : Message
+    {
+        public Entity EntityHit { get; private set; }
+
+        public EntityCollisionMsg(IMessageSender sender, IMessageReceiver receiver, Entity entityHit)
+            : base(MessageType.CollideWithEntity, sender, receiver)
+        {
+            EntityHit = entityHit;
+        }
+    }
+
+    public class ChangeZoneMsg : Message
+    {
+        public WorldZone DestZone { get; private set; }
+        public Point DestPosition { get; private set; }
+        public Entity Entity { get; private set; }
+
+        public ChangeZoneMsg(IMessageSender sender, IMessageReceiver receiver, Entity entity, WorldZone destZone, Point destPosition)
+            : base(MessageType.ChangeZone, sender, receiver)
+        {
+            Entity = entity;
+            DestZone = destZone;
+            DestPosition = destPosition;
         }
     }
 }

@@ -8,9 +8,8 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ivy
 {
-    public class WorldZone : IMessageSender
+    public class WorldZone : IMessageSender, IMessageReceiver
     {
-        World m_world;
         List<Entity> m_entities;
 
         Texture2D m_background;
@@ -22,9 +21,8 @@ namespace Ivy
 
         private Box m_box;
 
-        public WorldZone(World world, Rectangle bounds, Texture2D background, Rectangle bgRect)
+        public WorldZone(Rectangle bounds, Texture2D background, Rectangle bgRect)
         {
-            m_world = world;
             Bounds = bounds;
             m_entities = new List<Entity>();
 
@@ -34,7 +32,7 @@ namespace Ivy
             m_platforms = new List<Rectangle>();
 
             // Floor
-            m_platforms.Add(new Rectangle(2, bounds.Height-1, bounds.Width-4, 1));
+            m_platforms.Add(new Rectangle(0, bounds.Height-1, bounds.Width, 1));
 
             /*  // Shaft Platforms
             m_platforms.Add(new Rectangle(181 - bgRect.X, 446 - bgRect.Y, 64, 16));
@@ -51,32 +49,6 @@ namespace Ivy
         {
         }
 
-        public void Load()
-        {
-
-        }
-
-        public void Unload()
-        {
-
-        }
-
-        public void AddEntity(Entity entity)
-        {
-            if (m_entities.Contains(entity) == false)
-            {
-                m_entities.Add(entity);
-            }
-        }
-
-        public void RemoveEntity(Entity entity)
-        {
-            if (m_entities.Contains(entity) == true)
-            {
-                m_entities.Remove(entity);
-            }
-        }
-
         public void Update(GameTime gameTime)
         {
             foreach (Entity e in m_entities)
@@ -89,6 +61,29 @@ namespace Ivy
             // do collision detection on every entity vs world
 
             // do collision detection on every entity vs entity
+
+            List<Entity> entityListA = new List<Entity>(m_entities);
+            List<Entity> entityListB = new List<Entity>(m_entities);
+
+            foreach (Entity a in entityListA)
+            {
+                entityListB.Remove(a);
+                foreach (Entity b in entityListB)
+                {
+                    Rectangle aRect = a.CollisionRect();
+                    Rectangle bRect = b.CollisionRect();
+
+                    //Console.WriteLine(aRect);
+                    //Console.WriteLine(bRect);
+                    if (aRect.Intersects(bRect))
+                    {
+                        MessageDispatcher.Get().SendMessage(new EntityCollisionMsg(this, a, b));
+                        MessageDispatcher.Get().SendMessage(new EntityCollisionMsg(this, b, a));
+                    }
+                }
+            }
+
+            
             foreach (Entity e in m_entities)
             {
                 foreach (Rectangle r in m_platforms)
@@ -133,6 +128,30 @@ namespace Ivy
                 Rectangle newRect = new Rectangle(0, 0, (int)(r.Width/256f * 800f), (int)(r.Height/ 192f * 600f));
                 m_box.UpdateRect(newRect);
                 m_box.Draw(r.Location);
+            }
+        }
+
+        public virtual void ReceiveMessage(Message msg)
+        {
+            if (msg.Type == MessageType.ChangeZone)
+            {
+                ChangeZoneMsg czMsg = (ChangeZoneMsg)msg;
+                Entity entity = czMsg.Entity;
+                if (czMsg.DestZone == this)
+                {
+                    if (m_entities.Contains(entity) == false)
+                    {
+                        m_entities.Add(entity);
+                        entity.ChangeZone(this, czMsg.DestPosition);
+                    }
+                }
+                else
+                {
+                    if (m_entities.Contains(entity) == true)
+                    {
+                        m_entities.Remove(entity);
+                    }
+                }
             }
         }
     }

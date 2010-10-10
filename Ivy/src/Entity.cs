@@ -10,7 +10,9 @@ namespace Ivy
 {
     public class Entity : Microsoft.Xna.Framework.GameComponent, IMessageReceiver, IMessageSender
     {
-        protected World m_world;        ///< Cache the World
+        // @todo Add bCollidable property...
+        protected WorldZone WorldZone { get; private set; }
+
         public Point Position { get; set; }
         public Vector2 Direction { get; set; }
 
@@ -22,6 +24,8 @@ namespace Ivy
         protected Vector2 m_speed;
 
         public Vector2 CurrentSpeed { get; set; }
+
+        protected Rectangle m_StaticCollisionRect;
 
         // TODO: query this in the jump state?
         //int jumpTime = 800;
@@ -37,7 +41,6 @@ namespace Ivy
 
         public override void Initialize()
         {
-            m_world = IvyGame.Get().World;
             Position = new Point(0, 0);
             Direction = new Vector2(1f, 0f);
 
@@ -51,6 +54,16 @@ namespace Ivy
 
             m_box = new Box(Game);
             m_box.Initialize();
+
+            // use static collision rect for now
+            if (m_animGraph != null)
+            {
+                m_StaticCollisionRect = m_animGraph.GetCurrentNode().Anim.GetFrameBounds();
+            }
+            else
+            {
+                m_StaticCollisionRect = new Rectangle(0, 0, 1, 1);
+            }
         }
 
         public override void Update(GameTime gameTime)
@@ -72,20 +85,25 @@ namespace Ivy
 
         public virtual void Draw3D()
         {
-            Rectangle animRect = m_animGraph.GetCurrentNode().Anim.GetFrameBounds();
-            animRect.Width = (int)(animRect.Width / 256f * 800);
-            animRect.Height = (int)(animRect.Height / 192f * 600);
+            Rectangle boxRect = CollisionRect();
 
-            m_box.UpdateRect(animRect);
+            //@todo remove this hack...
+            if (m_animGraph != null)
+            {
+                boxRect.Width = (int)(boxRect.Width / 256f * 800);
+                boxRect.Height = (int)(boxRect.Height / 192f * 600);
+            }
+
+            m_box.UpdateRect(boxRect);
 
             m_box.Draw(Position); 
         }
 
         public Rectangle CollisionRect()
         {
-            Rectangle animRect = m_animGraph.GetCurrentNode().Anim.GetFrameBounds();
+            Rectangle rect = m_StaticCollisionRect;
 
-            return new Rectangle(Position.X, Position.Y, animRect.Width, animRect.Height);
+            return new Rectangle(Position.X, Position.Y, rect.Width, rect.Height);
         }
 
         public virtual void ReceiveMessage(Message msg)
@@ -141,6 +159,14 @@ namespace Ivy
             int dy = (int)(CurrentSpeed.Y * Direction.Y * gameTime.ElapsedGameTime.Milliseconds);
 
             Position = new Point(Position.X + dx, Position.Y + dy);
+        }
+
+        public void ChangeZone(WorldZone zone, Point position)
+        {
+            ///@todo need 'ExitZone' method?
+            WorldZone = zone;
+
+            Position = position;
         }
     }
 }

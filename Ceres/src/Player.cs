@@ -231,6 +231,8 @@ namespace Ivy
         {
             m_armCannon.Draw(spriteBatch);
             m_animGraph.Draw(spriteBatch);
+
+            Console.WriteLine(Position);
         }
 
         public override void ReceiveMessage(Message msg)

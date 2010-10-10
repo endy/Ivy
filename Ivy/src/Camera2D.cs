@@ -10,7 +10,7 @@ namespace Ivy
 {
     public class Camera2D
     {
-        private Rectangle m_roomBounds;
+        private Rectangle m_zoneBounds;
         public Rectangle CameraBounds { get; private set; } // in room coordinates
         public Rectangle ScreenRect { get; private set; }   // in screen coordinates
 
@@ -19,10 +19,12 @@ namespace Ivy
 
         private Vector2 m_maxSpeed;
 
+        private Entity m_targetEntity;
+
         public Camera2D()
         {
             Rectangle defaultRect = new Rectangle(0, 0, 800, 600);
-            m_roomBounds = defaultRect;
+            m_zoneBounds = defaultRect;
             CameraBounds = defaultRect;
             ScreenRect = defaultRect;
             CameraRect = defaultRect;
@@ -30,13 +32,39 @@ namespace Ivy
 
         public void Initialize(Rectangle roomBounds, Rectangle cameraBounds, Rectangle screenRect)
         {
-            m_roomBounds = roomBounds;
+            m_zoneBounds = roomBounds;
             CameraBounds = cameraBounds;
             ScreenRect = screenRect;
 
             CameraRect = new Rectangle(0, 0, cameraBounds.Width, cameraBounds.Height);
 
             m_maxSpeed = new Vector2(.3f, .3f);
+        }
+
+        public void SetZoneBounds(Rectangle zoneBounds)
+        {
+            m_zoneBounds = zoneBounds;
+        }
+
+        public void SetTarget(Entity target)
+        {
+            m_targetEntity = target;
+
+
+            Vector2 idealCameraCenter = new Vector2(m_targetEntity.Position.X + (1 / 5f * ((float)CameraBounds.Width * m_targetEntity.Direction.X)),
+                                        m_targetEntity.Position.Y + (1 / 10f * CameraBounds.Height * m_targetEntity.Direction.Y));
+
+            int x = (int)idealCameraCenter.X - CameraBounds.Center.X;
+            int y = (int)idealCameraCenter.Y - CameraBounds.Center.Y;
+            int width = CameraBounds.Width;
+            int height = CameraBounds.Height;
+
+            x = Math.Max(x, m_zoneBounds.X);
+            x = Math.Min(x + width, m_zoneBounds.Right) - width;
+            y = Math.Max(y, m_zoneBounds.Y);
+            y = Math.Min(y + height, m_zoneBounds.Bottom) - height;
+
+            CameraRect = new Rectangle(x, y, width, height);
         }
 
         public Vector2 GetRoomPointForScreenPoint(Vector2 screenPoint)
@@ -63,10 +91,10 @@ namespace Ivy
         {
             Vector2 screenPoint = Vector2.Zero;
 
-            if ((m_roomBounds.Left <= roomPoint.X) &&
-                (roomPoint.X < m_roomBounds.Right) &&
-                (m_roomBounds.Top <= roomPoint.Y) &&
-                (roomPoint.Y < m_roomBounds.Bottom))
+            if ((m_zoneBounds.Left <= roomPoint.X) &&
+                (roomPoint.X < m_zoneBounds.Right) &&
+                (m_zoneBounds.Top <= roomPoint.Y) &&
+                (roomPoint.Y < m_zoneBounds.Bottom))
             {
                 screenPoint.X = ((roomPoint.X - CameraRect.X) / (float)CameraRect.Width) * ScreenRect.Width;
                 screenPoint.Y = ((roomPoint.Y - CameraRect.Y) / (float)CameraRect.Height) * ScreenRect.Height;
@@ -79,22 +107,27 @@ namespace Ivy
             return screenPoint;
         }
 
-        public void Update(GameTime gameTime, Entity target)
+        private Vector2 GetMaxTravelDist(GameTime gameTime)
         {
-            if (target != null)
+            return new Vector2((m_maxSpeed.X * gameTime.ElapsedGameTime.Milliseconds),
+                               (m_maxSpeed.Y * gameTime.ElapsedGameTime.Milliseconds));
+        }
+
+        public void Update(GameTime gameTime)
+        {
+            if (m_targetEntity != null)
             {
                 Vector2 actualCameraCenter = new Vector2(CameraRect.Center.X, CameraRect.Center.Y);
 
-                Vector2 idealCameraCenter = new Vector2(target.Position.X + (1 / 5f * ((float)CameraBounds.Width * target.Direction.X)),
-                                            target.Position.Y + (1 / 10f * CameraBounds.Height * target.Direction.Y));
+                Vector2 idealCameraCenter = new Vector2(m_targetEntity.Position.X + (1 / 5f * ((float)CameraBounds.Width * m_targetEntity.Direction.X)),
+                                            m_targetEntity.Position.Y + (1 / 10f * CameraBounds.Height * m_targetEntity.Direction.Y));
 
                 //IvyGame.Get().ConsoleStr += "Ideal Center: " + idealCameraCenter + "\n";
                 //IvyGame.Get().ConsoleStr += "Actual Center: " + actualCameraCenter + "\n";
 
-                if (target.Moving)
+                if (m_targetEntity.Moving)
                 {
-                    Vector2 maxTravelDist = new Vector2((m_maxSpeed.X * gameTime.ElapsedGameTime.Milliseconds),
-                                                        (m_maxSpeed.Y * gameTime.ElapsedGameTime.Milliseconds));
+                    Vector2 maxTravelDist = GetMaxTravelDist(gameTime);
 
                     Vector2 newCameraCenter = idealCameraCenter;
 
@@ -138,24 +171,20 @@ namespace Ivy
                     {
                         newCameraRect.X = 0;
                     }
-                    if ((newCameraRect.X + newCameraRect.Width) >= (m_roomBounds.X + m_roomBounds.Width))
+                    if ((newCameraRect.X + newCameraRect.Width) >= (m_zoneBounds.X + m_zoneBounds.Width))
                     {
-                        newCameraRect.X = (m_roomBounds.X + m_roomBounds.Width) - CameraRect.Width;
+                        newCameraRect.X = (m_zoneBounds.X + m_zoneBounds.Width) - CameraRect.Width;
                     }
                     if (newCameraRect.Y < 0)
                     {
                         newCameraRect.Y = 0;
                     }
-                    if ((newCameraRect.Y + newCameraRect.Height) >= (m_roomBounds.Y + m_roomBounds.Height))
+                    if ((newCameraRect.Y + newCameraRect.Height) >= (m_zoneBounds.Y + m_zoneBounds.Height))
                     {
-                        newCameraRect.Y = (m_roomBounds.Y + m_roomBounds.Height) - CameraRect.Height;
+                        newCameraRect.Y = (m_zoneBounds.Y + m_zoneBounds.Height) - CameraRect.Height;
                     }
                     CameraRect = newCameraRect;
                 }
-
-                //IvyGame.Get().ConsoleStr += "WorldZone Bounds: " + m_roomBounds + "\n";
-                //IvyGame.Get().ConsoleStr += "Camera Rect: " + CameraRect + "\n";
-
             }
         }
     }

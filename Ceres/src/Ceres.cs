@@ -18,7 +18,7 @@ namespace Ceres
     /// <summary>
     /// This is the main type for your game
     /// </summary>
-    public class Ceres : Ivy.IvyGame
+    public class Ceres : Ivy.IvyGame, IMessageSender
     {
         ///@todo add player management
         protected Player m_playerOne;
@@ -27,12 +27,12 @@ namespace Ceres
         /// WorldZone bounds/coordinates within the large image file
         /// TODO: Migrate this to a data file
         /// </summary>
-        Rectangle shaftRoomRect = new Rectangle(21, 94, 256, 705);
-        Rectangle openRoomRect = new Rectangle(329, 50, 512, 192);
-        Rectangle stairsRoomRect = new Rectangle(334, 333, 512, 448);
-        Rectangle labRoomRect = new Rectangle(48, 873, 512, 192);
-        Rectangle corridorRoomRect = new Rectangle(704, 690, 512, 192);
-        Rectangle encounterRoomRect = new Rectangle(565, 1133, 256, 192);
+        Rectangle shaftZoneRect = new Rectangle(21, 94, 256, 705);
+        Rectangle openZoneRect = new Rectangle(329, 50, 512, 192);
+        Rectangle stairsZoneRect = new Rectangle(334, 333, 256, 448);
+        Rectangle labZoneRect = new Rectangle(48, 873, 512, 192);
+        Rectangle corridorZoneRect = new Rectangle(704, 690, 512, 192);
+        Rectangle encounterZoneRect = new Rectangle(565, 1133, 256, 192);
 
         public Ceres()
         {
@@ -43,44 +43,93 @@ namespace Ceres
         {
             base.Initialize();
 
+            Texture2D zoneBackground = IvyGame.Get().Content.Load<Texture2D>("Sprites\\environment");
+
+            #region  Create Rooms
+            Rectangle shaftBounds = new Rectangle(0, 0, shaftZoneRect.Width, shaftZoneRect.Height);
+            WorldZone shaftRoom = new WorldZone(shaftBounds, zoneBackground, shaftZoneRect);
+            shaftRoom.Initialize();
+
+            Rectangle openRoomBounds = new Rectangle(0, 0, openZoneRect.Width, openZoneRect.Height);
+            WorldZone openRoom = new WorldZone(openRoomBounds, zoneBackground, openZoneRect);
+            openRoom.Initialize();
+
+            Rectangle stairsZoneBounds = new Rectangle(0, 0, stairsZoneRect.Width, stairsZoneRect.Height);
+            WorldZone stairsZone = new WorldZone(stairsZoneBounds, zoneBackground, stairsZoneRect);
+            stairsZone.Initialize();
+
+            Rectangle labZoneBounds = new Rectangle(0, 0, labZoneRect.Width, labZoneRect.Height);
+            WorldZone labZone = new WorldZone(labZoneBounds, zoneBackground, labZoneRect);
+            labZone.Initialize();
+
+            Rectangle corridorZoneBounds = new Rectangle(0, 0, corridorZoneRect.Width, corridorZoneRect.Height);
+            WorldZone corridorZone = new WorldZone(corridorZoneBounds, zoneBackground, corridorZoneRect);
+            corridorZone.Initialize();
+
+            Rectangle encounterZoneBounds = new Rectangle(0, 0, encounterZoneRect.Width, encounterZoneRect.Height);
+            WorldZone encounterZone = new WorldZone(encounterZoneBounds, zoneBackground, encounterZoneRect);
+            encounterZone.Initialize();
+
+            #endregion
+
+            // Create Entities
+
+            // Add player
+
             // TODO: Find out if components need to be individually initialized here,
             //       XNA may provide a way of doing this.
             m_playerOne = new Player(this);
             m_playerOne.Initialize();
 
-            CameraTarget = m_playerOne;
+            SetCameraTarget(m_playerOne);
+
+            ChangeZoneMsg addEntityMsg = new ChangeZoneMsg(this, shaftRoom, m_playerOne, shaftRoom, new Point(0, 0));
+            MessageDispatcher.Get().SendMessage(addEntityMsg);
+
+            // Shaft Entities
+            ZonePortal portalShaftToOpen = new ZonePortal(openRoom, new Point(10, 85), new Rectangle(0, 0, 4, 32));
+            portalShaftToOpen.Initialize();
+            addEntityMsg = new ChangeZoneMsg(this, shaftRoom, portalShaftToOpen, shaftRoom, new Point(225, 595));
+            MessageDispatcher.Get().SendMessage(addEntityMsg);
+
+            // Open Zone Entities
+            ZonePortal portalOpenToShaft = new ZonePortal(shaftRoom, new Point(175, 595), new Rectangle(0, 0, 4, 32));
+            portalOpenToShaft.Initialize();
+            addEntityMsg = new ChangeZoneMsg(this, openRoom, portalOpenToShaft, openRoom, new Point(5, 85));
+            MessageDispatcher.Get().SendMessage(addEntityMsg);
+
+            ZonePortal portalOpenToStairs = new ZonePortal(stairsZone, new Point(15, 80), new Rectangle(0, 0, 4, 32));
+            portalOpenToStairs.Initialize();
+            addEntityMsg = new ChangeZoneMsg(this, openRoom, portalOpenToStairs, openRoom, new Point(500, 85));
+            MessageDispatcher.Get().SendMessage(addEntityMsg);
+
+            // Stairs Zone Entities
+            ZonePortal portalStairsToOpen = new ZonePortal(openRoom, new Point(460, 85), new Rectangle(0, 0, 4, 32));
+            portalStairsToOpen.Initialize();
+            addEntityMsg = new ChangeZoneMsg(this, stairsZone, portalStairsToOpen, stairsZone, new Point(10, 80));
+            MessageDispatcher.Get().SendMessage(addEntityMsg);
+            
+            ZonePortal portalStairsToLab = new ZonePortal(labZone, new Point(10, 75), new Rectangle(0, 0, 4, 32));
+            portalStairsToLab.Initialize();
+            addEntityMsg = new ChangeZoneMsg(this, stairsZone, portalStairsToLab, stairsZone, new Point(240, 340));
+            MessageDispatcher.Get().SendMessage(addEntityMsg);
+
+
+            // Lab Entities
+            ZonePortal portalLabToStairs = new ZonePortal(stairsZone, new Point(200, 340), new Rectangle(0, 0, 4, 32));
+            portalLabToStairs.Initialize();
+            addEntityMsg = new ChangeZoneMsg(this, labZone, portalLabToStairs, labZone, new Point(2, 75));
+            MessageDispatcher.Get().SendMessage(addEntityMsg);
+
+            SetCurrentZone(shaftRoom);
 
             // Create Camera
             Rectangle screenRect = new Rectangle(0, 0, 800, 600);
 
-            int cameraHeight = 192; // roomBounds.Height;
-            int cameraWidth = 256; // (int)(roomBounds.Height * (screenRect.Width / (float)screenRect.Height));
+            int cameraHeight = 192;
+            int cameraWidth = 256;
             Rectangle cameraBounds = new Rectangle(0, 0, cameraWidth, cameraHeight);
-
-            Rectangle roomBounds = new Rectangle(0, 0, shaftRoomRect.Width, shaftRoomRect.Height);
-
-            Camera.Initialize(roomBounds, cameraBounds, screenRect);
-
-            Texture2D roomBackground = IvyGame.Get().Content.Load<Texture2D>("Sprites\\environment");
-
-            WorldZone mainRoom = new WorldZone(World, roomBounds, roomBackground, shaftRoomRect);
-            mainRoom.Initialize();
-
-            // Add WorldZone Entities
-            Skree skree = null;
-
-            Random r = new Random();
-            for (int i = 0; i < 0; i++)
-            {
-                skree = new Skree(this);
-                skree.Initialize();
-                skree.Position = new Point(r.Next() % 400, r.Next() % 150);
-                mainRoom.AddEntity(skree);
-            }
-
-            World.SetCurrentRoom(mainRoom);
-
-            mainRoom.AddEntity(m_playerOne);
+            Camera.Initialize(shaftBounds, cameraBounds, screenRect);
 
             #region Register Input Handlers
             // Movement
