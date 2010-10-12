@@ -72,7 +72,9 @@ namespace Ceres
 
             #endregion
 
-            // Create Entities
+            #region Create Entities
+
+            ChangeZoneMsg addEntityMsg = null;
 
             // Add player
 
@@ -80,11 +82,39 @@ namespace Ceres
             //       XNA may provide a way of doing this.
             m_playerOne = new Player(this);
             m_playerOne.Initialize();
-
-            SetCameraTarget(m_playerOne);
-
-            ChangeZoneMsg addEntityMsg = new ChangeZoneMsg(this, shaftRoom, m_playerOne, shaftRoom, new Point(0, 0));
+            addEntityMsg = new ChangeZoneMsg(this, shaftRoom, m_playerOne, shaftRoom, new Point(0, 0));
             MessageDispatcher.Get().SendMessage(addEntityMsg);
+
+            #region Shaft Platforms
+
+            // Shaft Platforms
+            Platform p = new Platform();
+            p.Initialize();
+            p.SetSize(64, 16);
+            addEntityMsg = new ChangeZoneMsg(this, shaftRoom, p, shaftRoom, new Point(181 - shaftZoneRect.X, 446 - shaftZoneRect.Y));
+            MessageDispatcher.Get().SendMessage(addEntityMsg);
+
+            p = new Platform();
+            p.Initialize();
+            p.SetSize(64, 16);
+            addEntityMsg = new ChangeZoneMsg(this, shaftRoom, p, shaftRoom, new Point(53 - shaftZoneRect.X, 462 - shaftZoneRect.Y));
+            MessageDispatcher.Get().SendMessage(addEntityMsg);
+
+            p = new Platform();
+            p.Initialize();
+            p.SetSize(64, 16);
+            addEntityMsg = new ChangeZoneMsg(this, shaftRoom, p, shaftRoom, new Point(117 - shaftZoneRect.X, 558 - shaftZoneRect.Y));
+            MessageDispatcher.Get().SendMessage(addEntityMsg);
+
+            p = new Platform();
+            p.Initialize();
+            p.SetSize(80, 16);
+            addEntityMsg = new ChangeZoneMsg(this, shaftRoom, p, shaftRoom, new Point(53 - shaftZoneRect.X, 654 - shaftZoneRect.Y));
+            MessageDispatcher.Get().SendMessage(addEntityMsg);
+
+#endregion
+
+            #region Portal Entities
 
             // Shaft Entities
             ZonePortal portalShaftToOpen = new ZonePortal(openRoom, new Point(10, 85), new Rectangle(0, 0, 4, 32));
@@ -121,7 +151,13 @@ namespace Ceres
             addEntityMsg = new ChangeZoneMsg(this, labZone, portalLabToStairs, labZone, new Point(2, 75));
             MessageDispatcher.Get().SendMessage(addEntityMsg);
 
+            #endregion
+
+            #endregion
+
             SetCurrentZone(shaftRoom);
+
+            SetCameraTarget(m_playerOne);
 
             // Create Camera
             Rectangle screenRect = new Rectangle(0, 0, 800, 600);
@@ -130,6 +166,7 @@ namespace Ceres
             int cameraWidth = 256;
             Rectangle cameraBounds = new Rectangle(0, 0, cameraWidth, cameraHeight);
             Camera.Initialize(shaftBounds, cameraBounds, screenRect);
+
 
             #region Register Input Handlers
             // Movement

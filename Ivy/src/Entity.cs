@@ -11,8 +11,11 @@ namespace Ivy
     public class Entity : Microsoft.Xna.Framework.GameComponent, IMessageReceiver, IMessageSender
     {
         // @todo Add bCollidable property...
+
+
         protected WorldZone WorldZone { get; private set; }
 
+        ///@todo consider making 'set' private
         public Point Position { get; set; }
         public Vector2 Direction { get; set; }
 
@@ -71,11 +74,6 @@ namespace Ivy
             base.Update(gameTime);
 
             m_entityStateMgr.Update();
-
-            if (Moving)
-            {
-                UpdatePosition(gameTime);
-            }
         }
 
         public virtual void Draw(SpriteBatch spriteBatch)
@@ -153,12 +151,12 @@ namespace Ivy
             //       does it matter?  -- maybe it does -- so the state has more 'control' over the entity
         }
 
-        private void UpdatePosition(GameTime gameTime)
+        public Point GetPositionAtTime(GameTime gameTime)
         {
             int dx = (int)(CurrentSpeed.X * Direction.X * gameTime.ElapsedGameTime.Milliseconds);
             int dy = (int)(CurrentSpeed.Y * Direction.Y * gameTime.ElapsedGameTime.Milliseconds);
 
-            Position = new Point(Position.X + dx, Position.Y + dy);
+            return new Point(Position.X + dx, Position.Y + dy);
         }
 
         public void ChangeZone(WorldZone zone, Point position)

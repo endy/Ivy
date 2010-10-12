@@ -98,6 +98,7 @@
     </Compile>
     <Compile Include="src\Message.cs" />
     <Compile Include="src\MessageDispatcher.cs" />
+    <Compile Include="src\Platform.cs" />
     <Compile Include="src\WorldZone.cs" />
     <Compile Include="src\StateMgr.cs" />
     <Compile Include="src\Entity.cs" />

@@ -38,6 +38,7 @@ namespace Ivy
             switch (msg.Type)
             {
                 case MessageType.CollideWithRoom:
+                case MessageType.CollideWithEntity:
                     Message newMsg = new Message(MessageType.Land, entity, entity);
                     MessageDispatcher.Get().SendMessage(newMsg);
                     break;

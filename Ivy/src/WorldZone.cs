@@ -19,8 +19,6 @@ namespace Ivy
 
         public Rectangle Bounds { get; private set; }
 
-        private Box m_box;
-
         public WorldZone(Rectangle bounds, Texture2D background, Rectangle bgRect)
         {
             Bounds = bounds;
@@ -29,20 +27,12 @@ namespace Ivy
             m_background = background;
             m_bgRect = bgRect;
 
-            m_platforms = new List<Rectangle>();
-
-            // Floor
-            m_platforms.Add(new Rectangle(0, bounds.Height-1, bounds.Width, 1));
-
-            /*  // Shaft Platforms
-            m_platforms.Add(new Rectangle(181 - bgRect.X, 446 - bgRect.Y, 64, 16));
-            m_platforms.Add(new Rectangle(53 - bgRect.X, 462 - bgRect.Y, 64, 16));
-            m_platforms.Add(new Rectangle(117 - bgRect.X, 558 - bgRect.Y, 64, 16));
-            m_platforms.Add(new Rectangle(53 - bgRect.X, 654 - bgRect.Y, 80, 16));
-            //*/
-            
-            m_box = new Box(IvyGame.Get());
-            m_box.Initialize();
+            // Add floor -- eventually will be removed
+            Platform p = new Platform();
+            p.Initialize();
+            p.SetSize(bounds.Width, 1);
+            m_entities.Add(p);
+            p.ChangeZone(this, new Point(0, bounds.Height - 1));
         }
 
         public void Initialize()
@@ -56,8 +46,6 @@ namespace Ivy
                 e.Update(gameTime);
             }
 
-            // update background based on player position (distance moved this timestep, curr position)
-
             // do collision detection on every entity vs world
 
             // do collision detection on every entity vs entity
@@ -68,8 +56,12 @@ namespace Ivy
             foreach (Entity a in entityListA)
             {
                 entityListB.Remove(a);
+
+                Point aPos = a.GetPositionAtTime(gameTime);
+
                 foreach (Entity b in entityListB)
                 {
+
                     Rectangle aRect = a.CollisionRect();
                     Rectangle bRect = b.CollisionRect();
 
@@ -81,23 +73,12 @@ namespace Ivy
                         MessageDispatcher.Get().SendMessage(new EntityCollisionMsg(this, b, a));
                     }
                 }
+
+                a.Position = aPos;
             }
 
-            
-            foreach (Entity e in m_entities)
-            {
-                foreach (Rectangle r in m_platforms)
-                {
-                    Rectangle cr = e.CollisionRect();
-                    if (r.Intersects(cr) == true)
-                    {
-                        Message msg = new Message(MessageType.CollideWithRoom, this, e);
-                        MessageDispatcher.Get().SendMessage(msg);
-                        break;
-                    }
-                }
-            }
 
+            // update background based on player position (distance moved this timestep, curr position)
         }
 
         public void Draw(SpriteBatch spriteBatch)
@@ -120,14 +101,6 @@ namespace Ivy
             foreach (Entity e in m_entities)
             {
                 e.Draw3D();
-            }
-
-            foreach (Rectangle r in m_platforms)
-            {
-
-                Rectangle newRect = new Rectangle(0, 0, (int)(r.Width/256f * 800f), (int)(r.Height/ 192f * 600f));
-                m_box.UpdateRect(newRect);
-                m_box.Draw(r.Location);
             }
         }
 
