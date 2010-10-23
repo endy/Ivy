@@ -112,7 +112,53 @@ namespace Ceres
             addEntityMsg = new ChangeZoneMsg(this, shaftRoom, p, shaftRoom, new Point(53 - shaftZoneRect.X, 654 - shaftZoneRect.Y));
             MessageDispatcher.Get().SendMessage(addEntityMsg);
 
-#endregion
+            #endregion
+
+            #region Open Room Platforms
+
+            p = new Platform();
+            p.Initialize();
+            p.SetSize(63, 7);
+            addEntityMsg = new ChangeZoneMsg(this, openRoom, p, openRoom, new Point(329 - openZoneRect.X, 178 - openZoneRect.Y));
+            MessageDispatcher.Get().SendMessage(addEntityMsg);
+
+            p = new Platform();
+            p.Initialize();
+            p.SetSize(7, 7);
+            addEntityMsg = new ChangeZoneMsg(this, openRoom, p, openRoom, new Point(393 - openZoneRect.X, 186 - openZoneRect.Y));
+            MessageDispatcher.Get().SendMessage(addEntityMsg);
+
+            p = new Platform();
+            p.Initialize();
+            p.SetSize(7, 7);
+            addEntityMsg = new ChangeZoneMsg(this, openRoom, p, openRoom, new Point(401 - openZoneRect.X, 194 - openZoneRect.Y));
+            MessageDispatcher.Get().SendMessage(addEntityMsg);
+
+            p = new Platform();
+            p.Initialize();
+            p.SetSize(7, 7);
+            addEntityMsg = new ChangeZoneMsg(this, openRoom, p, openRoom, new Point(409 - openZoneRect.X, 202 - openZoneRect.Y));
+            MessageDispatcher.Get().SendMessage(addEntityMsg);
+
+            p = new Platform();
+            p.Initialize();
+            p.SetSize(7, 7);
+            addEntityMsg = new ChangeZoneMsg(this, openRoom, p, openRoom, new Point(417 - openZoneRect.X, 210 - openZoneRect.Y));
+            MessageDispatcher.Get().SendMessage(addEntityMsg);
+
+            p = new Platform();
+            p.Initialize();
+            p.SetSize(7, 7);
+            addEntityMsg = new ChangeZoneMsg(this, openRoom, p, openRoom, new Point(425 - openZoneRect.X, 218 - openZoneRect.Y));
+            MessageDispatcher.Get().SendMessage(addEntityMsg);
+
+            p = new Platform();
+            p.Initialize();
+            p.SetSize(303, 7);
+            addEntityMsg = new ChangeZoneMsg(this, openRoom, p, openRoom, new Point(433 - openZoneRect.X, 226 - openZoneRect.Y));
+            MessageDispatcher.Get().SendMessage(addEntityMsg);
+
+            #endregion
 
             #region Portal Entities
 

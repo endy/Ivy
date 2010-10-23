@@ -15,8 +15,6 @@ namespace Ivy
         Texture2D m_background;
         Rectangle m_bgRect;
 
-        List<Rectangle> m_platforms;
-
         public Rectangle Bounds { get; private set; }
 
         public WorldZone(Rectangle bounds, Texture2D background, Rectangle bgRect)
@@ -39,46 +37,104 @@ namespace Ivy
         {
         }
 
-        public void Update(GameTime gameTime)
+        private bool FindIntersectTime(Rectangle aRect, Rectangle bRect, 
+                                Vector2 aVec, Vector2 bVec,
+                                ref float tFirst, ref float tLast)
         {
-            foreach (Entity e in m_entities)
+            tFirst = 0.0f;
+            tLast = 1.0f;
+
+            Vector2 v = bVec - aVec;
+
+            // X
+            if (v.X < 0.0f)
             {
-                e.Update(gameTime);
+                if (bRect.Right < aRect.Left) { return false; }     // Moving apart
+
+                if (aRect.Right < bRect.Left) { tFirst = Math.Max((aRect.Right - bRect.Left) / v.X, tFirst); }
+                if (bRect.Right > aRect.Left) { tLast = Math.Min((aRect.Left - bRect.Right) / v.X, tLast); }
+            }
+            if (v.X > 0.0f)
+            {
+                if (bRect.Left > aRect.Right) { return false; }     // Moving apart
+
+                if (bRect.Right < aRect.Left) { tFirst = Math.Max((aRect.Left - bRect.Right) / v.X, tFirst); }
+                if (aRect.Right > bRect.Left) { tLast = Math.Min((aRect.Right - bRect.Left) / v.X, tLast); }
             }
 
-            // do collision detection on every entity vs world
+            if (tFirst > tLast)
+            {
+                return false;
+            }
 
-            // do collision detection on every entity vs entity
+            // Y
+            if (v.Y < 0.0f)
+            {
+                if (bRect.Bottom < aRect.Top) { return false; }     // Moving apart
+
+                if (aRect.Bottom < bRect.Top) { tFirst = Math.Max((aRect.Bottom - bRect.Top) / v.Y, tFirst); }
+                if (bRect.Bottom > aRect.Top) { tLast = Math.Min((aRect.Top - bRect.Bottom) / v.Y, tLast); }
+            }
+            if (v.Y > 0.0f)
+            {
+                if (bRect.Top > aRect.Bottom) { return false; }     // Moving apart
+
+                if (bRect.Bottom < aRect.Top) { tFirst = Math.Max((aRect.Top - bRect.Bottom) / v.Y, tFirst); }
+                if (aRect.Bottom > bRect.Top) { tLast = Math.Min((aRect.Bottom - bRect.Top) / v.Y, tLast); }
+            }
+
+            if (tFirst > tLast)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public void Update(GameTime gameTime)
+        {
+            // update entity positions
+            foreach (Entity e in m_entities)
+            {
+                int elapsedTimeMS = gameTime.ElapsedGameTime.Milliseconds;
+                e.Position = e.GetPositionAtTime(elapsedTimeMS);
+            }
+
+            // Update entity positions
 
             List<Entity> entityListA = new List<Entity>(m_entities);
             List<Entity> entityListB = new List<Entity>(m_entities);
 
             foreach (Entity a in entityListA)
             {
-                entityListB.Remove(a);
+                if (a.Moving == false)
+                {
+                    continue;
+                }
 
-                Point aPos = a.GetPositionAtTime(gameTime);
+                entityListB.Remove(a);
 
                 foreach (Entity b in entityListB)
                 {
-
                     Rectangle aRect = a.CollisionRect();
                     Rectangle bRect = b.CollisionRect();
 
-                    //Console.WriteLine(aRect);
-                    //Console.WriteLine(bRect);
                     if (aRect.Intersects(bRect))
                     {
                         MessageDispatcher.Get().SendMessage(new EntityCollisionMsg(this, a, b));
                         MessageDispatcher.Get().SendMessage(new EntityCollisionMsg(this, b, a));
                     }
                 }
-
-                a.Position = aPos;
             }
 
+            // Update misc zone resources (background positions, etc)
 
-            // update background based on player position (distance moved this timestep, curr position)
+            // Update entity states
+            foreach (Entity e in m_entities)
+            {
+                e.Update(gameTime);
+            }
+
         }
 
         public void Draw(SpriteBatch spriteBatch)

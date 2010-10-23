@@ -18,22 +18,11 @@ namespace Ivy
         FireWeapon,
 
         CollideWithEntity,
-        CollideWithRoom,
+        CollideWithEnv,
         ChangeZone,
 
         // Test Messages
         ActivateSkree,
-    }
-
-    public class EntityCollisionData
-    {
-        public Entity entity;
-    }
-
-    public class PortalMessageData
-    {
-        public Entity entity;
-        public WorldZone targetZone;
     }
 
     public class Message

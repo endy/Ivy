@@ -178,7 +178,7 @@ namespace Ivy
 
             if (m_currentZone != null)
             {
-                m_currentZone.Draw3D();
+                //m_currentZone.Draw3D();
             }
 
             base.Draw(gameTime);

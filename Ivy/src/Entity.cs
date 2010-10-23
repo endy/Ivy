@@ -151,10 +151,10 @@ namespace Ivy
             //       does it matter?  -- maybe it does -- so the state has more 'control' over the entity
         }
 
-        public Point GetPositionAtTime(GameTime gameTime)
+        public Point GetPositionAtTime(int elapsedTimeMS)
         {
-            int dx = (int)(CurrentSpeed.X * Direction.X * gameTime.ElapsedGameTime.Milliseconds);
-            int dy = (int)(CurrentSpeed.Y * Direction.Y * gameTime.ElapsedGameTime.Milliseconds);
+            int dx = (int)(CurrentSpeed.X * Direction.X * elapsedTimeMS);
+            int dy = (int)(CurrentSpeed.Y * Direction.Y * elapsedTimeMS);
 
             return new Point(Position.X + dx, Position.Y + dy);
         }

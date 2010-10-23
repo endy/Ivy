@@ -37,8 +37,7 @@ namespace Ivy
         {
             switch (msg.Type)
             {
-                case MessageType.CollideWithRoom:
-                case MessageType.CollideWithEntity:
+                case MessageType.CollideWithEnv:
                     Message newMsg = new Message(MessageType.Land, entity, entity);
                     MessageDispatcher.Get().SendMessage(newMsg);
                     break;
