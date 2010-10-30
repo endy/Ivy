@@ -18,7 +18,6 @@ namespace Ivy
         FireWeapon,
 
         CollideWithEntity,
-        CollideWithEnv,
         ChangeZone,
 
         // Test Messages
@@ -30,7 +29,9 @@ namespace Ivy
         public MessageType Type { get; private set; }
         public IMessageReceiver Receiver { get; private set; }
         public IMessageSender Sender { get; private set; }
-        public int SendTime { get; private set; }   /// total game time? ticks or milliseconds?
+
+        /// when to deliever the message, in milliseconds from time enqueued
+        public int SendTime { get; set; }
 
         public Message(MessageType type, IMessageSender sender, IMessageReceiver receiver)
         {
@@ -62,12 +63,18 @@ namespace Ivy
 
     public class ChangeZoneMsg : Message
     {
-        public WorldZone DestZone { get; private set; }
+        public string DestZone { get; private set; }
         public Point DestPosition { get; private set; }
         public Entity Entity { get; private set; }
 
-        public ChangeZoneMsg(IMessageSender sender, IMessageReceiver receiver, Entity entity, WorldZone destZone, Point destPosition)
-            : base(MessageType.ChangeZone, sender, receiver)
+        public ChangeZoneMsg(
+            IMessageSender sender, 
+            IMessageReceiver receiver,
+            Entity entity,
+            string destZone,
+            Point destPosition,
+            int sendTime)
+          : base(MessageType.ChangeZone, sender, receiver, sendTime)
         {
             Entity = entity;
             DestZone = destZone;

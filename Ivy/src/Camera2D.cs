@@ -38,7 +38,7 @@ namespace Ivy
 
             CameraRect = new Rectangle(0, 0, cameraBounds.Width, cameraBounds.Height);
 
-            m_maxSpeed = new Vector2(.3f, .3f);
+            m_maxSpeed = new Vector2(1.3f, 1.3f);
         }
 
         public void SetZoneBounds(Rectangle zoneBounds)

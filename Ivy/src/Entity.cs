@@ -11,40 +11,46 @@ namespace Ivy
     public class Entity : Microsoft.Xna.Framework.GameComponent, IMessageReceiver, IMessageSender
     {
         // @todo Add bCollidable property...
-
+        // @todo Add 'flying'/'floating' property... ? avoids gravity?
 
         protected WorldZone WorldZone { get; private set; }
 
-        ///@todo consider making 'set' private
+        ///@todo Consider private set
         public Point Position { get; set; }
+        public Point LastPosition { get; set; }
         public Vector2 Direction { get; set; }
 
         public bool Moving { get; set; }
+        public bool Movable { get; set; }
 
         protected AnimGraph m_animGraph;
         protected Box m_box;
-
         protected Vector2 m_speed;
-
         public Vector2 CurrentSpeed { get; set; }
-
         protected Rectangle m_StaticCollisionRect;
-
-        // TODO: query this in the jump state?
-        //int jumpTime = 800;
-        //int jumpElapsedTime = 0;
-
         protected StateMgr m_entityStateMgr;
+
+        protected Entity m_platform;
+
+        public State CurrentState
+        {
+            get
+            {
+                return m_entityStateMgr.CurrentState;
+            }
+        }
 
         public Entity(Game game) :
             base(game)
         {
-
+            Movable = false;
         }
 
         public override void Initialize()
         {
             Position = new Point(0, 0);
+            LastPosition = Position;
+
             Direction = new Vector2(1f, 0f);
 
             Moving = false;
@@ -73,6 +79,20 @@ namespace Ivy
         {
             base.Update(gameTime);
 
+            if (m_platform != null)
+            {
+                Vector2 p = GetPositionAtTime(gameTime.ElapsedGameTime.Milliseconds);
+                
+                Rectangle cRect = CollisionRect();
+                cRect.X = (int) p.X;
+                cRect.Y = (int)(p.Y + WorldZone.GravityConstant.Y);
+
+                if (m_platform.CollisionRect().Intersects(cRect) == false)
+                {
+                    MessageDispatcher.Get().SendMessage(new Message(MessageType.Fall, this, this));
+                }
+            }
+
             m_entityStateMgr.Update();
         }
 
@@ -85,7 +105,6 @@ namespace Ivy
         {
             Rectangle boxRect = CollisionRect();
 
-            //@todo remove this hack...
             if (m_animGraph != null)
             {
                 boxRect.Width = (int)(boxRect.Width / 256f * 800);
@@ -108,6 +127,85 @@ namespace Ivy
         {
             m_entityStateMgr.HandleMessage(msg);
 
+            if (msg.Type == MessageType.CollideWithEntity)
+            {
+                Rectangle collisionRect = CollisionRect();
+                Rectangle footRect =
+                    new Rectangle(collisionRect.X, collisionRect.Y + collisionRect.Height - 1, collisionRect.Width, 3);
+                Rectangle headRect = new Rectangle(footRect.X, collisionRect.Y, footRect.Width, 3);
+
+                EntityCollisionMsg entMsg = (EntityCollisionMsg)msg;
+
+                if (entMsg.EntityHit.Movable == false)
+                {
+                    int dx = Position.X;
+                    int dy = Position.Y;
+                    
+                    Rectangle entRect = entMsg.EntityHit.CollisionRect();
+
+                    bool footHit = footRect.Intersects(entRect);
+                    bool headHit = headRect.Intersects(entRect);
+
+                    if (footHit != true && headHit != true)
+                    {
+                        if (Position.X - LastPosition.X > 0)
+                        {
+                            dx = entRect.X - collisionRect.Width;
+                        }
+                        else if (Position.X - LastPosition.X < 0)
+                        {
+                            dx = entRect.X + entRect.Width;
+                        }
+                    }
+                    else if (footHit == true)
+                    {
+                        int snapY = entMsg.EntityHit.Position.Y - CollisionRect().Height;
+
+                        if (Math.Abs(dy - snapY) < 10)
+                        {
+                            dy = snapY;
+                            MessageDispatcher.Get().SendMessage(new Message(MessageType.Land, this, this));
+
+                            // standing on this platform
+                            m_platform = entMsg.EntityHit;
+                        }
+                        else
+                        {
+                            if (Position.X - LastPosition.X > 0)
+                            {
+                                dx = entRect.X - collisionRect.Width;
+                            }
+                            else if (Position.X - LastPosition.X < 0)
+                            {
+                                dx = entRect.X + entRect.Width;
+                            }
+                        }
+                    }
+                    else if (headHit == true)
+                    {
+                        int snapY = entMsg.EntityHit.Position.Y + entRect.Height;
+
+                        if (Math.Abs(dy - snapY) < 10)
+                        {
+                            dy = snapY;
+                        }
+                        else
+                        {
+                            if (Position.X - LastPosition.X > 0)
+                            {
+                                dx = entRect.X - collisionRect.Width;
+                            }
+                            else if (Position.X - LastPosition.X < 0)
+                            {
+                                dx = entRect.X + entRect.Width;
+                            }
+                        }
+                    }
+                    
+                    Position = new Point(dx, dy);
+                }
+            }
+
             if (msg.Type == MessageType.MoveLeft)
             {
                 Direction = new Vector2(-1f, Direction.Y);
@@ -126,11 +224,13 @@ namespace Ivy
             {
                 Direction = new Vector2(Direction.X, -1f);
                 CurrentSpeed = new Vector2(CurrentSpeed.X, m_speed.Y);
+                m_platform = null;
             }
             else if (msg.Type == MessageType.Fall)
             {
                 Direction = new Vector2(Direction.X, 1f);
                 CurrentSpeed = new Vector2(CurrentSpeed.X, m_speed.Y);
+                m_platform = null;
             }
             else if (msg.Type == MessageType.Land)
             {
@@ -151,12 +251,16 @@ namespace Ivy
             //       does it matter?  -- maybe it does -- so the state has more 'control' over the entity
         }
 
-        public Point GetPositionAtTime(int elapsedTimeMS)
+        public Vector2 GetPositionAtTime(int elapsedTimeMS)
         {
             int dx = (int)(CurrentSpeed.X * Direction.X * elapsedTimeMS);
             int dy = (int)(CurrentSpeed.Y * Direction.Y * elapsedTimeMS);
 
-            return new Point(Position.X + dx, Position.Y + dy);
+            // restrict movement to within world zone
+            int x = Math.Max(WorldZone.Bounds.Left, Math.Min(WorldZone.Bounds.Right - CollisionRect().Width, Position.X + dx));
+            int y = Math.Max(WorldZone.Bounds.Top, Math.Min(WorldZone.Bounds.Bottom - CollisionRect().Height, Position.Y + dy));
+
+            return new Vector2(x, y);
         }
 
         public void ChangeZone(WorldZone zone, Point position)
@@ -164,6 +268,7 @@ namespace Ivy
             ///@todo need 'ExitZone' method?
             WorldZone = zone;
 
+            LastPosition = Position;
             Position = position;
         }
     }

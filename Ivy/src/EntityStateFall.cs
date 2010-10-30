@@ -37,10 +37,6 @@ namespace Ivy
         {
             switch (msg.Type)
             {
-                case MessageType.CollideWithEnv:
-                    Message newMsg = new Message(MessageType.Land, entity, entity);
-                    MessageDispatcher.Get().SendMessage(newMsg);
-                    break;
                 case MessageType.Land:
                     if (entity.CurrentSpeed.X != 0f)
                     {

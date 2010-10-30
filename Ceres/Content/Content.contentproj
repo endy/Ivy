@@ -36,52 +36,47 @@
     <Reference Include="Microsoft.Xna.Framework.Content.Pipeline.VideoImporters, Version=3.1.0.0, Culture=neutral, PublicKeyToken=6d5c3888ef60e27d, processorArchitecture=MSIL">
       <Private>False</Private>
     </Reference>
+    <Reference Include="OgmoXNAPipelineExtensions, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Ivy\Lib\x86\Release\OgmoXNAPipelineExtensions.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="art\bg_layer_blueaura.png">
-      <Name>bg_layer_blueaura</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
+    <Compile Include="levels\corridor.oel">
+      <Name>corridor</Name>
+      <Importer>OelImporter</Importer>
+      <Processor>OelProcessor</Processor>
+      <ProcessorParameters_OgmoProjectFile>ceres.oep</ProcessorParameters_OgmoProjectFile>
     </Compile>
-    <Compile Include="art\bg_layer_containers_long.png">
-      <Name>bg_layer_containers_long</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
+    <Compile Include="levels\encounter.oel">
+      <Name>encounter</Name>
+      <Importer>OelImporter</Importer>
+      <Processor>OelProcessor</Processor>
+      <ProcessorParameters_OgmoProjectFile>ceres.oep</ProcessorParameters_OgmoProjectFile>
     </Compile>
-    <Compile Include="art\bg_layer_containers_short.png">
-      <Name>bg_layer_containers_short</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
+    <Compile Include="levels\lab.oel">
+      <Name>lab</Name>
+      <Importer>OelImporter</Importer>
+      <Processor>OelProcessor</Processor>
+      <ProcessorParameters_OgmoProjectFile>ceres.oep</ProcessorParameters_OgmoProjectFile>
     </Compile>
-    <Compile Include="art\bg_zone_corridor.png">
-      <Name>bg_zone_corridor</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
+    <Compile Include="levels\open.oel">
+      <Name>open</Name>
+      <Importer>OelImporter</Importer>
+      <Processor>OelProcessor</Processor>
+      <ProcessorParameters_OgmoProjectFile>ceres.oep</ProcessorParameters_OgmoProjectFile>
     </Compile>
-    <Compile Include="art\bg_zone_encounter.png">
-      <Name>bg_zone_encounter</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
+    <Compile Include="levels\shaft.oel">
+      <Name>shaft</Name>
+      <Importer>OelImporter</Importer>
+      <Processor>OelProcessor</Processor>
+      <ProcessorParameters_OgmoProjectFile>ceres.oep</ProcessorParameters_OgmoProjectFile>
     </Compile>
-    <Compile Include="art\bg_zone_lab.png">
-      <Name>bg_zone_lab</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="art\bg_zone_open.png">
-      <Name>bg_zone_open</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="art\bg_zone_shaft.png">
-      <Name>bg_zone_shaft</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="art\bg_zone_stairs.png">
-      <Name>bg_zone_stairs</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
+    <Compile Include="levels\stairs.oel">
+      <Name>stairs</Name>
+      <Importer>OelImporter</Importer>
+      <Processor>OelProcessor</Processor>
+      <ProcessorParameters_OgmoProjectFile>ceres.oep</ProcessorParameters_OgmoProjectFile>
     </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\$(XnaFrameworkVersion)\Microsoft.Xna.GameStudio.ContentPipeline.targets" />

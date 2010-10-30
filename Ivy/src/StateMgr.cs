@@ -9,7 +9,7 @@ namespace Ivy
     {
         Entity m_owner;     /// Entity that owns this state machine
                              
-        State m_currentState;
+        public State CurrentState { get; private set; }
         State m_previousState;
 
         public StateMgr(Entity owner)
@@ -19,28 +19,28 @@ namespace Ivy
 
         public void Initialize()
         {
-            m_currentState = EntityStateStand.Get();
+            CurrentState = EntityStateStand.Get();
         }
 
         public void ChangeState(State nextState)
         {
-            if (m_currentState != null)
+            if (CurrentState != null)
             {
-                m_currentState.Exit(m_owner);
-                m_previousState = m_currentState;
-                m_currentState = nextState;
-                m_currentState.Enter(m_owner);
+                CurrentState.Exit(m_owner);
+                m_previousState = CurrentState;
+                CurrentState = nextState;
+                CurrentState.Enter(m_owner);
             }
         }
 
         public void Update()
         {
-            m_currentState.Execute(m_owner);
+            CurrentState.Execute(m_owner);
         }
 
         public void HandleMessage(Message msg)
         {
-            m_currentState.HandleMessage(m_owner, msg);
+            CurrentState.HandleMessage(m_owner, msg);
         }
     }
 }

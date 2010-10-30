@@ -32,10 +32,11 @@ namespace Ivy
         {
             switch (msg.Type)
             {
-                case MessageType.CollideWithEnv:
-                    Message newMsg = new Message(MessageType.Fall, entity, entity);
-                    MessageDispatcher.Get().SendMessage(newMsg);
-                    break;
+                //case MessageType.CollideWithEnv:
+                //    Message newMsg = new Message(MessageType.Fall, entity, entity);
+                //    MessageDispatcher.Get().SendMessage(newMsg);
+                    //entity.ChangeState(EntityStateFall.Get());
+                //    break;
                 case MessageType.Fall:
                     entity.ChangeState(EntityStateFall.Get());
                     break;

@@ -21,7 +21,7 @@ namespace Ivy
     {
         private static MessageDispatcher m_instance;
 
-        private SortedList<int, Message> m_messageList;
+        private List<Message> m_messageList;
 
         private MessageDispatcher()
         {
@@ -41,7 +41,7 @@ namespace Ivy
 
         private void Initialize()
         {
-            m_messageList = new SortedList<int, Message>();
+            m_messageList = new List<Message>();
         }
 
         public void SendMessage(Message msg)
@@ -52,15 +52,30 @@ namespace Ivy
             }
             else
             {
-                m_messageList.Add(msg.SendTime, msg);
+                m_messageList.Add(msg);
             }
         }
 
         public void Update(GameTime gameTime)
         {
-            // send messages when the time is right!
+            List<Message> removeList = new List<Message>();
 
-            // while (gameTime.TotalGameTime.Milliseconds >= m_messageList
+            // send messages when the time is right!
+            foreach (Message msg in m_messageList)
+            {
+                msg.SendTime = Math.Max(0, (msg.SendTime - gameTime.ElapsedGameTime.Milliseconds));
+
+                if (msg.SendTime == 0)
+                {
+                    msg.Receiver.ReceiveMessage(msg);
+                    removeList.Add(msg);
+                }
+            }
+
+            foreach (Message msg in removeList)
+            {
+                m_messageList.Remove(msg);
+            }
         }
     }
 }

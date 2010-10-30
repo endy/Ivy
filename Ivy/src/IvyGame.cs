@@ -178,7 +178,7 @@ namespace Ivy
 
             if (m_currentZone != null)
             {
-                //m_currentZone.Draw3D();
+                m_currentZone.Draw3D();
             }
 
             base.Draw(gameTime);
@@ -214,22 +214,22 @@ namespace Ivy
                 if (m_currentZone != null)
                 {
                     MessageDispatcher.Get().SendMessage(
-                        new ChangeZoneMsg(this, m_currentZone, czMsg.Entity, czMsg.DestZone, czMsg.DestPosition));
-                }
-
-                if (czMsg.DestZone != null)
-                {
-                    MessageDispatcher.Get().SendMessage(
-                        new ChangeZoneMsg(this, czMsg.DestZone, czMsg.Entity, czMsg.DestZone, czMsg.DestPosition));
+                        new ChangeZoneMsg(this, m_currentZone, czMsg.Entity, czMsg.DestZone, czMsg.DestPosition, 1));
                 }
 
                 if (czMsg.Entity == m_cameraTarget)
                 {
-                    SetCurrentZone(czMsg.DestZone);
-                    Camera.SetZoneBounds(czMsg.DestZone.Bounds);
+                    WorldZone destZone = new WorldZone(czMsg.DestZone);
+                    SetCurrentZone(destZone);
+                    Camera.SetZoneBounds(destZone.Bounds);
 
-                    // 
                     Camera.SetTarget(czMsg.Entity);
+
+                    if (czMsg.DestZone != null)
+                    {
+                        MessageDispatcher.Get().SendMessage(
+                            new ChangeZoneMsg(this, destZone, czMsg.Entity, czMsg.DestZone, czMsg.DestPosition, 1));
+                    }
                 }
             }
         }

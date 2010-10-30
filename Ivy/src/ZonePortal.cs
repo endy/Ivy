@@ -9,11 +9,11 @@ namespace Ivy
 {
     public class ZonePortal : Entity
     {
-        public WorldZone DestZone { get; private set; }
+        public string DestZone { get; private set; }
         public Point DestPosition { get; private set; }
         public Rectangle Bounds { get; private set; }
 
-        public ZonePortal(WorldZone destZone, Point destPosition, Rectangle bounds) :
+        public ZonePortal(string destZone, Point destPosition, Rectangle bounds) :
             base(IvyGame.Get())
         {
             DestZone = destZone;
@@ -35,7 +35,7 @@ namespace Ivy
                 EntityCollisionMsg collisionMsg = (EntityCollisionMsg) msg;
 
                 ChangeZoneMsg changeRoomMsg = 
-                    new ChangeZoneMsg(this, IvyGame.Get(), collisionMsg.EntityHit, DestZone, DestPosition);
+                    new ChangeZoneMsg(this, IvyGame.Get(), collisionMsg.EntityHit, DestZone, DestPosition, 0);
 
                 MessageDispatcher.Get().SendMessage(changeRoomMsg);
             }
