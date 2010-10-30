@@ -34,7 +34,7 @@ namespace Ceres
 
             // Add player
 
-            WorldZone shaftZone = new WorldZone(@"levels/stairs");
+            WorldZone shaftZone = new WorldZone(@"levels/shaft");
 
             // TODO: Find out if components need to be individually initialized here,
             //       XNA may provide a way of doing this.

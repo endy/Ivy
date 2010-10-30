@@ -40,7 +40,14 @@ namespace Ivy
 
         public override void ReceiveMessage(Message msg)
         {
-            base.ReceiveMessage(msg);
+            if (msg.Type == MessageType.CollideWithEntity)
+            {
+                // Ignore this message!
+            }
+            else
+            {
+                base.ReceiveMessage(msg);
+            }
         }
     }
 }
