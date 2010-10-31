@@ -89,10 +89,9 @@ namespace Ivy
         private void InitializeEffect()
         {
 
-            vertexDeclaration = new VertexDeclaration(Game.GraphicsDevice,
-                                                      VertexPositionColor.VertexElements);
+            vertexDeclaration = VertexPositionColor.VertexDeclaration; 
 
-            basicEffect = new BasicEffect(Game.GraphicsDevice, null);
+            basicEffect = new BasicEffect(Game.GraphicsDevice);
             basicEffect.VertexColorEnabled = true;
 
             scaleMatrix = Matrix.CreateScale(1f);
@@ -125,11 +124,11 @@ namespace Ivy
             transMatrix = Matrix.CreateTranslation(screenPos.X, screenPos.Y, 0);
             basicEffect.World = scaleMatrix * transMatrix;
             
-            basicEffect.Begin();
+            
 
             foreach (EffectPass pass in basicEffect.CurrentTechnique.Passes)
             {
-                pass.Begin();
+                pass.Apply();
 
                 Game.GraphicsDevice.DrawUserIndexedPrimitives<VertexPositionColor>(
                     PrimitiveType.LineStrip,
@@ -139,10 +138,7 @@ namespace Ivy
                     lineIndicies,  // index of the first vertex to draw
                     0, 
                     4);   // number of primitives
-                
-                pass.End();
             }
-            basicEffect.End();
         }
         
     }

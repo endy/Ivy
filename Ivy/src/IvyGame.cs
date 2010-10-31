@@ -41,6 +41,10 @@ namespace Ivy
         protected IvyGame()
         {
             graphics = new GraphicsDeviceManager(this);
+            graphics.PreferredBackBufferWidth = 800;
+            graphics.PreferredBackBufferHeight = 600;
+            graphics.ApplyChanges(); ///@todo is this needed?
+
             Content.RootDirectory = "Content";
 
             if (m_instance != null)
@@ -149,10 +153,10 @@ namespace Ivy
 
             GraphicsDevice.Clear(Color.Black);
     
-            spriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None, Matrix.Identity);
-            graphics.GraphicsDevice.SamplerStates[0].MagFilter = TextureFilter.Point;
-            graphics.GraphicsDevice.SamplerStates[0].MinFilter = TextureFilter.Point;
-            graphics.GraphicsDevice.SamplerStates[0].MipFilter = TextureFilter.Point;
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
+            SamplerState pointSampler = new SamplerState();
+            pointSampler.Filter = TextureFilter.Point;
+            graphics.GraphicsDevice.SamplerStates[0] = pointSampler;
 
             // if multiple rooms are active, only the current one is drawn
             if (m_currentZone != null)
