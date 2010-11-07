@@ -30,12 +30,12 @@ namespace Ivy
             m_animGraph.Initialize();
 
             Rectangle rotateAnimRect = new Rectangle(0, 0, 88, 30);
-            AnimatedSprite rotateAnim = new AnimatedSprite(IvyGame.Get(), m_spriteMap, rotateAnimRect, 4, 10);
+            AnimatedSprite rotateAnim = new AnimatedSprite(m_spriteMap, rotateAnimRect, 4, 10);
             rotateAnim.Initialize();
             rotateAnim.Scale = new Vector2(3f, 3f);
 
             Rectangle attackRect = new Rectangle(88, 0, 26, 26);
-            AnimatedSprite attackAnim = new AnimatedSprite(IvyGame.Get(), m_spriteMap, attackRect, 1, 1);
+            AnimatedSprite attackAnim = new AnimatedSprite(m_spriteMap, attackRect, 1, 1);
             attackAnim.Initialize();
             attackAnim.Scale = new Vector2(3f, 3f);
 

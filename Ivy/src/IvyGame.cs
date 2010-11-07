@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
+
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
@@ -35,11 +35,13 @@ namespace Ivy
         private SpriteFont consoleFont;
         private Vector2 consolePos;
 
+        private float m_fpsValue;
         private string m_fpsStr;
-        
 
         protected IvyGame()
         {
+            m_fpsValue = 0.0f;
+
             graphics = new GraphicsDeviceManager(this);
             graphics.PreferredBackBufferWidth = 800;
             graphics.PreferredBackBufferHeight = 600;
@@ -78,7 +80,7 @@ namespace Ivy
     
             ConsoleStr = "\n";
             m_fpsStr = "\n";
-
+            
             // Initialize components
             base.Initialize();
         }
@@ -114,8 +116,8 @@ namespace Ivy
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            //ConsoleStr = "\n\n"; 
-
+            ConsoleStr = "\n\n";
+            
             // Allows the game to exit
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
@@ -148,8 +150,9 @@ namespace Ivy
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            float fps = (1 / (float)gameTime.ElapsedGameTime.Milliseconds) * 1000;
-            m_fpsStr = "FPS: " + fps + "\n";
+            m_fpsValue = (m_fpsValue * 3) + ((1 / (float)gameTime.ElapsedGameTime.Milliseconds) * 1000);
+            m_fpsValue /= 4.0f;
+            m_fpsStr = "FPS: " + (int)m_fpsValue + "\n";
 
             GraphicsDevice.Clear(Color.Black);
     
@@ -174,9 +177,11 @@ namespace Ivy
             spriteBatch.DrawString(consoleFont, ConsoleStr, drawConsolePos, Color.LimeGreen,
                                    0, FontCenter, 1.2f, SpriteEffects.None, 0.5f);
 
-            Vector2 FpsDims = consoleFont.MeasureString(m_fpsStr);
+            string dataString = m_fpsStr;
+
+            Vector2 FpsDims = consoleFont.MeasureString(dataString);
             Vector2 drawFpsPos = new Vector2((Camera.ScreenRect.Right - (FpsDims.X * 2)), FpsDims.Y);
-            spriteBatch.DrawString(consoleFont, m_fpsStr, drawFpsPos, Color.LimeGreen, 0, FpsDims / 2, 2.0f, SpriteEffects.None, 0.5f);
+            spriteBatch.DrawString(consoleFont, dataString, drawFpsPos, Color.LimeGreen, 0, FpsDims / 2, 2.0f, SpriteEffects.None, 0.5f);
 
             spriteBatch.End();
 

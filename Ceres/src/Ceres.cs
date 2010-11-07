@@ -34,7 +34,7 @@ namespace Ceres
 
             // Add player
 
-            WorldZone shaftZone = new WorldZone(@"levels/shaft");
+            WorldZone shaftZone = new WorldZone(@"levels/encounter");
 
             // TODO: Find out if components need to be individually initialized here,
             //       XNA may provide a way of doing this.
@@ -90,6 +90,13 @@ namespace Ceres
         protected override void LoadContent()
         {
             base.LoadContent();
+        }
+
+        protected override void Update(GameTime gameTime)
+        {
+            base.Update(gameTime);
+
+            ConsoleStr += "Energy: " + m_playerOne.Energy + "\n";
         }
 
         #region Input Handlers

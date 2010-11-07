@@ -10,27 +10,31 @@ namespace Ivy
 {
     public class Entity : Microsoft.Xna.Framework.GameComponent, IMessageReceiver, IMessageSender
     {
-        // @todo Add bCollidable property...
         // @todo Add 'flying'/'floating' property... ? avoids gravity?
 
-        protected WorldZone WorldZone { get; private set; }
+        public WorldZone WorldZone { get; private set; }
 
         ///@todo Consider private set
         public Point Position { get; set; }
         public Point LastPosition { get; set; }
         public Vector2 Direction { get; set; }
-
         public bool Moving { get; set; }
-        public bool Movable { get; set; }
+
+
 
         protected AnimGraph m_animGraph;
-        protected Box m_box;
         protected Vector2 m_speed;
         public Vector2 CurrentSpeed { get; set; }
         protected Rectangle m_StaticCollisionRect;
         protected StateMgr m_entityStateMgr;
 
         protected Entity m_platform;
+
+        public bool Alive { get; protected set; }
+        public bool Collidable { get; protected set; }
+        public bool Movable { get; protected set; }
+        public bool Damagable { get; protected set; }
+        public int Energy { get; protected set; }
 
         public State CurrentState
         {
@@ -44,6 +48,9 @@ namespace Ivy
             base(game)
         {
             Movable = false;
+            Collidable = true;
+            Alive = true;
+            Damagable = false;
         }
 
         public override void Initialize()
@@ -55,14 +62,13 @@ namespace Ivy
 
             Moving = false;
 
+            Energy = 100;
+
             m_speed = new Vector2(0.2f, 0.3f);
             CurrentSpeed = Vector2.Zero;
 
             m_entityStateMgr = new StateMgr(this);
             m_entityStateMgr.Initialize();
-
-            m_box = new Box(Game);
-            m_box.Initialize();
 
             // use static collision rect for now
             if (m_animGraph != null)
@@ -79,21 +85,29 @@ namespace Ivy
         {
             base.Update(gameTime);
 
-            if (m_platform != null)
+            if (Energy > 0)
             {
-                Vector2 p = GetPositionAtTime(gameTime.ElapsedGameTime.Milliseconds);
-                
-                Rectangle cRect = CollisionRect();
-                cRect.X = (int) p.X;
-                cRect.Y = (int)(p.Y + WorldZone.GravityConstant.Y);
-
-                if (m_platform.CollisionRect().Intersects(cRect) == false)
+                if (m_platform != null)
                 {
-                    MessageDispatcher.Get().SendMessage(new Message(MessageType.Fall, this, this));
+                    Vector2 p = GetPositionAtTime(gameTime.ElapsedGameTime.Milliseconds);
+
+                    Rectangle cRect = CollisionRect();
+                    cRect.X = (int)p.X;
+                    cRect.Y = (int)(p.Y + WorldZone.GravityConstant.Y);
+
+                    if (m_platform.CollisionRect().Intersects(cRect) == false)
+                    {
+                        MessageDispatcher.Get().SendMessage(new Message(MessageType.Fall, this, this));
+                    }
                 }
+
+                m_entityStateMgr.Update();
             }
 
-            m_entityStateMgr.Update();
+            if (Energy <= 0)
+            {
+                Alive = false;
+            }
         }
 
         public virtual void Draw(SpriteBatch spriteBatch)
@@ -103,17 +117,10 @@ namespace Ivy
 
         public virtual void Draw3D()
         {
-            Rectangle boxRect = CollisionRect();
+            Rectangle r = CollisionRect();
+            Rectangle newRect = new Rectangle(0, 0, (int)(r.Width / 256f * 800f), (int)(r.Height / 192f * 600f));
 
-            if (m_animGraph != null)
-            {
-                boxRect.Width = (int)(boxRect.Width / 256f * 800);
-                boxRect.Height = (int)(boxRect.Height / 192f * 600);
-            }
-
-            m_box.UpdateRect(boxRect);
-
-            m_box.Draw(Position); 
+            Box.Get().Draw(Position, newRect);
         }
 
         public Rectangle CollisionRect()
@@ -127,83 +134,14 @@ namespace Ivy
         {
             m_entityStateMgr.HandleMessage(msg);
 
+
             if (msg.Type == MessageType.CollideWithEntity)
             {
-                Rectangle collisionRect = CollisionRect();
-                Rectangle footRect =
-                    new Rectangle(collisionRect.X, collisionRect.Y + collisionRect.Height - 1, collisionRect.Width, 3);
-                Rectangle headRect = new Rectangle(footRect.X, collisionRect.Y, footRect.Width, 3);
-
-                EntityCollisionMsg entMsg = (EntityCollisionMsg)msg;
-
-                if (entMsg.EntityHit.Movable == false)
-                {
-                    int dx = Position.X;
-                    int dy = Position.Y;
-                    
-                    Rectangle entRect = entMsg.EntityHit.CollisionRect();
-
-                    bool footHit = footRect.Intersects(entRect);
-                    bool headHit = headRect.Intersects(entRect);
-
-                    if (footHit != true && headHit != true)
-                    {
-                        if (Position.X - LastPosition.X > 0)
-                        {
-                            dx = entRect.X - collisionRect.Width;
-                        }
-                        else if (Position.X - LastPosition.X < 0)
-                        {
-                            dx = entRect.X + entRect.Width;
-                        }
-                    }
-                    else if (footHit == true)
-                    {
-                        int snapY = entMsg.EntityHit.Position.Y - CollisionRect().Height;
-
-                        if (Math.Abs(dy - snapY) < 10)
-                        {
-                            dy = snapY;
-                            MessageDispatcher.Get().SendMessage(new Message(MessageType.Land, this, this));
-
-                            // standing on this platform
-                            m_platform = entMsg.EntityHit;
-                        }
-                        else
-                        {
-                            if (Position.X - LastPosition.X > 0)
-                            {
-                                dx = entRect.X - collisionRect.Width;
-                            }
-                            else if (Position.X - LastPosition.X < 0)
-                            {
-                                dx = entRect.X + entRect.Width;
-                            }
-                        }
-                    }
-                    else if (headHit == true)
-                    {
-                        int snapY = entMsg.EntityHit.Position.Y + entRect.Height;
-
-                        if (Math.Abs(dy - snapY) < 10)
-                        {
-                            dy = snapY;
-                        }
-                        else
-                        {
-                            if (Position.X - LastPosition.X > 0)
-                            {
-                                dx = entRect.X - collisionRect.Width;
-                            }
-                            else if (Position.X - LastPosition.X < 0)
-                            {
-                                dx = entRect.X + entRect.Width;
-                            }
-                        }
-                    }
-                    
-                    Position = new Point(dx, dy);
-                }
+                HandleCollisionWithEntity((EntityCollisionMsg)msg);
+            }
+            else if ((msg.Type == MessageType.TakeDamage) && Damagable)
+            {
+                Energy = Math.Max(Energy - ((TakeDamageMsg)msg).Damage, 0);
             }
 
             if (msg.Type == MessageType.MoveLeft)
@@ -251,7 +189,7 @@ namespace Ivy
             //       does it matter?  -- maybe it does -- so the state has more 'control' over the entity
         }
 
-        public Vector2 GetPositionAtTime(int elapsedTimeMS)
+        public virtual Vector2 GetPositionAtTime(int elapsedTimeMS)
         {
             int dx = (int)(CurrentSpeed.X * Direction.X * elapsedTimeMS);
             int dy = (int)(CurrentSpeed.Y * Direction.Y * elapsedTimeMS);
@@ -271,5 +209,83 @@ namespace Ivy
             LastPosition = Position;
             Position = position;
         }
+
+        private void HandleCollisionWithEntity(EntityCollisionMsg msg)
+        {
+            Rectangle collisionRect = CollisionRect();
+            Rectangle footRect =
+                new Rectangle(collisionRect.X, collisionRect.Y + collisionRect.Height - 1, collisionRect.Width, 3);
+            Rectangle headRect = new Rectangle(footRect.X, collisionRect.Y, footRect.Width, 3);
+
+            if (msg.EntityHit.Movable == false)
+            {
+                int dx = Position.X;
+                int dy = Position.Y;
+
+                Rectangle entRect = msg.EntityHit.CollisionRect();
+
+                bool footHit = footRect.Intersects(entRect);
+                bool headHit = headRect.Intersects(entRect);
+
+                if (footHit != true && headHit != true)
+                {
+                    if (Position.X - LastPosition.X > 0)
+                    {
+                        dx = entRect.X - collisionRect.Width;
+                    }
+                    else if (Position.X - LastPosition.X < 0)
+                    {
+                        dx = entRect.X + entRect.Width;
+                    }
+                }
+                else if (footHit == true)
+                {
+                    int snapY = msg.EntityHit.Position.Y - CollisionRect().Height;
+
+                    if (Math.Abs(dy - snapY) < 10)
+                    {
+                        dy = snapY;
+                        MessageDispatcher.Get().SendMessage(new Message(MessageType.Land, this, this));
+
+                        // standing on this platform
+                        m_platform = msg.EntityHit;
+                    }
+                    else
+                    {
+                        if (Position.X - LastPosition.X > 0)
+                        {
+                            dx = entRect.X - collisionRect.Width;
+                        }
+                        else if (Position.X - LastPosition.X < 0)
+                        {
+                            dx = entRect.X + entRect.Width;
+                        }
+                    }
+                }
+                else if (headHit == true)
+                {
+                    int snapY = msg.EntityHit.Position.Y + entRect.Height;
+
+                    if (Math.Abs(dy - snapY) < 10)
+                    {
+                        dy = snapY;
+                    }
+                    else
+                    {
+                        if (Position.X - LastPosition.X > 0)
+                        {
+                            dx = entRect.X - collisionRect.Width;
+                        }
+                        else if (Position.X - LastPosition.X < 0)
+                        {
+                            dx = entRect.X + entRect.Width;
+                        }
+                    }
+                }
+
+                Position = new Point(dx, dy);
+            }
+        }
+
     }
 }

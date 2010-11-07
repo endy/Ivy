@@ -64,6 +64,30 @@ namespace Ivy
 
                 AddEntity(portal, portalPosition);
             }
+
+            OgmoObjectLayer baddieLayer =  level.GetLayer<OgmoObjectLayer>("baddies");
+
+            if (baddieLayer != null)
+            {
+                foreach (OgmoObject baddie in baddieLayer.Objects)
+                {
+                    Point position = new Point((int)baddie.Position.X, (int)baddie.Position.Y);
+
+                    Entity entityBaddie = null;
+
+                    if (baddie.Name == "ridley")
+                    {
+                        entityBaddie = new Ridley(baddie.Texture);
+                    }
+                    else if (baddie.Name == "fireflea")
+                    {
+                        entityBaddie = new Fireflea(baddie.Texture);
+                    }
+
+                    entityBaddie.Initialize();
+                    AddEntity(entityBaddie, position);
+                }
+            }
         }
 
         public void Initialize()
@@ -72,19 +96,36 @@ namespace Ivy
 
         public void Update(GameTime gameTime)
         {
+            IvyGame.Get().ConsoleStr += "Entities: " + m_entities.Count + "\n";
+
             // Update misc zone resources (background positions, etc)
 
-            // Update entity states
+            List<Entity> deadEntities = new List<Entity>();
+
+            // Update alive entities, remove dead ones
             foreach (Entity e in m_entities)
             {
-                e.Update(gameTime);
+                if (e.Alive)
+                {
+                    e.Update(gameTime);
+                }
+
+                if (e.Alive == false)
+                {
+                    deadEntities.Add(e);
+                }
+            }
+
+            foreach (Entity e in deadEntities)
+            {
+                RemoveEntity(e);
             }
 
             ///@todo Migrate this back into Entity
             // update entity positions
             foreach (Entity e in m_entities)
             {
-                if (e.Moving)
+                if (e.Movable)
                 {
                     e.LastPosition = e.Position;
 
@@ -101,7 +142,15 @@ namespace Ivy
 
             foreach (Entity a in entityListA)
             {
-                if (a.Moving == false)
+                
+                if (a.Collidable == false)
+                {
+                    // Not collidable, ignore in list A and B
+                    entityListB.Remove(a);
+                    continue;
+                }
+
+                if (a.Movable == false)
                 {
                     continue;
                 }
@@ -110,13 +159,16 @@ namespace Ivy
 
                 foreach (Entity b in entityListB)
                 {
-                    Rectangle aRect = a.CollisionRect();
-                    Rectangle bRect = b.CollisionRect();
-
-                    if (aRect.Intersects(bRect))
+                    if (b.Collidable)
                     {
-                        MessageDispatcher.Get().SendMessage(new EntityCollisionMsg(this, a, b));
-                        MessageDispatcher.Get().SendMessage(new EntityCollisionMsg(this, b, a));
+                        Rectangle aRect = a.CollisionRect();
+                        Rectangle bRect = b.CollisionRect();
+
+                        if (aRect.Intersects(bRect))
+                        {
+                            MessageDispatcher.Get().SendMessage(new EntityCollisionMsg(this, a, b));
+                            MessageDispatcher.Get().SendMessage(new EntityCollisionMsg(this, b, a));
+                        }
                     }
                 }
             }

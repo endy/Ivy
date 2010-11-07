@@ -12,4 +12,7 @@
   <portals>
     <portal x="8" y="72" width="8" height="48" destZone="corridor" destX="464" destY="72"/>
   </portals>
+  <baddies>
+    <ridley x="144" y="40"/>
+  </baddies>
 </level>

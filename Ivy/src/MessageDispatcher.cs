@@ -58,7 +58,7 @@ namespace Ivy
 
         public void Update(GameTime gameTime)
         {
-            List<Message> removeList = new List<Message>();
+            List<Message> sendList = new List<Message>();
 
             // send messages when the time is right!
             foreach (Message msg in m_messageList)
@@ -67,14 +67,14 @@ namespace Ivy
 
                 if (msg.SendTime == 0)
                 {
-                    msg.Receiver.ReceiveMessage(msg);
-                    removeList.Add(msg);
+                    sendList.Add(msg);
                 }
             }
 
-            foreach (Message msg in removeList)
+            foreach (Message msg in sendList)
             {
                 m_messageList.Remove(msg);
+                msg.Receiver.ReceiveMessage(msg);
             }
         }
     }

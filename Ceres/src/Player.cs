@@ -33,10 +33,13 @@ namespace Ivy
 
         public override void Initialize()
         {
+            Movable = true;
+            Damagable = true;
+
             m_animGraph = new AnimGraph(this);
             m_animGraph.Initialize();
             
-            m_armCannon = new Weapon(IvyGame.Get(), this, new Point(10, 10), Direction);
+            m_armCannon = new Weapon(this, new Point(10, 10), Direction);
             m_armCannon.Initialize();
 
             m_landEffect = Game.Content.Load<SoundEffect>("Audio\\samus_land");
@@ -62,14 +65,14 @@ namespace Ivy
             Texture2D samusMap = Game.Content.Load<Texture2D>("Sprites\\samusMap");
            
             #region Animation Setup
-            AnimatedSprite samusTurnLeftAnim = new AnimatedSprite(IvyGame.Get(), samusMap, samusTurnRect, 3, 24f);
+            AnimatedSprite samusTurnLeftAnim = new AnimatedSprite(samusMap, samusTurnRect, 3, 24f);
 
             IAnimGraphNode samusTurnLeftNode = m_animGraph.AddAnim(samusTurnLeftAnim);
             samusTurnLeftNode.Anim.Initialize();
             samusTurnLeftNode.Anim.Loop = false;
             samusTurnLeftNode.Anim.Name = "SamusTurnLeft";
 
-            AnimatedSprite samusTurnRightAnim = new AnimatedSprite(IvyGame.Get(), samusMap, samusTurnRect, 3, 24f);
+            AnimatedSprite samusTurnRightAnim = new AnimatedSprite(samusMap, samusTurnRect, 3, 24f);
 
             IAnimGraphNode samusTurnRightNode = m_animGraph.AddAnim(samusTurnRightAnim);
             samusTurnRightNode.Anim.Initialize();
@@ -78,22 +81,22 @@ namespace Ivy
             samusTurnRightNode.Anim.Name = "SamusTurnRight";           
 
             IAnimGraphNode samusWaitLeftNode = m_animGraph.AddAnim(
-                new AnimatedSprite(IvyGame.Get(), samusMap, samusWaitLeftRect, 5, 6f));
+                new AnimatedSprite(samusMap, samusWaitLeftRect, 5, 6f));
             samusWaitLeftNode.Anim.Initialize();
             samusWaitLeftNode.Anim.Name = "SamusWaitLeft";
 
             IAnimGraphNode samusWaitRightNode = m_animGraph.AddAnim( 
-                new AnimatedSprite(IvyGame.Get(), samusMap, samusWaitRightRect, 5, 6f));
+                new AnimatedSprite(samusMap, samusWaitRightRect, 5, 6f));
             samusWaitRightNode.Anim.Initialize();
             samusWaitRightNode.Anim.Name = "SamusWaitRight";
 
             IAnimGraphNode samusRunLeftNode = m_animGraph.AddAnim(
-                new AnimatedSprite(IvyGame.Get(), samusMap, samusRunLeftRect, 10, 18f));
+                new AnimatedSprite(samusMap, samusRunLeftRect, 10, 18f));
             samusRunLeftNode.Anim.Initialize();
             samusRunLeftNode.Anim.Name = "SamusRunLeft";
 
             IAnimGraphNode samusRunRightNode = m_animGraph.AddAnim(
-                new AnimatedSprite(IvyGame.Get(), samusMap, samusRunRightRect, 10, 18f));
+                new AnimatedSprite(samusMap, samusRunRightRect, 10, 18f));
             samusRunRightNode.Anim.Initialize();
             samusRunRightNode.Anim.Name = "SamusRunRight";
 
@@ -126,34 +129,34 @@ namespace Ivy
 
 
             IAnimGraphNode samusJumpRollLeftNode = m_animGraph.AddAnim(
-                new AnimatedSprite(IvyGame.Get(), samusMap, samusJumpRollLeftRect, 8, 16f));
+                new AnimatedSprite(samusMap, samusJumpRollLeftRect, 8, 16f));
             samusJumpRollLeftNode.Anim.Initialize();
 
             IAnimGraphNode samusJumpRollRightNode = m_animGraph.AddAnim(
-                new AnimatedSprite(IvyGame.Get(), samusMap, samusJumpRollRightRect, 8, 16f));
+                new AnimatedSprite(samusMap, samusJumpRollRightRect, 8, 16f));
             samusJumpRollRightNode.Anim.Initialize();
 
             IAnimGraphNode samusJumpAscendLeftNode = m_animGraph.AddAnim(
-                new AnimatedSprite(IvyGame.Get(), samusMap, samusJumpAscendLeftRect, 2, 16f));
+                new AnimatedSprite(samusMap, samusJumpAscendLeftRect, 2, 16f));
             samusJumpAscendLeftNode.Anim.Initialize();
             samusJumpAscendLeftNode.Anim.Loop = false;
 
             IAnimGraphNode samusJumpAscendRightNode = m_animGraph.AddAnim(
-                new AnimatedSprite(IvyGame.Get(), samusMap, samusJumpAscendRightRect, 2, 16f));
+                new AnimatedSprite(samusMap, samusJumpAscendRightRect, 2, 16f));
             samusJumpAscendRightNode.Anim.Initialize();
             samusJumpAscendRightNode.Anim.Loop = false;
 
             IAnimGraphNode samusJumpDescendLeftNode = m_animGraph.AddAnim(
-                new AnimatedSprite(IvyGame.Get(), samusMap, samusJumpDescendLeftRect, 4, 16f));
+                new AnimatedSprite(samusMap, samusJumpDescendLeftRect, 4, 16f));
             samusJumpDescendLeftNode.Anim.Initialize();
             samusJumpDescendLeftNode.Anim.Loop = false;
 
             IAnimGraphNode samusJumpDescendRightNode = m_animGraph.AddAnim(
-                new AnimatedSprite(IvyGame.Get(), samusMap, samusJumpDescendRightRect, 4, 16f));
+                new AnimatedSprite(samusMap, samusJumpDescendRightRect, 4, 16f));
             samusJumpDescendRightNode.Anim.Initialize();
             samusJumpDescendRightNode.Anim.Loop = false;
 
-            AnimatedSprite landLeftAnim = new AnimatedSprite(IvyGame.Get(), samusMap, samusJumpLandLeftRect, 2, 16f);
+            AnimatedSprite landLeftAnim = new AnimatedSprite(samusMap, samusJumpLandLeftRect, 2, 16f);
 
             IAnimGraphNode samusJumpRollLandLeftNode = m_animGraph.AddAnim(landLeftAnim);
             samusJumpRollLandLeftNode.Anim.Initialize();
@@ -163,7 +166,7 @@ namespace Ivy
             samusJumpDescendLandLeftNode.Anim.Initialize();
             samusJumpDescendLandLeftNode.Anim.Loop = false;
 
-            AnimatedSprite landRightAnim = new AnimatedSprite(IvyGame.Get(), samusMap, samusJumpLandRightRect, 2, 16f);
+            AnimatedSprite landRightAnim = new AnimatedSprite(samusMap, samusJumpLandRightRect, 2, 16f);
 
             IAnimGraphNode samusJumpRollLandRightNode = m_animGraph.AddAnim(landRightAnim);
             samusJumpRollLandRightNode.Anim.Initialize();

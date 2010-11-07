@@ -17,34 +17,40 @@ namespace Ivy
     /// <summary>
     /// This is a game component that implements IUpdateable.
     /// </summary>
-    public class Projectile : Microsoft.Xna.Framework.GameComponent
+    public class Projectile : Entity
     {
-        private Point m_position;
-        private Vector2 m_direction;
         private AnimatedSprite m_projectileAnim;
         private AnimatedSprite m_explosionAnim;
 
         private AnimatedSprite m_playingAnim;
 
-        private int lifespan = 500;
+        private Entity m_weaponOwner;   /// owner of the weapon that fired this projectile
+
+        private int Damage { get; set; }
+
+        private int lifespan = 10000;
         private int elapsedTime = 0;
 
-        private bool m_alive = true;
-        private bool m_dead = false;
-
-        public Projectile(Game game, Weapon weapon, AnimatedSprite projectileAnim, AnimatedSprite explosionAnim)
-            : base(game)
+        public Projectile(Weapon weapon, Entity weaponOwner, AnimatedSprite projectileAnim, AnimatedSprite explosionAnim)
+            : base(IvyGame.Get())
         {
-            m_position = weapon.Position;
-            m_direction = weapon.Direction;
+            Position = weapon.Position;
+            Direction = weapon.Direction;
+
+            m_weaponOwner = weaponOwner;
             
-            m_projectileAnim = projectileAnim;
+            Damage = 50;
+            
+            m_projectileAnim = projectileAnim.Copy() as AnimatedSprite;
             m_projectileAnim.OnAnimEnd += OnAnimEnd;
 
-            m_explosionAnim = explosionAnim;
+            m_explosionAnim = explosionAnim.Copy() as AnimatedSprite;
             m_explosionAnim.OnAnimEnd += OnAnimEnd;
 
             m_playingAnim = m_projectileAnim;
+
+            Movable = true;
+            Damagable = false;
         }
 
         /// <summary>
@@ -53,8 +59,11 @@ namespace Ivy
         /// </summary>
         public override void Initialize()
         {
-            m_playingAnim.Play();
             base.Initialize();
+
+            m_playingAnim.Play();
+
+            m_StaticCollisionRect = m_projectileAnim.GetFrameBounds();
         }
 
         /// <summary>
@@ -65,17 +74,15 @@ namespace Ivy
         {
             elapsedTime += gameTime.ElapsedGameTime.Milliseconds;
 
-            if (m_alive)
+            if (Alive)
             {
                 if (elapsedTime > lifespan)
                 {
-                    m_alive = false;
-                    Explode();
+                    Alive = false;
                 }
                 else
                 {
-                    m_position.X += (int)m_direction.X * 3;
-                    m_position.Y += (int)m_direction.Y * 3;
+                    Position = new Point(Position.X + (int)Direction.X * 4, Position.Y + (int)Direction.Y * 4);
                 }
             }
 
@@ -84,34 +91,53 @@ namespace Ivy
             base.Update(gameTime);
         }
 
-        public void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch spriteBatch)
         {
             Rectangle cameraRect = IvyGame.Get().Camera.CameraRect;
 
             Point projectilePos = new Point();
-            projectilePos.X = (int)(((m_position.X - cameraRect.X) / (float)cameraRect.Width) * 800); // screen width = 800
-            projectilePos.Y = (int)(((m_position.Y - cameraRect.Y) / (float)cameraRect.Height) * 600); // screen height = 600
+            projectilePos.X = (int)(((Position.X - cameraRect.X) / (float)cameraRect.Width) * 800); // screen width = 800
+            projectilePos.Y = (int)(((Position.Y - cameraRect.Y) / (float)cameraRect.Height) * 600); // screen height = 600
 
 
             m_playingAnim.Draw(spriteBatch, projectilePos);
         }
 
+        public override void ReceiveMessage(Message msg)
+        {
+            if (msg.Type == MessageType.CollideWithEntity)
+            {
+                EntityCollisionMsg collisionMsg = (EntityCollisionMsg)msg;
+
+                if (collisionMsg.EntityHit != m_weaponOwner)
+                {
+                    Explode();
+
+                    TakeDamageMsg damageMsg = new TakeDamageMsg(this, collisionMsg.EntityHit, Damage);
+                    MessageDispatcher.Get().SendMessage(damageMsg);
+                }
+            }
+            else
+            {
+                base.ReceiveMessage(msg);
+            }
+        }
+
         private void Explode()
         {
+            Collidable = false;
             m_projectileAnim.Stop();
             m_playingAnim = m_explosionAnim;
             m_playingAnim.Reset();
             m_playingAnim.Play();
-        }
 
-        public bool IsDead
-        {
-            get { return m_dead; }
+            Direction = Vector2.Zero;
+
         }
 
         public void OnAnimEnd(AnimatedSprite anim)
         {
-            m_dead = true;
-        }
+            Alive = false;
+        }        
     }
 }

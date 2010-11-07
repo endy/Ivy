@@ -10,7 +10,7 @@
     <workingDirectory>../art</workingDirectory>
   </settings>
   <tilesets>
-    <tileset name="zoomer" image="zoomer.png" tileWidth="16" tileHeight="16" />
+    
   </tilesets>
   <objects>
     	<folder name="backgrounds">
@@ -30,11 +30,16 @@
  			</values>
 		</object>
 	</folder>
+        <folder name="baddies">
+   	 	<object name="fireflea" image="fireflea.png" width="18" height="14" />
+        	<object name="ridley" image="ridley.png" width="82" height="100" />
+        </folder>
   </objects>
   <layers>
     <objects name="bg" gridSize="16" exportAsObjects="true" />
     <grid name="platforms" gridSize="8" exportAsObjects="true" />
     <objects name="portals" gridSize="8" exportAsObjects="true" />
+    <objects name="baddies" gridSize="8" exportAsObjects="true" />
   </layers>
 </project>
 

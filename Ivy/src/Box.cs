@@ -17,9 +17,10 @@ namespace Ivy
     /// <summary>
     /// This is a game component that implements IUpdateable.
     /// </summary>
-    public class Box : Microsoft.Xna.Framework.GameComponent
-                       //Microsoft.Xna.Framework.IDrawable
+    public class Box
     {
+        private static Box m_instance;
+
         Matrix scaleMatrix;
         Matrix transMatrix;
 
@@ -34,23 +35,31 @@ namespace Ivy
 
         Rectangle m_rect;
 
-        public Box(Game game)
-            : base(game)
+        private Box()
         {
             m_rect = new Rectangle(0, 0, 1, 1);
+        }
+
+        public static Box Get()
+        {
+            if (m_instance == null)
+            {
+                m_instance = new Box();
+                m_instance.Initialize();
+            }
+
+            return m_instance;
         }
 
         /// <summary>
         /// Allows the game component to perform any initialization it needs to before starting
         /// to run.  This is where it can query for any required services and load content.
         /// </summary>
-        public override void Initialize()
+        private void Initialize()
         {
             InitializeVertexes();
             InitializeTransform();
             InitializeEffect();
-
-            base.Initialize();
         }
 
         private void InitializeVertexes()
@@ -80,8 +89,8 @@ namespace Ivy
 
             projectionMatrix = Matrix.CreateOrthographicOffCenter(
                 0,
-                (float)Game.GraphicsDevice.Viewport.Width,
-                (float)Game.GraphicsDevice.Viewport.Height,
+                (float)IvyGame.Get().GraphicsDevice.Viewport.Width,
+                (float)IvyGame.Get().GraphicsDevice.Viewport.Height,
                 0,
                 1.0f, 1000.0f);
         }
@@ -89,9 +98,9 @@ namespace Ivy
         private void InitializeEffect()
         {
 
-            vertexDeclaration = VertexPositionColor.VertexDeclaration; 
+            vertexDeclaration = VertexPositionColor.VertexDeclaration;
 
-            basicEffect = new BasicEffect(Game.GraphicsDevice);
+            basicEffect = new BasicEffect(IvyGame.Get().GraphicsDevice);
             basicEffect.VertexColorEnabled = true;
 
             scaleMatrix = Matrix.CreateScale(1f);
@@ -102,35 +111,21 @@ namespace Ivy
             basicEffect.Projection = projectionMatrix;
         }
 
-        public void UpdateRect(Rectangle rect)
-        {
-            scaleMatrix = Matrix.CreateScale(rect.Width, rect.Height, 1);
-        }
-
-        /// <summary>
-        /// Allows the game component to update itself.
-        /// </summary>
-        /// <param name="gameTime">Provides a snapshot of timing values.</param>
-        public override void Update(GameTime gameTime)
+        public void Draw(Point Position, Rectangle rect)
         {
             Rectangle cameraRect = IvyGame.Get().Camera.CameraRect;
 
-            base.Update(gameTime);
-        }
+            scaleMatrix = Matrix.CreateScale(rect.Width, rect.Height, 1);
 
-        public void Draw(Point Position)
-        {
             Vector2 screenPos = IvyGame.Get().Camera.GetScreenPointForRoomPoint(new Vector2(Position.X, Position.Y));
             transMatrix = Matrix.CreateTranslation(screenPos.X, screenPos.Y, 0);
-            basicEffect.World = scaleMatrix * transMatrix;
-            
-            
+            basicEffect.World = scaleMatrix * transMatrix;       
 
             foreach (EffectPass pass in basicEffect.CurrentTechnique.Passes)
             {
                 pass.Apply();
 
-                Game.GraphicsDevice.DrawUserIndexedPrimitives<VertexPositionColor>(
+                IvyGame.Get().GraphicsDevice.DrawUserIndexedPrimitives<VertexPositionColor>(
                     PrimitiveType.LineStrip,
                     vertexArray,
                     0, 

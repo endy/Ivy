@@ -17,14 +17,12 @@ namespace Ivy
     /// <summary>
     /// This is a game component that implements IUpdateable.
     /// </summary>
-    public class Weapon : Microsoft.Xna.Framework.GameComponent
+    public class Weapon : Microsoft.Xna.Framework.GameComponent, Ivy.IMessageSender
     {
-        private Player m_player;
+        private Entity m_owner;     /// owner of the weapon
         private Point m_mountOffset;
 
         private Vector2 m_direction;
-
-        List<Projectile> m_projectileList;
 
         Texture2D m_weaponMap;
 
@@ -36,10 +34,10 @@ namespace Ivy
 
         SoundEffect m_fireEffect;
 
-        public Weapon(Game game, Player player, Point mountOffset, Vector2 direction)
-            : base(game)
+        public Weapon(Entity owner, Point mountOffset, Vector2 direction)
+            : base(IvyGame.Get())
         {
-            m_player = player;
+            m_owner = owner;
             m_mountOffset = mountOffset;
             m_direction = direction;
         }
@@ -50,10 +48,15 @@ namespace Ivy
         /// </summary>
         public override void Initialize()
         {
-            m_projectileList = new List<Projectile>();
-
             m_weaponMap = Game.Content.Load<Texture2D>("Sprites\\samusMap");
             m_fireEffect = Game.Content.Load<SoundEffect>("Audio\\weapon_fire");
+
+            m_projectileAnim = new AnimatedSprite(m_weaponMap, m_projectileRect, 2, 10f);
+            m_projectileAnim.Initialize();
+
+            m_explosionAnim = new AnimatedSprite(m_weaponMap, m_explosionRect, 6, 18f);
+            m_explosionAnim.Initialize();
+            m_explosionAnim.Loop = false;
 
             base.Initialize();
         }
@@ -62,8 +65,8 @@ namespace Ivy
         {
             get
             {
-                return new Point(m_player.Position.X + m_mountOffset.X,
-                                 m_player.Position.Y + m_mountOffset.Y);
+                return new Point(m_owner.Position.X + m_mountOffset.X,
+                                 m_owner.Position.Y + m_mountOffset.Y);
             }
         }
 
@@ -79,50 +82,25 @@ namespace Ivy
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         public override void Update(GameTime gameTime)
         {
-            m_direction = m_player.Direction;
-
-            List<Projectile> deadList = new List<Projectile>();
-            foreach (Projectile p in m_projectileList)
-            {
-                if (p.IsDead)
-                {
-                    deadList.Add(p); 
-                }
-            }
-            foreach (Projectile p in deadList)
-            {
-                m_projectileList.Remove(p);
-            }
-
-            foreach (Projectile p in m_projectileList)
-            {
-                p.Update(gameTime);
-            }
-
+            m_direction = m_owner.Direction;
+            
             base.Update(gameTime);
         }
 
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            foreach (Projectile p in m_projectileList)
-            {
-                p.Draw(spriteBatch);
-            }
+            
         }
 
         public void Fire()
         {
-            m_projectileAnim = new AnimatedSprite(IvyGame.Get(), m_weaponMap, m_projectileRect, 2, 10f);
-            m_projectileAnim.Initialize();
-
-            m_explosionAnim = new AnimatedSprite(IvyGame.Get(), m_weaponMap, m_explosionRect, 6, 6f);
-            m_explosionAnim.Initialize();
-            m_explosionAnim.Loop = false;
-
-            Projectile p = new Projectile(IvyGame.Get(), this, m_projectileAnim, m_explosionAnim);
+            Projectile p = new Projectile(this, m_owner, m_projectileAnim, m_explosionAnim);
             p.Initialize();
-            m_projectileList.Add(p);
+            p.Direction = new Vector2(m_direction.X, 0);
+
+            ChangeZoneMsg msg = new ChangeZoneMsg(this, IvyGame.Get(), p, m_owner.WorldZone.ZoneName, Position, 1);
+            MessageDispatcher.Get().SendMessage(msg);
 
             m_fireEffect.Play();
         }

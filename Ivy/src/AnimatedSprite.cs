@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 using Microsoft.Xna.Framework;
@@ -14,9 +13,6 @@ namespace Ivy
 
         public AnimatedSpriteEvent OnAnimEnd;
 
-        // Component Data
-        IvyGame m_game;
-
         // Sprite Properties
         private Texture2D m_texture;
         private Rectangle m_animRect;
@@ -29,9 +25,9 @@ namespace Ivy
         public bool Loop { get; set; }                  // loop animation
         public uint CurrentFrame { get; private set; }  // current frame
 
-        private Rectangle m_frameRect;                  // dimensions of a single frame
 
         // Private Animation Data
+        private Rectangle m_frameRect;                  // dimensions of a single frame
         private uint m_frameCount;
         private float m_framesPerSecond;
         private float m_timePerFrame;       // milliseconds per frame
@@ -40,16 +36,13 @@ namespace Ivy
         public string Name { get; set; }    // Anim name   // TODO: remove
 
         public AnimatedSprite(
-            IvyGame game, 
             Texture2D texture, 
             Rectangle animRect, 
             uint frameCount,
             float framesPerSecond) 
             : 
-            base(game)
-        {
-            m_game = game;
-            
+            base(IvyGame.Get())
+        {            
             m_texture = texture;
             m_animRect = animRect;
             m_frameCount = frameCount;
@@ -73,6 +66,16 @@ namespace Ivy
             m_timePerFrame = ((1.0f / m_framesPerSecond) * 1000.0f);
 
             Name = "Animation";
+        }
+
+        public AnimatedSprite Copy()
+        {
+            AnimatedSprite clone = new AnimatedSprite(m_texture, m_animRect, m_frameCount, m_framesPerSecond);
+            clone.Loop = Loop;
+            clone.Reverse = Reverse;
+            clone.Scale = new Vector2(Scale.X, Scale.Y);
+
+            return clone;
         }
 
         public override void Initialize()
@@ -196,5 +199,6 @@ namespace Ivy
                 }
             }
         }
+
     }
 }

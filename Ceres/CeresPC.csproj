@@ -37,7 +37,7 @@
     <MapFileExtensions>true</MapFileExtensions>
     <SupportUrl>http://www.sick-kitty.com</SupportUrl>
     <ErrorReportUrl>http://www.sick-kitty.com</ErrorReportUrl>
-    <ApplicationRevision>2</ApplicationRevision>
+    <ApplicationRevision>3</ApplicationRevision>
     <ApplicationVersion>0.1.1.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>

@@ -19,6 +19,7 @@ namespace Ivy
 
         CollideWithEntity,
         ChangeZone,
+        TakeDamage,
 
         // Test Messages
         ActivateSkree,
@@ -81,4 +82,19 @@ namespace Ivy
             DestPosition = destPosition;
         }
     }
+
+    public class TakeDamageMsg : Message
+    {
+        public int Damage { get; private set; }
+
+        public TakeDamageMsg(
+            IMessageSender sender,
+            IMessageReceiver receiver,
+            int damage)
+          : base(MessageType.TakeDamage, sender, receiver)
+        {
+            Damage = damage;
+        }
+    }
+
 }

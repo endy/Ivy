@@ -3,6 +3,8 @@
   <height>193</height>
   <bg>
     <bg_zone_corridor x="0" y="0"/>
+    <fireflea x="400" y="80"/>
+    <fireflea x="240" y="80"/>
   </bg>
   <platforms>
     <rect x="0" y="128" w="512" h="8"/>
