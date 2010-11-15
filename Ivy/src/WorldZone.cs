@@ -17,12 +17,19 @@ namespace Ivy
         
         List<Entity> m_entities;
         Texture2D m_background;
+
         public Rectangle Bounds { get; private set; }
         public string ZoneName { get; private set; }
         public Vector2 GravityConstant { get; private set; }
 
+        // refactor these properties to a derived class
+        Texture2D m_escapeBackground;
+        public bool EscapeMode { get; private set; }
+        
         public WorldZone(string zoneName)
         {
+            EscapeMode = false;
+
             ZoneName = zoneName;
 
             m_entities = new List<Entity>();
@@ -34,6 +41,12 @@ namespace Ivy
             Bounds = new Rectangle(0, 0, level.Width, level.Height);
 
             m_background = level.GetLayer<OgmoObjectLayer>("bg").Objects[0].Texture;
+
+            OgmoObjectLayer escapeBgLayer = level.GetLayer<OgmoObjectLayer>("escape_bg");
+            if (escapeBgLayer != null)
+            {
+                m_escapeBackground = escapeBgLayer.Objects[0].Texture;
+            }
 
             foreach (Rectangle rect in level.GetLayer<OgmoGridLayer>("platforms").RectangleData)
             {
@@ -88,10 +101,6 @@ namespace Ivy
                     AddEntity(entityBaddie, position);
                 }
             }
-        }
-
-        public void Initialize()
-        {
         }
 
         public void Update(GameTime gameTime)
@@ -171,9 +180,7 @@ namespace Ivy
                         }
                     }
                 }
-            }
-
-            
+            }            
         }
 
         public void Draw(SpriteBatch spriteBatch)
@@ -183,7 +190,15 @@ namespace Ivy
 
             Rectangle srcRect = new Rectangle(Bounds.Left + cameraRect.X, Bounds.Top + cameraRect.Y, cameraRect.Width, cameraRect.Height);
             Rectangle dstRect = new Rectangle(0, 0, 800, 600);
-            spriteBatch.Draw(m_background, dstRect, srcRect, Color.White);
+
+            if (EscapeMode == false || m_escapeBackground == null)
+            {
+                spriteBatch.Draw(m_background, dstRect, srcRect, Color.White);
+            }
+            else
+            {
+                spriteBatch.Draw(m_escapeBackground, dstRect, srcRect, Color.White);
+            }
 
             foreach (Entity e in m_entities)
             {
@@ -231,6 +246,11 @@ namespace Ivy
                     RemoveEntity(entity);
                 }
             }
+        }
+
+        public void SetEscapeMode(bool escapeModeOn)
+        {
+            EscapeMode = escapeModeOn;
         }
     }
 }

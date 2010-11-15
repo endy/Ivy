@@ -40,6 +40,11 @@ namespace Ivy
         public override void Update(Microsoft.Xna.Framework.GameTime gameTime)
         {
             base.Update(gameTime);
+
+            if (Energy <= 0)
+            {
+                MessageDispatcher.Get().SendMessage(new Message(MessageType.RidleyDead, this, IvyGame.Get()));
+            }
         }
 
         public override void Draw(SpriteBatch spriteBatch)
@@ -76,7 +81,6 @@ namespace Ivy
                 dy = (Math.Cos(m_elapsedTime / 2.0) > 0) ? 2.0f : -2.0f;
                 m_update = 0;
             }
-
 
             Vector2 newPos = new Vector2(Position.X + dx, Position.Y + dy);
 

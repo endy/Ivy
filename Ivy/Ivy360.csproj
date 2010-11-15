@@ -89,6 +89,7 @@
     <Compile Include="src\Ridley.cs" />
     <Compile Include="src\State.cs" />
     <Compile Include="src\StateMgr.cs" />
+    <Compile Include="src\Timer.cs" />
     <Compile Include="src\WorldZone.cs" />
     <Compile Include="src\ZonePortal.cs" />
   </ItemGroup>

@@ -20,6 +20,15 @@ namespace Ivy
     {
         private static IvyGame m_instance = null;
 
+        public enum GameState
+        {
+            Pause,
+            Play,
+            GameOver,
+        };
+
+        public GameState State { get; protected set; }
+
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
@@ -38,8 +47,18 @@ namespace Ivy
         private float m_fpsValue;
         private string m_fpsStr;
 
+        protected Texture2D CameraGel { get; set; }
+        protected Color GelTint { get; set; }
+
+        // Debug Options
+        private bool DrawCollisionRects { get; set; }
+
         protected IvyGame()
         {
+            State = GameState.Play;
+
+            DrawCollisionRects = false;
+
             m_fpsValue = 0.0f;
 
             graphics = new GraphicsDeviceManager(this);
@@ -76,13 +95,21 @@ namespace Ivy
         /// </summary>
         protected override void Initialize()
         {
+            // Initialize components
+            base.Initialize();
+
             Camera = new Camera2D();
+
+            GelTint = Color.White;
     
             ConsoleStr = "\n";
             m_fpsStr = "\n";
-            
-            // Initialize components
-            base.Initialize();
+
+            InputMgr.Get().RegisterKey(Keys.P, OnKeyboardEvent);    // Pause/Play
+            InputMgr.Get().RegisterKey(Keys.Q, OnKeyboardEvent);    // Quit
+            InputMgr.Get().RegisterKey(Keys.F1, OnKeyboardEvent);   // Debug - Collision Rects
+
+            InputMgr.Get().RegisterGamePadButton(Buttons.Back, OnGamePadButtonEvent);            
         }
 
         /// <summary>
@@ -118,22 +145,24 @@ namespace Ivy
         {
             ConsoleStr = "\n\n";
             
-            // Allows the game to exit
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
-                this.Exit();
-
             // Dispatch queued messages
             MessageDispatcher.Get().Update(gameTime);
 
             // Input
             InputMgr.Get().Update();
 
-            // Update World
-
-            // if multiple rooms are active in a game, they should all be updated here
-            if (m_currentZone != null)
+            if (State == GameState.Play)
             {
-                m_currentZone.Update(gameTime);
+                if (m_currentZone != null)
+                {
+                    m_currentZone.Update(gameTime);
+                }
+
+                // if multiple rooms are active in a game, they should all be updated here
+            }
+            else if (State == GameState.GameOver)
+            {
+                this.Exit();
             }
 
             // Update Camera based on Player Position
@@ -155,7 +184,7 @@ namespace Ivy
             m_fpsStr = "FPS: " + (int)m_fpsValue + "\n";
 
             GraphicsDevice.Clear(Color.Black);
-    
+   
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
             SamplerState pointSampler = new SamplerState();
             pointSampler.Filter = TextureFilter.Point;
@@ -165,6 +194,12 @@ namespace Ivy
             if (m_currentZone != null)
             {
                 m_currentZone.Draw(spriteBatch);
+            }
+
+            // Draw 'Camera Gel' to tint screen
+            if (CameraGel != null)
+            {
+                spriteBatch.Draw(CameraGel, Camera.ScreenRect, GelTint);
             }
 
             // Draw Console           
@@ -185,7 +220,7 @@ namespace Ivy
 
             spriteBatch.End();
 
-            if (m_currentZone != null)
+            if ((m_currentZone != null) && DrawCollisionRects)
             {
                 m_currentZone.Draw3D();
             }
@@ -199,9 +234,6 @@ namespace Ivy
             Camera.SetTarget(target);
         }
 
-        /// World Methods
-        ///
-
         public WorldZone GetCurrentZone()
         {
             return m_currentZone;
@@ -212,35 +244,106 @@ namespace Ivy
             m_currentZone = room;
         }
 
-        public void ReceiveMessage(Message msg)
+        public virtual void ReceiveMessage(Message msg)
         {
             if (msg.Type == MessageType.ChangeZone)
             {
-                // Pause, Transition Room, Then Pass Message onto both rooms
+                HandleChangeZoneMsg((ChangeZoneMsg)msg);                
+            }
+            else if (msg.Type == MessageType.PauseGame)
+            {
+                State = GameState.Pause;
+            }
+            else if (msg.Type == MessageType.PlayGame)
+            {
+                State = GameState.Play;
+            }
+            else if (msg.Type == MessageType.EndGame)
+            {
+                HandleGameEndMsg(msg);;
+            }
+        }
 
-                ChangeZoneMsg czMsg = (ChangeZoneMsg)msg;
+        private void HandleChangeZoneMsg(ChangeZoneMsg msg)
+        {
+            // Pause, Transition Room, Then Pass Message onto both rooms
 
-                if (m_currentZone != null)
+            if (m_currentZone != null)
+            {
+                MessageDispatcher.Get().SendMessage(
+                    new ChangeZoneMsg(this, m_currentZone, msg.Entity, msg.DestZone, msg.DestPosition, 1));
+            }
+
+            if (msg.Entity == m_cameraTarget)
+            {
+                WorldZone destZone = new WorldZone(msg.DestZone);
+
+                destZone.SetEscapeMode(GetCurrentZone().EscapeMode);
+
+                SetCurrentZone(destZone);
+                Camera.SetZoneBounds(destZone.Bounds);
+
+                Camera.SetTarget(msg.Entity);
+
+                if (msg.DestZone != null)
                 {
                     MessageDispatcher.Get().SendMessage(
-                        new ChangeZoneMsg(this, m_currentZone, czMsg.Entity, czMsg.DestZone, czMsg.DestPosition, 1));
+                        new ChangeZoneMsg(this, destZone, msg.Entity, msg.DestZone, msg.DestPosition, 1));
                 }
+            }
+        }
 
-                if (czMsg.Entity == m_cameraTarget)
+        protected virtual void HandleGameEndMsg(Message msg)
+        {
+            if (msg.Type == MessageType.EndGame)
+            {
+                State = GameState.GameOver;
+            }
+        }
+
+        protected virtual bool OnKeyboardEvent(KeyboardEvent e)
+        {
+            if (e.Key == Keys.P)
+            {
+                if (e.EventType == InputEventType.Pressed)
                 {
-                    WorldZone destZone = new WorldZone(czMsg.DestZone);
-                    SetCurrentZone(destZone);
-                    Camera.SetZoneBounds(destZone.Bounds);
-
-                    Camera.SetTarget(czMsg.Entity);
-
-                    if (czMsg.DestZone != null)
+                    if (State == GameState.Pause)
                     {
-                        MessageDispatcher.Get().SendMessage(
-                            new ChangeZoneMsg(this, destZone, czMsg.Entity, czMsg.DestZone, czMsg.DestPosition, 1));
+                        MessageDispatcher.Get().SendMessage(new Message(MessageType.PlayGame, this, this));
+                    }
+                    else if (State == GameState.Play)
+                    {
+                        MessageDispatcher.Get().SendMessage(new Message(MessageType.PauseGame, this, this));
                     }
                 }
             }
+            else if (e.Key == Keys.Q)
+            {
+                if (e.EventType == InputEventType.Pressed)
+                {
+                    MessageDispatcher.Get().SendMessage(new Message(MessageType.EndGame, this, this));
+                }
+            }
+            else if (e.Key == Keys.F1)
+            {
+                if (e.EventType == InputEventType.Pressed)
+                {
+                    DrawCollisionRects = !DrawCollisionRects;
+                }
+            }
+
+            return true;
+        }
+
+        protected virtual bool OnGamePadButtonEvent(GamePadButtonEvent e)
+        {
+            // Allows the game to exit
+            if (e.Button == Buttons.Back && e.EventType == InputEventType.Pressed)
+            {
+                MessageDispatcher.Get().SendMessage(new Message(MessageType.EndGame, this, this));
+            }
+
+            return true;
         }
     }
 }

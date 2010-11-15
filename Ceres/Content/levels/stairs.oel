@@ -4,6 +4,9 @@
   <bg>
     <bg_zone_stairs x="0" y="0"/>
   </bg>
+  <escape_bg>
+    <bg_zone_stairs_escape x="0" y="0"/>
+  </escape_bg>
   <platforms>
     <rect x="0" y="56" w="64" h="8"/>
     <rect x="0" y="128" w="192" h="8"/>

@@ -9,6 +9,7 @@ namespace Ivy
 {
     public enum MessageType
     {
+        // Player Message
         MoveLeft,
         MoveRight,
         Stand,
@@ -17,11 +18,18 @@ namespace Ivy
         Land,
         FireWeapon,
 
+        // Entity Message
         CollideWithEntity,
         ChangeZone,
         TakeDamage,
+        RidleyDead,
 
-        // Test Messages
+        // Game Message
+        PauseGame,
+        PlayGame,
+        EndGame,
+
+        // Debug Messages
         ActivateSkree,
     }
 

@@ -23,6 +23,8 @@ namespace Ceres
         ///@todo add player management
         protected Player m_playerOne;
 
+        private Timer EscapeTimer;
+        
         public Ceres()
         {
 
@@ -32,9 +34,9 @@ namespace Ceres
         {
             base.Initialize();
 
-            // Add player
+            WorldZone shaftZone = new WorldZone(@"levels/shaft");
 
-            WorldZone shaftZone = new WorldZone(@"levels/encounter");
+            // Add player
 
             // TODO: Find out if components need to be individually initialized here,
             //       XNA may provide a way of doing this.
@@ -55,6 +57,11 @@ namespace Ceres
             Rectangle cameraBounds = new Rectangle(0, 0, cameraWidth, cameraHeight);
             Camera.Initialize(shaftZone.Bounds, cameraBounds, screenRect);
 
+            CameraGel = Content.Load<Texture2D>(@"art/bg_layer_blueaura");
+            GelTint = new Color(0.0f, 0.0f, 1.0f, 0.0f);
+
+            EscapeTimer = new Timer(1000 * 60);  // One minute to escape
+            EscapeTimer.OnTimeExpired += OnEscapeTimeExpired;
 
             #region Register Input Handlers
             // Movement
@@ -94,9 +101,46 @@ namespace Ceres
 
         protected override void Update(GameTime gameTime)
         {
+            if (EscapeTimer != null)
+            {
+                EscapeTimer.Update(gameTime);
+            }
+
             base.Update(gameTime);
 
             ConsoleStr += "Energy: " + m_playerOne.Energy + "\n";
+
+            if ((EscapeTimer != null) && (EscapeTimer.Paused == false))
+            {
+                ConsoleStr += "Self Destruct in " + (EscapeTimer.TimeRemaining / 1000) + " seconds";
+            }
+        }
+
+        protected override void Draw(GameTime gameTime)
+        {
+            base.Draw(gameTime);
+        }
+
+        public override void ReceiveMessage(Message msg)
+        {
+            if (msg.Type == MessageType.RidleyDead)
+            {
+                EscapeTimer.Paused = false;
+
+                GetCurrentZone().SetEscapeMode(true);
+                
+                CameraGel = Content.Load<Texture2D>(@"art/bg_layer_redaura");
+                GelTint = new Color(1.0f, 0.0f, 0.0f, 0.0f);
+            }
+            else
+            {
+                base.ReceiveMessage(msg);
+            }
+        }
+
+        private void OnEscapeTimeExpired()
+        {
+            MessageDispatcher.Get().SendMessage(new Message(MessageType.EndGame, this, this));
         }
 
         #region Input Handlers
@@ -179,8 +223,10 @@ namespace Ceres
             return true;
         }
 
-        bool OnGamePadButtonEvent(GamePadButtonEvent e)
+        protected override bool OnGamePadButtonEvent(GamePadButtonEvent e)
         {
+            bool ret = true;
+
             if (e.Button == Buttons.B)
             {
                 if (e.EventType == InputEventType.Pressed)
@@ -196,15 +242,18 @@ namespace Ceres
                     MessageDispatcher.Get().SendMessage(msg);
                 }
             }
-
-            if ((e.Button == Buttons.Y) && (e.EventType == InputEventType.Pressed))
+            else if ((e.Button == Buttons.Y) && (e.EventType == InputEventType.Pressed))
             {
                 // Fire
                 Message msg = new Message(MessageType.FireWeapon, this, m_playerOne);
                 MessageDispatcher.Get().SendMessage(msg);
             }
+            else
+            {
+                ret = base.OnGamePadButtonEvent(e);
+            }
 
-            return true;
+            return ret;
         }
 
         bool DebugOnGamePadButtonEvent(GamePadButtonEvent e)
@@ -212,8 +261,10 @@ namespace Ceres
             return true;
         }
 
-        bool OnKeyboardEvent(KeyboardEvent e)
+        protected override bool OnKeyboardEvent(KeyboardEvent e)
         {
+            bool ret = true;
+
             // Jump!
             if (e.Key == Keys.Space)
             {
@@ -230,15 +281,18 @@ namespace Ceres
                     MessageDispatcher.Get().SendMessage(msg);
                 }
             }
-
-            if ((e.Key == Keys.F) && (e.EventType == InputEventType.Pressed))
+            else if ((e.Key == Keys.F) && (e.EventType == InputEventType.Pressed))
             {
                 // Fire
                 Message msg = new Message(MessageType.FireWeapon, this, m_playerOne);
                 MessageDispatcher.Get().SendMessage(msg);
             }
+            else
+            {
+                ret = base.OnKeyboardEvent(e);
+            }
 
-            return true;
+            return ret;
         }
         #endregion
     }

@@ -139,6 +139,7 @@
     <Compile Include="src\MessageDispatcher.cs" />
     <Compile Include="src\Platform.cs" />
     <Compile Include="src\Ridley.cs" />
+    <Compile Include="src\Timer.cs" />
     <Compile Include="src\WorldZone.cs" />
     <Compile Include="src\StateMgr.cs" />
     <Compile Include="src\Entity.cs" />

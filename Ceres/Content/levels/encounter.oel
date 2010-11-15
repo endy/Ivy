@@ -4,6 +4,9 @@
   <bg>
     <bg_zone_encounter x="0" y="0"/>
   </bg>
+  <escape_bg>
+    <bg_zone_encounter_escape x="0" y="0"/>
+  </escape_bg>
   <platforms>
     <rect x="16" y="128" w="32" h="8"/>
     <rect x="40" y="136" w="8" h="40"/>

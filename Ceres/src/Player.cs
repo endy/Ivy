@@ -251,6 +251,14 @@ namespace Ivy
             }
 
             m_animGraph.ReceiveMessage(msg);
+
+            if (msg.Type == MessageType.TakeDamage)
+            {
+                if (Energy <= 0)
+                {
+                    MessageDispatcher.Get().SendMessage(new Message(MessageType.EndGame, this, IvyGame.Get()));
+                }
+            }
         }
        
         private void FireWeapon()
