@@ -29,8 +29,8 @@ namespace Ivy
 
         public GameState State { get; protected set; }
 
-        GraphicsDeviceManager graphics;
-        SpriteBatch spriteBatch;
+        GraphicsDeviceManager IvyGraphics;
+        SpriteBatch IvySpriteBatch;
 
         // World Data
         private WorldZone m_currentZone;
@@ -61,10 +61,10 @@ namespace Ivy
 
             m_fpsValue = 0.0f;
 
-            graphics = new GraphicsDeviceManager(this);
-            graphics.PreferredBackBufferWidth = 800;
-            graphics.PreferredBackBufferHeight = 600;
-            graphics.ApplyChanges(); ///@todo is this needed?
+            IvyGraphics = new GraphicsDeviceManager(this);
+            IvyGraphics.PreferredBackBufferWidth = 800;
+            IvyGraphics.PreferredBackBufferHeight = 600;
+            IvyGraphics.ApplyChanges(); ///@todo is this needed?
 
             Content.RootDirectory = "Content";
 
@@ -119,7 +119,7 @@ namespace Ivy
         protected override void LoadContent()
         {
             // Create a new SpriteBatch, which can be used to draw textures.
-            spriteBatch = new SpriteBatch(GraphicsDevice);
+            IvySpriteBatch = new SpriteBatch(GraphicsDevice);
         
             ///@todo move to console class
             consoleFont = Content.Load<SpriteFont>("Fonts\\Console");
@@ -185,21 +185,21 @@ namespace Ivy
 
             GraphicsDevice.Clear(Color.Black);
    
-            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
+            IvySpriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
             SamplerState pointSampler = new SamplerState();
             pointSampler.Filter = TextureFilter.Point;
-            graphics.GraphicsDevice.SamplerStates[0] = pointSampler;
+            IvyGraphics.GraphicsDevice.SamplerStates[0] = pointSampler;
 
             // if multiple rooms are active, only the current one is drawn
             if (m_currentZone != null)
             {
-                m_currentZone.Draw(spriteBatch);
+                m_currentZone.Draw(IvySpriteBatch);
             }
 
             // Draw 'Camera Gel' to tint screen
             if (CameraGel != null)
             {
-                spriteBatch.Draw(CameraGel, Camera.ScreenRect, GelTint);
+                IvySpriteBatch.Draw(CameraGel, Camera.ScreenRect, GelTint);
             }
 
             // Draw Console           
@@ -209,16 +209,16 @@ namespace Ivy
             Vector2 drawConsolePos = new Vector2(consolePos.X + FontCenter.X, consolePos.Y);
                         
             // Draw the string
-            spriteBatch.DrawString(consoleFont, ConsoleStr, drawConsolePos, Color.LimeGreen,
+            IvySpriteBatch.DrawString(consoleFont, ConsoleStr, drawConsolePos, Color.LimeGreen,
                                    0, FontCenter, 1.2f, SpriteEffects.None, 0.5f);
 
             string dataString = m_fpsStr;
 
             Vector2 FpsDims = consoleFont.MeasureString(dataString);
             Vector2 drawFpsPos = new Vector2((Camera.ScreenRect.Right - (FpsDims.X * 2)), FpsDims.Y);
-            spriteBatch.DrawString(consoleFont, dataString, drawFpsPos, Color.LimeGreen, 0, FpsDims / 2, 2.0f, SpriteEffects.None, 0.5f);
+            IvySpriteBatch.DrawString(consoleFont, dataString, drawFpsPos, Color.LimeGreen, 0, FpsDims / 2, 2.0f, SpriteEffects.None, 0.5f);
 
-            spriteBatch.End();
+            IvySpriteBatch.End();
 
             if ((m_currentZone != null) && DrawCollisionRects)
             {
