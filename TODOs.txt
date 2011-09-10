@@ -1,5 +1,11 @@
+Master TODOs
+---------------------------------------------------------------------
+1. A. Merge IvyEngine (C++) into Ivy repo
+   B. Refactor current Ivy project as IvyXNA
 
-TODOs:
+
+Ivy XNA TODOs
+---------------------------------------------------------------------
 
 -allow for different transition endpoints by msg type
 
