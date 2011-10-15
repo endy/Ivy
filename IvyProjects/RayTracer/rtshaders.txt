@@ -1,0 +1,105 @@
+
+Texture2D <float4> rtImage : register(t0);
+SamplerState rtSampler : register(s0);
+
+struct VS_OUT
+{
+    float4 position : SV_POSITION;
+    float2 tex0     : TEXCOORD;
+};
+
+cbuffer MB : register(c0)
+{       
+    row_major matrix world;
+    row_major matrix view;
+    row_major matrix projection;
+};
+
+cbuffer Light : register(c0)
+{
+    float4 lposition;
+    float4 lcolor;
+};
+
+cbuffer Material : register(c1)
+{
+    float4 diffuse;
+    float4 specular;
+    float4 ambient;
+};
+
+
+VS_OUT RtVS( float4 Pos : SV_POSITION,
+             float2 Tex : TEXCOORD     )
+{
+    VS_OUT myout;
+
+    myout.position = mul(Pos, world);
+    myout.position = mul(myout.position, view);
+    myout.position = mul(myout.position, projection);
+
+    myout.tex0 = Tex;
+
+    return myout;
+}
+
+
+float4 RtPS( float4 pos : SV_POSITION,
+             float2 tex : TEXCOORD     ) : SV_TARGET
+{
+    float4 pixelColor;
+
+    float3 origin = float3(0,0,-10);
+    float3 direction = normalize(rtImage.Sample(rtSampler, tex));
+    float3 center = float3(0.0, 0.0, -6.0f);
+
+    float radius = 3.0f;
+    float radius2 = radius*radius;
+
+
+    float3 l = center - origin;
+    float s = dot(l, direction);
+
+    float lDot = dot(l,l);
+
+    float4 black = float4(0,0,0,1);
+
+    bool test = (s < 0) && (lDot > radius2);
+
+    if (test)
+    {
+        pixelColor = black;
+    }
+    else
+    {
+        float3 m2 = lDot - (s*s);
+
+        test = m2 > radius2;
+        if (test)
+        {
+            pixelColor = black;
+        }
+        else
+        {
+            float q = sqrt(radius2 - m2);
+
+            test = lDot > radius2;
+            float t = s;
+            if (test)
+            {
+                t = t-q;
+                pixelColor = float4(0,1,1,1);
+            }
+            else
+            {
+                t = t + q;
+                pixelColor = float4(0,1,0,1);
+            }
+        }
+    }
+
+    return pixelColor;
+}
+
+
+

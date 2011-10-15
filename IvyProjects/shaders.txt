@@ -1,0 +1,61 @@
+
+struct VS_OUT
+{
+	float4 position : SV_POSITION;
+	float2 tex0		: TEXCOORD0;
+};
+
+
+cbuffer MB : register(c0)
+{       
+    row_major matrix world;
+    row_major matrix view;
+	row_major matrix projection;
+};
+
+
+VS_OUT MyVS( float4 Pos : POSITION,
+			 float2 Tex : TEXCOORD0 )
+{
+	VS_OUT myout;
+
+	myout.position = mul(Pos, world);
+	myout.position = mul(myout.position, view);
+	myout.position = mul(myout.position, projection);
+
+	myout.tex0 = Tex;
+
+	return myout;
+}
+
+Texture2D <float4> myTex : register(t0);
+Texture2D <float4> myKitten : register(t1);
+SamplerState mySampler : register(s0);
+
+
+float4 MyPS( float4 pos : SV_POSITION,
+			 float2 texCoord : TEXCOORD0  ) : SV_TARGET
+{
+    float4 scale = { -1.0, -1.0, -1.0, 1.0 };
+	float4 invert = { 1.0, 1.0, 1.0, 0.0 };
+	
+	return (myKitten.Sample(mySampler, texCoord) * myTex.Sample(mySampler, texCoord)); // * scale) + invert;
+	/*
+	float4 color;
+	color.r = texCoord.x;
+	color.b = texCoord.y;
+	color.g = pos.z / pos.w;
+	color.a = 1.0; 
+	return color;
+	//*/
+}
+
+Texture2D <float4> myDepth : register(t0);
+
+float4 MyDepthView( float4 pos : SV_POSITION,
+                    float2 texCoord : TEXCOORD0 ) : SV_TARGET
+{
+    float4 color = myDepth.Sample(mySampler, texCoord);
+	color.a = 1.0;
+	return color;
+}

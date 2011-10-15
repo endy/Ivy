@@ -1,0 +1,379 @@
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// MLAA Declarations
+
+Texture2D <float4> colorTex : register(t0);
+Texture2D <float4> edgesTex : register(t1);
+Texture2D <float4> areaTex : register(t2);
+Texture2D <float4> blendTex : register(t3);
+
+SamplerState PointSampler : register(s0);
+SamplerState LinearSampler : register(s1);
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct VS_PT_OUT
+{
+    float4 position : SV_POSITION;
+    float2 tex0     : TEXCOORD;
+};
+
+cbuffer MB : register(c0)
+{       
+    row_major matrix world;
+    row_major matrix view;
+    row_major matrix projection;
+};
+
+
+VS_PT_OUT PosTex( float4 Pos : SV_POSITION,
+                  float2 Tex : TEXCOORD )
+{
+    VS_PT_OUT vsOut;
+
+    vsOut.position = mul(Pos, world);
+    vsOut.position = mul(vsOut.position, view);
+    vsOut.position = mul(vsOut.position, projection);
+
+    vsOut.tex0 = Tex;
+
+    return vsOut;
+}
+
+VS_PT_OUT PosTexTri( uint VertId : SV_VertexID )
+{
+    VS_PT_OUT vsOut;
+
+    // Tri 1
+    if (VertId == 0)
+    {
+        vsOut.position = float4(-1, 1, 0.5, 1);
+        vsOut.tex0 = float2(0, 0);
+    }
+    else if (VertId == 1)
+    {
+        vsOut.position = float4(1, 1, 0.5, 1);
+        vsOut.tex0 = float2(1, 0);
+    }
+    else if (VertId == 2)
+    {
+        vsOut.position = float4(1, -1, 0.5, 1);
+        vsOut.tex0 = float2(1, 1);
+    }
+    // Tri 2
+    else if (VertId == 3)
+    {
+        vsOut.position = float4(-1, 1, 0.5, 1);
+        vsOut.tex0 = float2(0, 0);
+    }
+    else if (VertId == 4)
+    {
+        vsOut.position = float4(1, -1, 0.5, 1);
+        vsOut.tex0 = float2(1, 1);
+    }
+    else if (VertId == 5)
+    {
+        vsOut.position = float4(-1, -1, 0.5, 1);
+        vsOut.tex0 = float2(0, 1);
+    }
+
+    return vsOut;
+}
+
+float4 Gradient( float4 pos : SV_POSITION,
+                 float2 texCoord : TEXCOORD ) : SV_TARGET
+{
+    return float4(texCoord, 0, 1);
+}
+
+float4 ApplyTexture( float4 pos      : SV_POSITION,
+                     float2 texCoord : TEXCOORD  )     : SV_TARGET
+{
+    //return float4(texCoord, 0, 1); //
+	return colorTex.Sample(PointSampler, texCoord);
+}
+
+cbuffer ZoomInfo : register(c0)
+{
+    float4 zoomRect;
+};
+
+VS_PT_OUT ZoomVS( uint VertId : SV_VertexID )
+{
+    VS_PT_OUT vsOut;
+
+    // Tri 1
+    if (VertId == 0)
+    {
+        vsOut.position = float4(-1, 1, 0.5, 1);
+        vsOut.tex0 = float2(zoomRect.x, zoomRect.y);
+    }
+    else if (VertId == 1)
+    {
+        vsOut.position = float4(1, 1, 0.5, 1);
+        vsOut.tex0 = float2(zoomRect.z, zoomRect.y); 
+    }
+    else if (VertId == 2)
+    {
+        vsOut.position = float4(1, -1, 0.5, 1);
+        vsOut.tex0 = float2(zoomRect.z, zoomRect.w);
+    }
+    // Tri 2
+    else if (VertId == 3)
+    {
+        vsOut.position = float4(-1, 1, 0.5, 1);
+        vsOut.tex0 = float2(zoomRect.x, zoomRect.y);
+    }
+    else if (VertId == 4)
+    {
+        vsOut.position = float4(1, -1, 0.5, 1);
+        vsOut.tex0 = float2(zoomRect.z, zoomRect.w);
+    }
+    else if (VertId == 5)
+    {
+        vsOut.position = float4(-1, -1, 0.5, 1);
+        vsOut.tex0 = float2(zoomRect.x, zoomRect.w);
+    }
+
+    return vsOut;
+}
+
+
+float4 ZoomPS( float4 pos      : SV_POSITION,
+               float2 texCoord : TEXCOORD  )     : SV_TARGET
+{
+    return colorTex.Sample(PointSampler, texCoord);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Step 1 - Edge Detection
+
+float4 ColorEdgeDetectionPS( float4 position : SV_POSITION,
+                             float2 texcoord : TEXCOORD0 )  : SV_TARGET
+{
+    float3 weights = float3(0.2126, 0.7152, 0.0722);
+
+    /*
+     * Luma calculation requires gamma-corrected colors, and thus 'colorTex'
+     * should be a non-sRGB texture
+     */
+
+    float L = dot(colorTex.Sample(PointSampler, texcoord).rgb, weights);
+
+    float Lleft = dot(colorTex.SampleLevel(PointSampler, texcoord ,0, -int2(1, 0)).rgb, weights);
+    float Ltop = dot(colorTex.SampleLevel(PointSampler, texcoord, 0, -int2(0, 1)).rgb, weights);
+    float Lright = dot(colorTex.SampleLevel(PointSampler, texcoord, 0, int2(1, 0)).rgb, weights);
+    float Lbottom = dot(colorTex.SampleLevel(PointSampler, texcoord, 0, int2(0, 1)).rgb, weights);
+
+    float4 delta = abs(L.xxxx - float4(Lleft, Ltop, Lright, Lbottom));
+
+    //  (delta >= threshold) ? 1 : 0.
+    float4 thold = 0.1; 
+    float4 edges = step(thold.xxxx, delta);
+
+    if (dot(edges, 1.0) == 0.0)
+    {
+       // discard;
+    }
+
+    return edges;
+
+}
+
+#define PIXEL_WIDTH 1680.0
+#define PIXEL_HEIGHT 1050.0
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Step 2 - Blend Weights
+
+float SearchXLeft( float2 texcoord )
+{
+    int maxSearchSteps = 8;
+    //float2 PIXEL_SIZE = float2(1, 1);
+	float2 PIXEL_SIZE = float2(1/PIXEL_WIDTH, 1/PIXEL_HEIGHT);
+
+    texcoord -= float2(1.5, 0.0) * PIXEL_SIZE;
+    float e = 0.0;
+
+    // We offset by 0.5 to sample between edgels, thus fetching two in a row
+    for (int i = 0; i < maxSearchSteps; i++)
+    {
+        e = edgesTex.SampleLevel(LinearSampler, texcoord, 0).g;
+
+        // We compare with 0.9 to prevent bilinear access precision problems
+
+        [flatten] if (e < 0.9) break;
+        texcoord -= float2(2.0, 0.0) * PIXEL_SIZE;
+    }
+
+    // When we exit the loop without finding the end, we want to return -2 * maxSearchSteps
+    return max(-2.0 * i - 2.0 * e, -2.0 * maxSearchSteps);
+}
+
+float SearchXRight( float2 texcoord )
+{
+    int maxSearchSteps = 8;
+    //float2 PIXEL_SIZE = float2(1, 1);
+	float2 PIXEL_SIZE = float2(1/PIXEL_WIDTH, 1/PIXEL_HEIGHT);
+
+    texcoord += float2(1.5, 0.0) * PIXEL_SIZE;
+    float e = 0.0;
+
+    for (int i = 0; i < maxSearchSteps; i++)
+    {
+        e = edgesTex.SampleLevel(LinearSampler, texcoord, 0).g;
+
+        [flatten] if (e < 0.9) break;
+        texcoord += float2(2.0, 0.0) * PIXEL_SIZE;
+    }
+
+    return min(2.0 * i + 2.0 * e, 2.0 * maxSearchSteps);
+}
+
+float SearchYUp( float2 texcoord )
+{
+    int maxSearchSteps = 8;
+    //float2 PIXEL_SIZE = float2(1, 1);
+	float2 PIXEL_SIZE = float2(1/PIXEL_WIDTH, 1/PIXEL_HEIGHT);
+
+    texcoord -= float2(0.0, 1.5) * PIXEL_SIZE;
+    float e = 0.0;
+
+    for (int i = 0; i < maxSearchSteps; i++)
+    {
+        e = edgesTex.SampleLevel(LinearSampler, texcoord, 0).r;
+
+        [flatten] if (e < 0.9) break;
+        texcoord -= float2(0.0, 2.0) * PIXEL_SIZE;
+    }
+
+    return max(-2.0*i - 2.0*e, -2.0*maxSearchSteps);
+}
+
+float SearchYDown( float2 texcoord )
+{
+    int maxSearchSteps = 8;
+    //float2 PIXEL_SIZE = float2(1, 1);
+	float2 PIXEL_SIZE = float2(1/PIXEL_WIDTH, 1/PIXEL_HEIGHT);
+
+    texcoord += float2(0.0, 1.5) * PIXEL_SIZE;
+    float e = 0.0;
+
+    for (int i = 0; i < maxSearchSteps; i++)
+    {
+        e = edgesTex.SampleLevel(LinearSampler, texcoord, 0).r;
+
+        [flatten] if (e < 0.9) break;
+        texcoord += float2(0.0, 2.0) * PIXEL_SIZE;
+    }
+
+    return min(2.0*i + 2.0*e, 2.0*maxSearchSteps);
+}
+
+#define MAX_DISTANCE 32
+
+float2 Area( float2 distance, float e1, float e2 )
+{
+
+    // * By dividing by areaSize - 1.0 below we are implicitly offsetting to always
+    //   fall inside a pixel
+    // * Rounding prevents bilinear access precision problems
+    float areaSize = MAX_DISTANCE * 5.0;
+    float2 pixcoord = MAX_DISTANCE * round(4.0 * float2(e1, e2)) + distance;
+    float2 texcoord = pixcoord / (areaSize - 1.0);
+
+    //return float2(1,0); //
+	return areaTex.SampleLevel(PointSampler, texcoord, 0).rg;
+}
+
+float4 BlendingWeightCalculationPS( float4 position : SV_POSITION,
+                                    float2 texcoord : TEXCOORD0)    : SV_TARGET
+{
+    float2 PIXEL_SIZE = float2(1/PIXEL_WIDTH, 1/PIXEL_HEIGHT);
+    float4 weights = 0.0;
+
+    float2 e = edgesTex.SampleLevel(PointSampler, texcoord, 0).rg;
+
+    [branch]
+    if (e.g)
+    {
+        // Edge at north
+
+        //search distances to he left and to the right:
+        float2 d = float2(SearchXLeft(texcoord), SearchXRight(texcoord));
+
+        // Now fetch the crossing edges.  Instead of sampling between edgels, we sample
+        // at -0.25, to be able to discern what value each edgel has:
+        float4 coords = mad(float4(d.x, -0.25, d.y + 1.0, -0.25), PIXEL_SIZE.xyxy, texcoord.xyxy);
+        float e1 = edgesTex.SampleLevel(LinearSampler, coords.xy, 0).r;
+        float e2 = edgesTex.SampleLevel(LinearSampler, coords.zw, 0).r;
+
+        // Ok, we know how this pattern looks; now it is time for getting the actual area:
+        weights.rg = Area(abs(d), e1, e2);
+    }
+
+    [branch]
+    if (e.r)
+    {
+        // Edge at west
+
+        // Search distances to the top and to the bottom:
+        float2 d = float2(SearchYUp(texcoord), SearchYDown(texcoord));
+
+        // Now fetch the crossing edges (yet again):
+        float4 coords = mad(float4(-0.25, d.x, -0.25, d.y + 1.0), PIXEL_SIZE.xyxy, texcoord.xyxy);
+        float e1 = edgesTex.SampleLevel(LinearSampler, coords.xy, 0).g;
+        float e2 = edgesTex.SampleLevel(LinearSampler, coords.zw, 0).g;
+
+        // Get the area for this direction:
+        weights.ba = Area(abs(d), e1, e2);
+    }
+
+    return weights;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Step 3 - Blend Edges
+
+float4 NeighborhoodBlendingPS( float4 position : SV_POSITION,
+                               float2 texcoord : TEXCOORD0)     : SV_TARGET
+{
+    float2 PIXEL_SIZE = float2(1/PIXEL_WIDTH, 1/PIXEL_HEIGHT);
+
+    // Fetch the blending weights for current pixel:
+    float4 topLeft = blendTex.SampleLevel(PointSampler, texcoord, 0);
+    float bottom = blendTex.SampleLevel(PointSampler, texcoord, 0, int2(0, 1)).g;
+    float right = blendTex.SampleLevel(PointSampler, texcoord, 0, int2(1, 0)).a;
+    float4 a = float4(topLeft.r, bottom, topLeft.b, right);
+
+    // Up to 4 lines can be crossing pixel (one in each edge).  Thus, we perform
+    // a weighted average, where the weight of each line is 'a' cubed, which
+    // favors blending and works well in practice.
+    float4 w = a * a * a;
+
+    // Is there any blending weight with a value greater than 0.0?
+    float sum = dot(w, 1.0);
+
+    [branch]
+    if (sum > 0.0)
+    {
+        float4 o = a * PIXEL_SIZE.yyxx;
+        float4 color = 0.0;
+
+        // Add the contributions of the 4 possible lines that can cross pixel:
+        color = mad(colorTex.SampleLevel(LinearSampler, texcoord + float2(0.0, -o.r), 0), w.r, color);  // T
+        color = mad(colorTex.SampleLevel(LinearSampler, texcoord + float2(0.0, o.g), 0), w.g, color);   // B
+        color = mad(colorTex.SampleLevel(LinearSampler, texcoord + float2(-o.b, 0.0), 0), w.b, color);  // L
+        color = mad(colorTex.SampleLevel(LinearSampler, texcoord + float2(o.a, 0.0), 0), w.a, color);   // R
+
+        // Normalize the resulting color and we are finished!
+        return color / sum;
+    }
+    else
+    {
+        return colorTex.SampleLevel(PointSampler, texcoord, 0);
+    }
+}
+
+
+
