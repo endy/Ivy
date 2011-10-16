@@ -9,10 +9,19 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DXTestApp", "DXTestApp\DXTe
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DXCompute", "DXCompute\DXCompute.vcxproj", "{20F6F17F-F00A-4F7E-9C54-C4F3B7C04623}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D77ECF9E-A971-404A-8C37-ACE307448144} = {D77ECF9E-A971-404A-8C37-ACE307448144}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CollisionDetection", "CollisionDetection\CollisionDetection.vcxproj", "{09947E2B-FB57-4DC5-9050-8D91E4656517}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D77ECF9E-A971-404A-8C37-ACE307448144} = {D77ECF9E-A971-404A-8C37-ACE307448144}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RayTracer", "RayTracer\RayTracer.vcxproj", "{C17C4C2C-B868-4158-BE7F-C618E4067D59}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D77ECF9E-A971-404A-8C37-ACE307448144} = {D77ECF9E-A971-404A-8C37-ACE307448144}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MLAA", "MLAA\MLAA.vcxproj", "{2EE87E25-2649-4B3F-B123-1A2801C441FE}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -43,6 +52,7 @@ Global
 		{7B151EDB-8A97-4C73-A29F-0146689F5D69}.Debug|Win32.ActiveCfg = Debug|Win32
 		{7B151EDB-8A97-4C73-A29F-0146689F5D69}.Debug|Win32.Build.0 = Debug|Win32
 		{7B151EDB-8A97-4C73-A29F-0146689F5D69}.Release|Win32.ActiveCfg = Release|Win32
+		{7B151EDB-8A97-4C73-A29F-0146689F5D69}.Release|Win32.Build.0 = Release|Win32
 		{E6B5787A-E726-4F5A-931F-E1C6F3F3324D}.Debug|Win32.ActiveCfg = Debug|Win32
 		{E6B5787A-E726-4F5A-931F-E1C6F3F3324D}.Debug|Win32.Build.0 = Debug|Win32
 		{E6B5787A-E726-4F5A-931F-E1C6F3F3324D}.Release|Win32.ActiveCfg = Release|Win32
@@ -50,9 +60,11 @@ Global
 		{20F6F17F-F00A-4F7E-9C54-C4F3B7C04623}.Debug|Win32.ActiveCfg = Debug|Win32
 		{20F6F17F-F00A-4F7E-9C54-C4F3B7C04623}.Debug|Win32.Build.0 = Debug|Win32
 		{20F6F17F-F00A-4F7E-9C54-C4F3B7C04623}.Release|Win32.ActiveCfg = Release|Win32
+		{20F6F17F-F00A-4F7E-9C54-C4F3B7C04623}.Release|Win32.Build.0 = Release|Win32
 		{09947E2B-FB57-4DC5-9050-8D91E4656517}.Debug|Win32.ActiveCfg = Debug|Win32
 		{09947E2B-FB57-4DC5-9050-8D91E4656517}.Debug|Win32.Build.0 = Debug|Win32
 		{09947E2B-FB57-4DC5-9050-8D91E4656517}.Release|Win32.ActiveCfg = Release|Win32
+		{09947E2B-FB57-4DC5-9050-8D91E4656517}.Release|Win32.Build.0 = Release|Win32
 		{C17C4C2C-B868-4158-BE7F-C618E4067D59}.Debug|Win32.ActiveCfg = Debug|Win32
 		{C17C4C2C-B868-4158-BE7F-C618E4067D59}.Debug|Win32.Build.0 = Debug|Win32
 		{C17C4C2C-B868-4158-BE7F-C618E4067D59}.Release|Win32.ActiveCfg = Release|Win32
