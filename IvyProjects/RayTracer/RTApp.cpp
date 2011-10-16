@@ -2,10 +2,12 @@
 
 #include "RTApp.h"
 
-#include "Util.h"
+#include "IvyUtils.h"
 
 #include "DxTypes.h"
-#include "DxShader.h"
+#include "DxVertexShader.h"
+#include "DxPixelShader.h"
+#include "DxBuffer.h"
 #include "DxLight.h"
 #include "DxMesh.h"
 #include "DxTexture.h"
@@ -76,21 +78,15 @@ void RTApp::Run()
     D3D11_SUBRESOURCE_DATA cbInitData;
     memset(&cbInitData, 0, sizeof(D3D11_SUBRESOURCE_DATA));	
 
-    // Matrix Buffer
-    D3D11_BUFFER_DESC cbMatrixDesc;
-    memset(&cbMatrixDesc, 0, sizeof(D3D11_BUFFER_DESC));
-    cbMatrixDesc.Usage = D3D11_USAGE_DYNAMIC;
-    cbMatrixDesc.ByteWidth = sizeof( MatrixBuffer );
-    cbMatrixDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-    cbMatrixDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-    cbMatrixDesc.MiscFlags = 0;
+    // Camera Buffer
+    CameraBufferData cameraData;
+    memset(&cameraData, 0, sizeof(CameraBufferData));
 
-    MatrixBuffer myMatrixBuffer;
-    memset(&myMatrixBuffer, 0, sizeof(myMatrixBuffer));
-    cbInitData.pSysMem = &myMatrixBuffer;
-
-    ID3D11Buffer* pMatrixBuffer = NULL;
-    m_pDevice->CreateBuffer(&cbMatrixDesc, &cbInitData, &pMatrixBuffer);
+    DxBufferCreateInfo cameraBufferCreateInfo = {0};
+    cameraBufferCreateInfo.flags.cpuWriteable = TRUE;
+    cameraBufferCreateInfo.elemSizeBytes = sizeof(CameraBufferData);
+    cameraBufferCreateInfo.pInitialData = &cameraData;
+    DxBuffer* pCameraBuffer = DxBuffer::Create(m_pDevice, &cameraBufferCreateInfo);
 
     // Light
     DxLightCreateInfo lightInfo;
@@ -140,10 +136,10 @@ void RTApp::Run()
     
     // Shaders ////////////////////////////////////////////////////////////////////////////////////
 
-    DxVertexShader* pVSShader = DxVertexShader::Create(m_pDevice, "rtshaders.txt", "RtVS", PosTexVertexDesc, PosTexElements);
+    DxVertexShader* pVSShader = DxVertexShader::CreateFromFile(m_pDevice, "RtVS", "rtshaders.txt",  PosTexVertexDesc, PosTexElements);
     statusOK = (statusOK && pVSShader != NULL);
 
-    DxPixelShader* pPSShader = DxPixelShader::Create(m_pDevice, "rtshaders.txt", "RtPS");
+    DxPixelShader* pPSShader = DxPixelShader::CreateFromFile(m_pDevice, "RtPS", "rtshaders.txt");
     statusOK = (statusOK && pPSShader != NULL);
 
     ////////////////////////////////////////////////////////////////////////////////////////
@@ -205,21 +201,19 @@ void RTApp::Run()
         m_pContext->OMSetRenderTargets( 1, &pRenderTargetView, NULL );
         
         // Setup Camera
-        MatrixBuffer* pMatrixCB = NULL;
-        D3D11_MAPPED_SUBRESOURCE mappedCB;
+        CameraBufferData* pCameraBufferData = NULL;
 
-        m_pContext->Map(pMatrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedCB); 
-        pMatrixCB = reinterpret_cast<MatrixBuffer*>(mappedCB.pData);
-        pMatrixCB->worldMatrix      =  XMMatrixTranslation(0, 0, 0) * 
-                                       XMMatrixRotationX(-3.14f/2.0f) *
-                                       XMMatrixScaling(1, 1, 1) *
-                                       XMMatrixTranslation(0, 0, 1);
-        pMatrixCB->viewMatrix       = m_pCamera->W2C();
-        pMatrixCB->projectionMatrix = m_pCamera->C2S();
-        m_pContext->Unmap(pMatrixBuffer, 0);
+        pCameraBufferData = static_cast<CameraBufferData*>(pCameraBuffer->Map(m_pContext));
+        pCameraBufferData->worldMatrix =  XMMatrixTranslation(0, 0, 0) * 
+                                          XMMatrixRotationX(-3.14f/2.0f) *
+                                          XMMatrixScaling(1, 1, 1) *
+                                          XMMatrixTranslation(0, 0, 1);
+        pCameraBufferData->viewMatrix       = m_pCamera->W2C();
+        pCameraBufferData->projectionMatrix = m_pCamera->C2S();
+        pCameraBuffer->Unmap(m_pContext);
 
         // Setup VS
-        m_pContext->VSSetConstantBuffers(0, 1, &pMatrixBuffer);
+        pCameraBuffer->BindVS(m_pContext, 0);
         pVSShader->Bind(m_pContext);
 
         // Setup PS
@@ -252,10 +246,10 @@ void RTApp::Run()
         pLight = NULL;
     }
 
-    if (pMatrixBuffer != NULL)
+    if (pCameraBuffer != NULL)
     {
-        pMatrixBuffer->Release();
-        pMatrixBuffer = NULL;
+        pCameraBuffer->Destroy();
+        pCameraBuffer = NULL;
     }
 
     if (pRenderTargetView != NULL)

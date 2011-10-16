@@ -427,7 +427,7 @@ void Import(
     UINT& numIndices,
     UINT** ppIB)
 {
-    ImportCString("bun_zipper_res4.ply", numVertices, ppVB, numIndices, ppIB);
+    ImportCString("../Content/bun_zipper_res4.ply", numVertices, ppVB, numIndices, ppIB);
     //ImportFstream(numVertices, ppVB, numIndices, ppIB);
 }
 

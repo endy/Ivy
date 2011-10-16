@@ -9,8 +9,10 @@
 
 
 #include "DxTestApp.h"
-#include "DxShader.h"
+#include "DxVertexShader.h"
+#include "DxPixelShader.h"
 #include "DxTexture.h"
+#include "DxBuffer.h"
 #include "DxMesh.h"
 #include "IvyUtils.h"
 
@@ -121,28 +123,19 @@ void DxTestApp::Run()
     samplerDesc.MaxAnisotropy = 16;
 
     ID3D11SamplerState* pSamplerState = NULL;
-    hr = m_pDevice->CreateSamplerState(&samplerDesc, &pSamplerState);	
+    hr = m_pDevice->CreateSamplerState(&samplerDesc, &pSamplerState);
 
     // Buffers   ///////////////////////////////////////////////////////////////////////////
 
-    D3D11_SUBRESOURCE_DATA cbInitData;
-    memset(&cbInitData, 0, sizeof(D3D11_SUBRESOURCE_DATA));	
+    // Camera Buffer
+    CameraBufferData cameraData;
+    memset(&cameraData, 0, sizeof(CameraBufferData));
 
-    // Matrix Buffer
-    D3D11_BUFFER_DESC cbMatrixDesc;
-    memset(&cbMatrixDesc, 0, sizeof(D3D11_BUFFER_DESC));
-    cbMatrixDesc.Usage = D3D11_USAGE_DYNAMIC;
-    cbMatrixDesc.ByteWidth = sizeof( MatrixBuffer );
-    cbMatrixDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-    cbMatrixDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-    cbMatrixDesc.MiscFlags = 0;
-
-    MatrixBuffer myMatrixBuffer;
-    memset(&myMatrixBuffer, 0, sizeof(myMatrixBuffer));
-    cbInitData.pSysMem = &myMatrixBuffer;
-
-    ID3D11Buffer* pMatrixBuffer = NULL;
-    m_pDevice->CreateBuffer(&cbMatrixDesc, &cbInitData, &pMatrixBuffer);
+    DxBufferCreateInfo cameraBufferCreateInfo = {0};
+    cameraBufferCreateInfo.flags.cpuWriteable = TRUE;
+    cameraBufferCreateInfo.elemSizeBytes = sizeof(CameraBufferData);
+    cameraBufferCreateInfo.pInitialData = &cameraData;
+    DxBuffer* pCameraBuffer = DxBuffer::Create(m_pDevice, &cameraBufferCreateInfo);
 
     // Light
     DxLightCreateInfo lightInfo;
@@ -160,6 +153,8 @@ void DxTestApp::Run()
     cbMaterialDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
     cbMaterialDesc.MiscFlags = 0; 
 
+    D3D11_SUBRESOURCE_DATA cbInitData;
+
     Material myMaterial;
     memset(&myMaterial, 0, sizeof(myMaterial));
     cbInitData.pSysMem = &myMaterial;
@@ -169,12 +164,12 @@ void DxTestApp::Run()
 
     // Shaders ////////////////////////////////////////////////////////////////////////////////////
 
-    DxVertexShader* pPosTexVS = DxVertexShader::Create(m_pDevice, "dxtestapp.hlsl", "PosTex", PosTexVertexDesc, PosTexElements);
-    DxPixelShader* pApplyTexPS = DxPixelShader::Create(m_pDevice, "dxtestapp.hlsl", "ApplyTexture");
-    DxPixelShader* pVisDepthPS = DxPixelShader::Create(m_pDevice, "dxtestapp.hlsl", "VisDepth");
+    DxVertexShader* pPosTexVS = DxVertexShader::CreateFromFile(m_pDevice, "PosTex", "dxtestapp.hlsl", PosTexVertexDesc, PosTexElements);
+    DxPixelShader* pApplyTexPS = DxPixelShader::CreateFromFile(m_pDevice, "ApplyTexture", "dxtestapp.hlsl");
+    DxPixelShader* pVisDepthPS = DxPixelShader::CreateFromFile(m_pDevice, "VisDepth", "dxtestapp.hlsl");
 
-    DxVertexShader* pPosTexNormVS = DxVertexShader::Create(m_pDevice, "dxtestapp.hlsl", "PosTexNorm", PosTexNormVertexDesc, PosTexNormElements);
-    DxPixelShader* pVisNormalPS = DxPixelShader::Create(m_pDevice, "dxtestapp.hlsl", "VisNormal");
+    DxVertexShader* pPosTexNormVS = DxVertexShader::CreateFromFile(m_pDevice, "PosTexNorm", "dxtestapp.hlsl", PosTexNormVertexDesc, PosTexNormElements);
+    DxPixelShader* pVisNormalPS = DxPixelShader::CreateFromFile(m_pDevice, "VisNormal", "dxtestapp.hlsl");
 
     // Models /////////////////////////////////////////////////////////////////////////////////////
 
@@ -251,8 +246,6 @@ void DxTestApp::Run()
     ID3D11DepthStencilState* pDbState = NULL;
     hr = m_pDevice->CreateDepthStencilState(&dbDesc, &pDbState);
 
-
-
     D3D11_RASTERIZER_DESC rsDesc;
     rsDesc.FillMode = D3D11_FILL_SOLID;
     rsDesc.CullMode = D3D11_CULL_BACK;
@@ -272,8 +265,6 @@ void DxTestApp::Run()
     UINT StencilRef = 0x0;
     m_pContext->OMSetDepthStencilState(pDbState, StencilRef);
 
-
-
     m_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     m_pContext->RSSetState(pRasterizerState);
     m_pContext->PSSetSamplers(0, 1, &pSamplerState);
@@ -284,9 +275,7 @@ void DxTestApp::Run()
         depthClearValue, 
         stencilClearValue); 
 
-    D3D11_MAPPED_SUBRESOURCE mappedCB;
-
-    MatrixBuffer* pMatrixCB = NULL;
+    CameraBufferData* pCameraBufferData = NULL; ;
     Material* pMaterialCB = NULL;   
 
     m_pWindow->DisplayWindow();
@@ -349,7 +338,7 @@ void DxTestApp::Run()
 
         m_pContext->RSSetViewports(1, &m_viewport);
         m_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        m_pContext->VSSetConstantBuffers(0, 1, &pMatrixBuffer);
+        pCameraBuffer->BindVS(m_pContext, 0);
 
         ID3D11Buffer* pLightBuffer = pLight->GetBuffer();
         m_pContext->PSSetConstantBuffers(0, 1, &pLightBuffer);
@@ -376,12 +365,11 @@ void DxTestApp::Run()
         // DRAW CUBE /////////////////////////////   
 
         // update cube matrix
-        m_pContext->Map(pMatrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedCB);  
-        pMatrixCB = reinterpret_cast<MatrixBuffer*>(mappedCB.pData);
-        pMatrixCB->worldMatrix      = XMMatrixRotationX(-3.14f/2.0f) * XMMatrixScaling(2, 2, 1); //XMMatrixIdentity();
-        pMatrixCB->viewMatrix       = XMMatrixTranslation(0, 0, 3.0f) * m_pCamera->W2C(); 
-        pMatrixCB->projectionMatrix = m_pCamera->C2S(); 
-        m_pContext->Unmap(pMatrixBuffer, 0); 
+        pCameraBufferData = reinterpret_cast<CameraBufferData*>(pCameraBuffer->Map(m_pContext));
+        pCameraBufferData->worldMatrix      = XMMatrixRotationX(-3.14f/2.0f) * XMMatrixScaling(2, 2, 1); //XMMatrixIdentity();
+        pCameraBufferData->viewMatrix       = XMMatrixTranslation(0, 0, 3.0f) * m_pCamera->W2C(); 
+        pCameraBufferData->projectionMatrix = m_pCamera->C2S(); 
+        pCameraBuffer->Unmap(m_pContext);
 
         pPosTexVS->Bind(m_pContext);
 
@@ -394,20 +382,19 @@ void DxTestApp::Run()
         pApplyTexPS->Bind(m_pContext);
 
         pPlaneMesh->Bind(m_pContext);
-        // pPlaneMesh->Draw(m_pContext);
+        //pPlaneMesh->Draw(m_pContext);
 
         pCubeMesh->Bind(m_pContext);
-       // pCubeMesh->Draw(m_pContext);
+        //pCubeMesh->Draw(m_pContext);
 
         // DRAW BUNNY WITH CAMERA /////////////////////////////
 
-        m_pContext->Map(pMatrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedCB);
-        pMatrixCB = reinterpret_cast<MatrixBuffer*>(mappedCB.pData);
-        pMatrixCB->worldMatrix = XMMatrixScaling(25, 25, 25) * XMMatrixRotationY(rotation.x);
+        pCameraBufferData = reinterpret_cast<CameraBufferData*>(pCameraBuffer->Map(m_pContext));
+        pCameraBufferData->worldMatrix = XMMatrixScaling(25, 25, 25) * XMMatrixRotationY(rotation.x);
         // translate world +6 in Z to position camera -9 from world origin
-        pMatrixCB->viewMatrix = XMMatrixTranslation(0, -3, 4.0f) * m_pCamera->W2C(); 
-        pMatrixCB->projectionMatrix = m_pCamera->C2S();                          
-        m_pContext->Unmap(pMatrixBuffer, 0);
+        pCameraBufferData->viewMatrix = XMMatrixTranslation(0, -3, 4.0f) * m_pCamera->W2C(); 
+        pCameraBufferData->projectionMatrix = m_pCamera->C2S();
+        pCameraBuffer->Unmap(m_pContext);
 
         pPosTexNormVS->Bind(m_pContext);
         pVisNormalPS->Bind(m_pContext);
@@ -419,12 +406,12 @@ void DxTestApp::Run()
         //*
         m_pContext->OMSetRenderTargets( 1, &m_pRenderTargetView, NULL );
 
-        m_pContext->Map(pMatrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedCB); 
-        pMatrixCB = reinterpret_cast<MatrixBuffer*>(mappedCB.pData);
-        pMatrixCB->worldMatrix      = XMMatrixRotationX(-3.14f/2.0f) * XMMatrixScaling(2, 2, 1);
-        pMatrixCB->viewMatrix       = XMMatrixTranslation(0, 0, 4.0f) * m_pCamera->W2C(); 
-        pMatrixCB->projectionMatrix = m_pCamera->C2S();
-        m_pContext->Unmap(pMatrixBuffer, 0);
+        pCameraBufferData = reinterpret_cast<CameraBufferData*>(pCameraBuffer->Map(m_pContext));
+        pCameraBufferData->worldMatrix      = XMMatrixRotationX(-3.14f/2.0f) * XMMatrixScaling(2, 2, 1);
+        pCameraBufferData->viewMatrix       = XMMatrixTranslation(0, 0, 4.0f) * m_pCamera->W2C(); 
+        pCameraBufferData->projectionMatrix = m_pCamera->C2S();
+        pCameraBuffer->Unmap(m_pContext);
+
 
         pPosTexVS->Bind(m_pContext);
 
@@ -470,12 +457,13 @@ void DxTestApp::Run()
 
         if (hr == WAIT_OBJECT_0)
         {
-            m_pContext->Map(pMatrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedCB);  
-            pMatrixCB = reinterpret_cast<MatrixBuffer*>(mappedCB.pData);
+            
+            CameraBufferData* pMatrixCB = reinterpret_cast<CameraBufferData*>(pCameraBuffer->Map(m_pContext));
             pMatrixCB->worldMatrix      = XMMatrixRotationX(-3.14f/2.0f) * XMMatrixScaling(2, 2, 1); //XMMatrixIdentity();
             pMatrixCB->viewMatrix       = XMMatrixTranslation(0, 0, 2.0f) * m_pCamera->W2C(); 
             pMatrixCB->projectionMatrix = m_pCamera->C2S(); 
-            m_pContext->Unmap(pMatrixBuffer, 0); 
+            
+            pCameraBuffer->Unmap(m_pContext);
 
             m_pContext->OMSetRenderTargets( 1, &m_pRenderTargetView, NULL);
 
@@ -529,38 +517,40 @@ void DxTestApp::Run()
         pLight = NULL;
     }
 
-    if (pMatrixBuffer != NULL)
+    if (pCameraBuffer != NULL)
     {
         // Buffers
-        pMatrixBuffer->Release(); 
-        pMaterialBuffer->Release(); 
-
-        // Texture2D
-        //pDynamic->Release();
-
-        // Shader Resource Views
-        pKittenSRView->Release();
-
-        // DepthStencilViews
-
-        // Vertex Shaders
-        pPosTexVS->Destroy();
-        pPosTexNormVS->Destroy();  
-
-        // Pixel Shaders
-        pApplyTexPS->Destroy();
-        pVisNormalPS->Destroy();
-        pVisDepthPS->Destroy();
-
-        // Samplers
-        pSamplerState->Release();
-
-        // Depth Stencil State
-        pDbState->Release();  
-
-        // Rasterizer State
-        pRasterizerState->Release();
+        pCameraBuffer->Destroy();
     }
+
+    pMaterialBuffer->Release(); 
+
+    // Texture2D
+    //pDynamic->Release();
+
+    // Shader Resource Views
+    pKittenSRView->Release();
+
+    // DepthStencilViews
+
+    // Vertex Shaders
+    pPosTexVS->Destroy();
+    pPosTexNormVS->Destroy();  
+
+    // Pixel Shaders
+    pApplyTexPS->Destroy();
+    pVisNormalPS->Destroy();
+    pVisDepthPS->Destroy();
+
+    // Samplers
+    pSamplerState->Release();
+
+    // Depth Stencil State
+    pDbState->Release();  
+
+    // Rasterizer State
+    pRasterizerState->Release();
+
 
     if (pQuery != NULL)
     {

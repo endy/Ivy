@@ -1,14 +1,3 @@
 *.suo
 *.cachefile
 *.user
-Ivy/Content/obj
-Ivy/bin
-Ivy/obj
-Ceres/Content/obj
-Ceres/bin
-Ceres/obj
-IvyTests/Content/obj
-IvyTests/bin
-IvyTests/obj
-IvyMovies
-IvySounds

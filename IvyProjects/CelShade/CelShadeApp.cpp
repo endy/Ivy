@@ -191,8 +191,8 @@ void CelShadeApp::Run()
     UINT numVertices = 0, numIndices = 0;
     VertexPTN* pVB = NULL;
     UINT* pIB = NULL;
-    ImportPly("dragon_vrip_res2.ply", numVertices, &pVB, numIndices, &pIB);
-   // ImportPly("bun_zipper_res4.ply", numVertices, &pVB, numIndices, &pIB);
+    ImportPly("../Content/dragon_vrip_res3.ply", numVertices, &pVB, numIndices, &pIB);
+    //ImportPly("../Content/bun_zipper_res4.ply", numVertices, &pVB, numIndices, &pIB);
     DxMeshCreateInfo meshCreateInfo = {0};
     meshCreateInfo.indexCount = numIndices;
     meshCreateInfo.pIndexArray = pIB;
