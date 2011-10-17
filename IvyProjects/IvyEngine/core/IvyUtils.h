@@ -46,10 +46,7 @@ inline void Assert(bool e)
     if (e == false && QuietAssert == false)
     {
         ///@todo add logging to asserts
-
-        __asm int 3;
-
-        //DebugBreak();
+        DebugBreak();
     }
 }
 

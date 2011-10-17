@@ -227,21 +227,21 @@ void ImportFstream(
             VertexPTN& v1 = pVerts[pIB[fIdx*3+1]];
             VertexPTN& v2 = pVerts[pIB[fIdx*3+2]];
 
-            FXMVECTOR xv0 = { v0.Pos.x, v0.Pos.y, v0.Pos.z};
-            FXMVECTOR xv1 = { v1.Pos.x, v1.Pos.y, v1.Pos.z };
-            FXMVECTOR xv2 = { v2.Pos.x, v2.Pos.y, v2.Pos.z };
+            FXMVECTOR xv0 = XMVectorSet(v0.Pos.x, v0.Pos.y, v0.Pos.z, 1.0f);
+            FXMVECTOR xv1 = XMVectorSet(v1.Pos.x, v1.Pos.y, v1.Pos.z, 1.0f);
+            FXMVECTOR xv2 = XMVectorSet(v2.Pos.x, v2.Pos.y, v2.Pos.z, 1.0f);
 
             FXMVECTOR xv01 = XMVector3Normalize(XMVectorSubtract(xv0, xv1));
             FXMVECTOR xv12 = XMVector3Normalize(XMVectorSubtract(xv1, xv2));
 
 
             FXMVECTOR norm = XMVector3Cross(xv01, xv12);
+            
 
             Point4 p = { norm.m128_f32[0], norm.m128_f32[1], norm.m128_f32[2], 0 };
             v0.N = p;
             v1.N = p;
             v2.N = p;
-
 
             // error handlign for correct number of properties per element
         }
@@ -384,20 +384,19 @@ void ImportCString(
             VertexPTN& v1 = pVerts[pIB[fIdx*3+1]];
             VertexPTN& v2 = pVerts[pIB[fIdx*3+2]];
 
-            FXMVECTOR xv0 = { v0.Pos.x, v0.Pos.y, v0.Pos.z};
-            FXMVECTOR xv1 = { v1.Pos.x, v1.Pos.y, v1.Pos.z };
-            FXMVECTOR xv2 = { v2.Pos.x, v2.Pos.y, v2.Pos.z };
+            FXMVECTOR xv0 = XMVectorSet(v0.Pos.x, v0.Pos.y, v0.Pos.z, 1.0f);
+            FXMVECTOR xv1 = XMVectorSet(v1.Pos.x, v1.Pos.y, v1.Pos.z, 1.0f);
+            FXMVECTOR xv2 = XMVectorSet(v2.Pos.x, v2.Pos.y, v2.Pos.z, 1.0f);
 
             FXMVECTOR xv01 = XMVector3Normalize(XMVectorSubtract(xv0, xv1));
             FXMVECTOR xv12 = XMVector3Normalize(XMVectorSubtract(xv1, xv2));
 
             FXMVECTOR norm = XMVector3Cross(xv01, xv12);
-
+            
             Point4 p = { norm.m128_f32[0], norm.m128_f32[1], norm.m128_f32[2], 0 };
             v0.N = p;
             v1.N = p;
             v2.N = p;
-
 
             // error handlign for correct number of properties per element
         }

@@ -50,23 +50,23 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\DX11debug.props" />
-    <Import Project="..\IvyEngineDebug.props" />
+    <Import Project="..\Properties\DX11Debug32.props" />
+    <Import Project="..\Properties\IvyEngineDebug32.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\DX11debug.props" />
-    <Import Project="..\IvyEngineDebug.props" />
+    <Import Project="..\Properties\DX11Debug64.props" />
+    <Import Project="..\Properties\IvyEngineDebug64.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\IvyEngineRelease.props" />
-    <Import Project="..\DX11Release.props" />
+    <Import Project="..\Properties\IvyEngineRelease32.props" />
+    <Import Project="..\Properties\DX11Release32.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\IvyEngineRelease.props" />
-    <Import Project="..\DX11Release.props" />
+    <Import Project="..\Properties\IvyEngineRelease64.props" />
+    <Import Project="..\Properties\DX11Release64.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
