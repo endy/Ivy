@@ -215,7 +215,7 @@ void DxTestApp::Run()
 
     // SET RENDER STATE
 
-    Point3 rotation = { 0.0f, 0.0f, 0.0f };
+    Point3 rotation = Point3(0.0f, 0.0f, 0.0f);
     FLOAT clearColor[4];
     clearColor[0] = 0.0f;
     clearColor[1] = 0.0f;

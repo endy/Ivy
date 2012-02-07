@@ -1,3 +1,11 @@
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///
+///     App Config Sandbox
+///
+///     Copyright 2011, Brandon Light
+///     All rights reserved.
+///
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
 
@@ -33,12 +41,12 @@ struct ArgDataInfo
     //*
     union 
     {
-        void*         pvValue;
-        unsigned int* puValue;
-        int*          piValue;
-        float*        pfValue;
-        bool*         pbValue;
-        const char**        ppStrValue;
+        void*           pvValue;
+        unsigned int*   puValue;
+        int*            piValue;
+        float*          pfValue;
+        bool*           pbValue;
+        const char**    ppStrValue;
     } value;
     //*/
 

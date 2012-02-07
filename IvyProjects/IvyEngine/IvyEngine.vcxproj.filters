@@ -10,6 +10,9 @@
     <Filter Include="dx\shaders">
       <UniqueIdentifier>{42f42703-b208-4973-9972-315efe3be6a6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="gl">
+      <UniqueIdentifier>{db830549-e44d-4d8d-9b58-930bcf6d0c27}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dx\DxApp.cpp">
@@ -62,6 +65,12 @@
     </ClCompile>
     <ClCompile Include="dx\DxVertexShader.cpp">
       <Filter>dx\shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="gl\GLApp.cpp">
+      <Filter>gl</Filter>
+    </ClCompile>
+    <ClCompile Include="gl\GLWindow.cpp">
+      <Filter>gl</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -136,6 +145,12 @@
     </ClInclude>
     <ClInclude Include="dx\DxVertexShader.h">
       <Filter>dx\shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="gl\GLApp.h">
+      <Filter>gl</Filter>
+    </ClInclude>
+    <ClInclude Include="gl\GLWindow.h">
+      <Filter>gl</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

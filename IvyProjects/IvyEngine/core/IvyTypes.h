@@ -43,6 +43,9 @@ struct Point2
 
 struct Point3
 {
+    Point3() : x(0), y(0), z(0) {};
+    Point3(FLOAT xIn, FLOAT yIn, FLOAT zIn) : x(xIn), y(yIn), z(zIn) {};
+
     FLOAT x;
     FLOAT y;
     FLOAT z;
@@ -50,6 +53,9 @@ struct Point3
 
 struct Point4
 {
+    Point4() : x(0), y(0), z(0), w(0) {};
+    Point4(FLOAT xIn, FLOAT yIn, FLOAT zIn, FLOAT wIn) : x(xIn), y(yIn), z(zIn), w(wIn) {};
+
     union
     {
         FLOAT x;

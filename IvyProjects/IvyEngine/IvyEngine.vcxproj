@@ -159,6 +159,8 @@
     <ClCompile Include="dx\DxVertexShader.cpp" />
     <ClCompile Include="dx\DxWindow.cpp" />
     <ClCompile Include="dx\SystemEventDispatcher.cpp" />
+    <ClCompile Include="gl\GLApp.cpp" />
+    <ClCompile Include="gl\GLWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core\IvyEvents.h" />
@@ -185,6 +187,8 @@
     <ClInclude Include="dx\DxVertexShader.h" />
     <ClInclude Include="dx\DxWindow.h" />
     <ClInclude Include="dx\SystemEventDispatcher.h" />
+    <ClInclude Include="gl\GLApp.h" />
+    <ClInclude Include="gl\GLWindow.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

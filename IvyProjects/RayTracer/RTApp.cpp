@@ -284,7 +284,7 @@ void RTApp::Run()
 
 Point3 SampleScreen(UINT x, UINT y, UINT width, UINT height)
 {
-    Point3 origin = { 0.0f, 0.0f, 0.0f };
+    Point3 origin = Point3(0.0f, 0.0f, 0.0f);
 
     Point3 eyeVector;
     eyeVector.x = (x / (FLOAT)width) - 0.5f;

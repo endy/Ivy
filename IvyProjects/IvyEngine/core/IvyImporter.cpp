@@ -238,7 +238,7 @@ void ImportFstream(
             FXMVECTOR norm = XMVector3Cross(xv01, xv12);
             
 
-            Point4 p = { norm.m128_f32[0], norm.m128_f32[1], norm.m128_f32[2], 0 };
+            Point4 p(norm.m128_f32[0], norm.m128_f32[1], norm.m128_f32[2], 0);
             v0.N = p;
             v1.N = p;
             v2.N = p;
@@ -393,7 +393,7 @@ void ImportCString(
 
             FXMVECTOR norm = XMVector3Cross(xv01, xv12);
             
-            Point4 p = { norm.m128_f32[0], norm.m128_f32[1], norm.m128_f32[2], 0 };
+            Point4 p(norm.m128_f32[0], norm.m128_f32[1], norm.m128_f32[2], 0);
             v0.N = p;
             v1.N = p;
             v2.N = p;

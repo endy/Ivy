@@ -16,6 +16,8 @@
 #include <fstream>
 #include <iostream>
 
+static const FLOAT IvyPi = 3.14159f;
+
 inline void IvyPrint (const char* message, const char* file, unsigned int line)
 {
     std::cout << message << " Line(" << line << ") " << file << std::endl;

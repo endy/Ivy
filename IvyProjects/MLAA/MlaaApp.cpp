@@ -43,7 +43,7 @@ void MlaaApp::Run()
     imageLoadInfo.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 
     ID3D11ShaderResourceView *pColorTexSRV = NULL;
-    D3DX11CreateShaderResourceViewFromFile(m_pDevice, "bc3.dds", &imageLoadInfo, NULL, &pColorTexSRV, NULL );
+    D3DX11CreateShaderResourceViewFromFile(m_pDevice, "content/bc3.dds", &imageLoadInfo, NULL, &pColorTexSRV, NULL );
 
     UINT colorTexWidth = 1680;
     UINT colorTexHeight = 1050;
@@ -232,7 +232,7 @@ void MlaaApp::Run()
 
     // SET RENDER STATE
 
-    Point3 rotation = { 0.0f, 0.0f, 0.0f };
+    Point3 rotation = Point3(0.0f, 0.0f, 0.0f);
     FLOAT clearColor[4];
     clearColor[0] = 0.0f;
     clearColor[1] = 0.0f;
