@@ -24,6 +24,7 @@
 #include <vector>
 
 class GLWindow;
+class IvyCamera;
 
 struct GLAppCreateInfo
 {
@@ -72,6 +73,8 @@ protected:
     UINT  m_screenHeight;   // viewport height
 
     static const UINT BufferCount;
+
+    IvyCamera* m_pCamera;
 
 private:
     GLApp(const GLApp& copy);               // Disallow copy constructor

@@ -10,6 +10,10 @@
 #include "GLApp.h"
 #include "GLWindow.h"
 
+#include "IvyCamera.h"
+
+#include "SOIL.h"
+
 const UINT GLApp::BufferCount = 1;
 
 /**************************************************************************************************
@@ -24,7 +28,8 @@ GLApp::GLApp(
     m_fovX(90 * (IvyPi/180)),
     m_fovY(90 * (IvyPi/180)),
     m_nearZ(pAppInfo->nearZ),
-    m_farZ(pAppInfo->farZ)
+    m_farZ(pAppInfo->farZ),
+    m_pCamera(NULL)
 {
 
 }
@@ -73,6 +78,17 @@ bool GLApp::Init()
 
     // Setup Window
     m_pWindow = GLWindow::Create(m_screenWidth, m_screenHeight);
+
+    IvyPerspectiveCameraInfo cameraCreateInfo;
+    memset(&cameraCreateInfo, 0, sizeof(IvyPerspectiveCameraInfo));
+    cameraCreateInfo.farZ = m_farZ;
+    cameraCreateInfo.nearZ = m_nearZ;
+    cameraCreateInfo.viewport.bottom = m_screenHeight;
+    cameraCreateInfo.viewport.left = m_screenWidth;
+    cameraCreateInfo.fovX = m_fovX;
+    cameraCreateInfo.fovY = m_fovY;
+
+    m_pCamera = new IvyPerspective(&cameraCreateInfo);
 
     return success;
 }

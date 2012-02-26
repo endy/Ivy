@@ -1,0 +1,19 @@
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///
+///     GLTestApp OpenGL 2.0 Simple Fragment Shader
+///
+///     Copyright 2012, Brandon Light
+///     All rights reserved.
+///
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+varying vec2 v_TexCoord;
+uniform sampler2D s_texture;
+varying  vec4 v_Color;
+
+out vec4 out_Color;
+
+void main(void)
+{
+    gl_FragColor = v_Color; // * texture2D(s_texture, v_TexCoord);
+}
