@@ -9,10 +9,13 @@
 
 #version 130
 
+uniform sampler2D s_texture;
+
 in  vec4 v_Color;
+in  vec2 v_Tex;
 out vec4 out_Color;
 
 void main(void)
 {
-    out_Color = v_Color * 2.0;
+    out_Color = v_Color;
 }

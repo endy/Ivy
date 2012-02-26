@@ -15,5 +15,5 @@ out vec4 out_Color;
 
 void main(void)
 {
-    gl_FragColor = v_Color; // * texture2D(s_texture, v_TexCoord);
+    gl_FragColor = texture2D(s_texture, v_TexCoord);
 }

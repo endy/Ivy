@@ -29,16 +29,11 @@ struct Rect
 
 struct Point2
 {
-    union
-    {
-        FLOAT x;
-        FLOAT u;
-    };
-    union
-    {
-        FLOAT y;
-        FLOAT v;
-    };
+    Point2() : x(0), y(0) {};
+    Point2(FLOAT xIn, FLOAT yIn) : x(xIn), y(yIn) {};
+
+    FLOAT x;
+    FLOAT y;
 };
 
 struct Point3

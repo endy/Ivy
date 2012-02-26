@@ -19,6 +19,9 @@
 #include "IvyGL.h"
 #include "GLShader.h"
 
+
+#include "SOIL.h"
+
 GLTestApp::GLTestApp(GLTestAppCreateInfo* pAppInfo)
     :
     GLApp(pAppInfo)
@@ -113,8 +116,8 @@ void DebugCallbackAMD(
 
 void GLTestApp::Run()
 {
-    //RenderGL2();
-    RenderGL4();
+    RenderGL2();
+    //RenderGL4();
 }
 
 
@@ -179,8 +182,8 @@ void GLTestApp::RenderGL2()
 
     const GLubyte* pExtension = glGetString(GL_EXTENSIONS);
 
-    GLShader* pVSShader = GLShader::CreateFromFile(IvyVertexShader, "VertexShader", "gl2.vert");
-    GLShader* pFSShader = GLShader::CreateFromFile(IvyFragmentShader, "FragmentShader", "gl2.frag");
+    GLShader* pVSShader = GLShader::CreateFromFile(IvyVertexShader, "VertexShader", "GLTestApp/gl2.vert");
+    GLShader* pFSShader = GLShader::CreateFromFile(IvyFragmentShader, "FragmentShader", "GLTestApp/gl2.frag");
 
     GLProgram* pProgram = GLProgram::Create();
     pProgram->AttachShader(pVSShader);
@@ -193,16 +196,14 @@ void GLTestApp::RenderGL2()
     {
         XMMATRIX worldMatrix;
         XMMATRIX viewMatrix;
-
         XMMATRIX projectionMatrix;
     };
 
     CameraBufferData cameraBufferData;
-    cameraBufferData.worldMatrix      = XMMatrixScaling(0.5, 1.0, 1); //XMMatrixIdentity(); //XMMatrixRotationX(-3.14f/2.0f) * XMMatrixScaling(2, 2, 1); //XMMatrixIdentity();
+    cameraBufferData.worldMatrix = XMMatrixScaling(1.0, 1.0, 1); 
+    //XMMatrixIdentity(); //XMMatrixRotationX(-3.14f/2.0f) * XMMatrixScaling(2, 2, 1); //XMMatrixIdentity();
     cameraBufferData.viewMatrix = XMMatrixTranslation(0, 0, 3.0f) * m_pCamera->W2C();
-    //cameraBufferData.viewMatrix       = XMMatrixIdentity(); //XMMatrixTranslation(0, 0, 3.0f) * pCamera->W2C(); 
     cameraBufferData.projectionMatrix = m_pCamera->C2S();
-    //cameraBufferData.projectionMatrix = XMMatrixIdentity(); // 
 
     UINT worldMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "worldMatrix");
     UINT viewMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "viewMatrix");
@@ -214,23 +215,29 @@ void GLTestApp::RenderGL2()
     glUniformMatrix4fv(projMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.projectionMatrix));
 
 
-    VertexPTN triangle[3];
+    VertexPTN triangle[4];
     memset(triangle, 0, sizeof(triangle));
 
     triangle[0].Pos = Point3(-1.0f, 1.0f, 0.0f);
     triangle[0].N   = Point4(1.0f, 0.0f, 0.0f, 1.0f);
+    triangle[0].Tex = Point2(0.0f, 0.0f);
     triangle[1].Pos = Point3(1.0f, 1.0f, 0.0f);
     triangle[1].N   = Point4(0.0f, 1.0f, 0.0f, 1.0f);
+    triangle[1].Tex = Point2(1.0f, 0.0f);
     triangle[2].Pos = Point3(1.0f, -1.0f, 0.0f);
     triangle[2].N   = Point4(0.0f, 0.0f, 1.0f, 1.0f);
-
+    triangle[2].Tex = Point2(1.0f, 1.0f);
+    triangle[3].Pos = Point3(-1.0f, -1.0f, 0.0f);
+    triangle[3].N   = Point4(1.0f, 1.0f, 1.0f, 1.0f);
+    triangle[3].Tex = Point2(0.0f, 1.0f);
 
     GLint positionAttribLoc = glGetAttribLocation(pProgram->ProgramId(), "in_Position");
     GLint colorAttribLoc = glGetAttribLocation(pProgram->ProgramId(), "in_Color");
-    GLint textureAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "s_texture");
+    GLint texAttribLoc = glGetAttribLocation(pProgram->ProgramId(), "in_TexCoord");
 
     glBindAttribLocation(pProgram->ProgramId(), positionAttribLoc, "in_Position");
     glBindAttribLocation(pProgram->ProgramId(), colorAttribLoc, "in_Color");
+    glBindAttribLocation(pProgram->ProgramId(), texAttribLoc, "in_TexCoord");
 
     glVertexAttribPointer(positionAttribLoc, 3, GL_FLOAT, FALSE, 9*4, triangle);
     glEnableVertexAttribArray(positionAttribLoc);
@@ -238,6 +245,8 @@ void GLTestApp::RenderGL2()
     glVertexAttribPointer(colorAttribLoc, 4, GL_FLOAT, FALSE, 9*4, &(triangle[0].N));
     glEnableVertexAttribArray(colorAttribLoc);
 
+    glVertexAttribPointer(texAttribLoc, 2, GL_FLOAT, FALSE, 9*4, &(triangle[0].Tex));
+    glEnableVertexAttribArray(texAttribLoc);
 
     glViewport(0, 0, 800, 450);
 
@@ -250,21 +259,18 @@ void GLTestApp::RenderGL2()
     // GL_TEXTURE_CUBE_MAP
     glBindTexture(GL_TEXTURE_2D, texId);
 
+    GLint textureAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "s_texture");
     glUniform1i(textureAttribLoc, 0);
 
     glActiveTexture(GL_TEXTURE0);
 
-    GLubyte texels[] = 
-    {
-        0, 255, 0,
-        0, 0, 255,
-        0, 0, 255,
-        0, 255, 0,
-    };
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 2, 2, 0, GL_RGB, GL_UNSIGNED_BYTE, texels);
-    // glCopyTexImage2D()
+    int imageWidth = 0, imageHeight = 0, channels = 0, force_channels = 0;
+    unsigned char* pImageData = SOIL_load_image("Content/kitten_rgb.dds", &imageWidth, &imageHeight, &channels, SOIL_LOAD_RGB);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imageWidth, imageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, pImageData);
+    SOIL_free_image_data(pImageData);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -281,6 +287,7 @@ void GLTestApp::RenderGL2()
  //       exit(1);
     }
 
+    GLubyte indices[] = {0, 1, 2, 0, 2, 3 };
     while (!quit)
     {
         m_pWindow->ProcessMsg(&quit);
@@ -295,7 +302,8 @@ void GLTestApp::RenderGL2()
         glClearColor(0.4f, 1.0f, 0.4f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        //glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, indices);
 
         SwapBuffers(hDC);
     }
@@ -412,10 +420,13 @@ void GLTestApp::RenderGL4()
 
     triangle[0].Pos = Point3(-0.5f, 0.5f, 0.0f);
     triangle[0].N   = Point4(1.0f, 0.0f, 0.0f, 1.0f);
+    triangle[0].Tex = Point2(0.0f, 0);
     triangle[1].Pos = Point3(0.5f, 0.5f, 0.0f);
     triangle[1].N   = Point4(0.0f, 1.0f, 0.0f, 1.0f);
+    triangle[1].Tex = Point2(1.0f, 0);
     triangle[2].Pos = Point3(0.5f, -0.5f, 0.0f);
     triangle[2].N   = Point4(0.0f, 0.0f, 1.0f, 1.0f);
+    triangle[2].Tex = Point2(1.0f, 1);
 
     GLuint vbId = 0;
     glGenBuffers(1, &vbId);
@@ -424,9 +435,11 @@ void GLTestApp::RenderGL4()
 
     GLint positionAttribLoc = glGetAttribLocation(pProgram->ProgramId(), "in_Position");
     GLint colorAttribLoc = glGetAttribLocation(pProgram->ProgramId(), "in_Color");
+    GLint texAttribLoc = glGetAttribLocation(pProgram->ProgramId(), "in_Tex");
 
     glBindAttribLocation(pProgram->ProgramId(), positionAttribLoc, "in_Position");
     glBindAttribLocation(pProgram->ProgramId(), colorAttribLoc, "in_Color");
+    glBindAttribLocation(pProgram->ProgramId(), texAttribLoc, "in_Tex");
 
     glVertexAttribPointer(positionAttribLoc, 3, GL_FLOAT, FALSE, sizeof(VertexPTN), 0);
     glEnableVertexAttribArray(positionAttribLoc);
@@ -434,6 +447,10 @@ void GLTestApp::RenderGL4()
     GLuint offset = 5*4;
     glVertexAttribPointer(colorAttribLoc, 4, GL_FLOAT, FALSE, sizeof(VertexPTN), (const GLvoid*)offset);
     glEnableVertexAttribArray(colorAttribLoc);
+
+    offset = 3*4;
+    glVertexAttribPointer(texAttribLoc, 4, GL_FLOAT, FALSE, sizeof(VertexPTN), (const GLvoid*)offset);
+    glEnableVertexAttribArray(texAttribLoc);
 
     m_pWindow->Show();
 
