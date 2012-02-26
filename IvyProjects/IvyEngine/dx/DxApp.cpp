@@ -406,18 +406,18 @@ bool DxApp::Init()
     m_viewport.TopLeftX = 0;
     m_viewport.TopLeftY = 0;
 
-    DxPerspectiveCameraInfo cameraInfo;
-    memset(&cameraInfo, 0, sizeof(DxPerspectiveCameraInfo));
+    IvyPerspectiveCameraInfo cameraInfo;
+    memset(&cameraInfo, 0, sizeof(IvyPerspectiveCameraInfo));
     cameraInfo.viewport.left = 0;
     cameraInfo.viewport.top = 0;
     cameraInfo.viewport.right = m_screenWidth;
     cameraInfo.viewport.left = m_screenHeight;
     cameraInfo.nearZ = m_nearZ;
     cameraInfo.farZ = m_farZ;
-    cameraInfo.FovX = m_fovX;
-    cameraInfo.FovY = m_fovY;
+    cameraInfo.fovX = m_fovX;
+    cameraInfo.fovY = m_fovY;
 
-    m_pCamera = new DxPerspective(&cameraInfo);
+    m_pCamera = new IvyPerspective(&cameraInfo);
 
     // DWrite
 

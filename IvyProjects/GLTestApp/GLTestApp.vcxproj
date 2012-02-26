@@ -26,8 +26,10 @@
     <ClInclude Include="GLTestApp.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="fs.glsl" />
-    <None Include="vs.glsl" />
+    <None Include="gl2.frag" />
+    <None Include="gl2.vert" />
+    <None Include="gl4.frag" />
+    <None Include="gl4.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{12B83B2D-30F1-403C-91A2-A68B65869AD8}</ProjectGuid>
@@ -59,6 +61,7 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\Properties\IvyEngineDebug32.props" />
     <Import Project="..\Properties\OpenGLDebug32.props" />
+    <Import Project="..\Properties\DX11Debug32.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />

@@ -21,9 +21,6 @@
     <ClCompile Include="dx\DxWindow.cpp">
       <Filter>dx</Filter>
     </ClCompile>
-    <ClCompile Include="dx\DxCamera.cpp">
-      <Filter>dx</Filter>
-    </ClCompile>
     <ClCompile Include="dx\DxLight.cpp">
       <Filter>dx</Filter>
     </ClCompile>
@@ -72,15 +69,18 @@
     <ClCompile Include="gl\GLWindow.cpp">
       <Filter>gl</Filter>
     </ClCompile>
+    <ClCompile Include="core\IvyCamera.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="gl\GLShader.cpp">
+      <Filter>gl</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dx\DxApp.h">
       <Filter>dx</Filter>
     </ClInclude>
     <ClInclude Include="dx\DxWindow.h">
-      <Filter>dx</Filter>
-    </ClInclude>
-    <ClInclude Include="dx\DxCamera.h">
       <Filter>dx</Filter>
     </ClInclude>
     <ClInclude Include="dx\DxLight.h">
@@ -151,6 +151,18 @@
     </ClInclude>
     <ClInclude Include="gl\GLWindow.h">
       <Filter>gl</Filter>
+    </ClInclude>
+    <ClInclude Include="core\IvyCamera.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="gl\GLShader.h">
+      <Filter>gl</Filter>
+    </ClInclude>
+    <ClInclude Include="gl\IvyGL.h">
+      <Filter>gl</Filter>
+    </ClInclude>
+    <ClInclude Include="core\IvyMath.h">
+      <Filter>core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

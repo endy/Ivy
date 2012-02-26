@@ -52,6 +52,7 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\Properties\DX11Debug32.props" />
     <Import Project="..\Properties\IvyEngineDebug32.props" />
+    <Import Project="..\Properties\OpenGLDebug32.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -142,6 +143,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="core\IvyCamera.cpp" />
     <ClCompile Include="core\IvyImporter.cpp" />
     <ClCompile Include="core\IvyInput.cpp" />
     <ClCompile Include="core\IvyLight.cpp" />
@@ -149,7 +151,6 @@
     <ClCompile Include="core\IvyUtils.cpp" />
     <ClCompile Include="dx\DxApp.cpp" />
     <ClCompile Include="dx\DxBuffer.cpp" />
-    <ClCompile Include="dx\DxCamera.cpp" />
     <ClCompile Include="dx\DxGeometryShader.cpp" />
     <ClCompile Include="dx\DxLight.cpp" />
     <ClCompile Include="dx\DxMesh.cpp" />
@@ -160,12 +161,15 @@
     <ClCompile Include="dx\DxWindow.cpp" />
     <ClCompile Include="dx\SystemEventDispatcher.cpp" />
     <ClCompile Include="gl\GLApp.cpp" />
+    <ClCompile Include="gl\GLShader.cpp" />
     <ClCompile Include="gl\GLWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="core\IvyCamera.h" />
     <ClInclude Include="core\IvyEvents.h" />
     <ClInclude Include="core\IvyImporter.h" />
     <ClInclude Include="core\IvyInput.h" />
+    <ClInclude Include="core\IvyMath.h" />
     <ClInclude Include="core\IvyMemory.h" />
     <ClInclude Include="core\IvyLight.h" />
     <ClInclude Include="core\IvyObject.h" />
@@ -174,7 +178,6 @@
     <ClInclude Include="core\IvyUtils.h" />
     <ClInclude Include="dx\DxApp.h" />
     <ClInclude Include="dx\DxBuffer.h" />
-    <ClInclude Include="dx\DxCamera.h" />
     <ClInclude Include="dx\DxGeometryShader.h" />
     <ClInclude Include="dx\DxLight.h" />
     <ClInclude Include="dx\DxMesh.h" />
@@ -188,7 +191,9 @@
     <ClInclude Include="dx\DxWindow.h" />
     <ClInclude Include="dx\SystemEventDispatcher.h" />
     <ClInclude Include="gl\GLApp.h" />
+    <ClInclude Include="gl\GLShader.h" />
     <ClInclude Include="gl\GLWindow.h" />
+    <ClInclude Include="gl\IvyGL.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -16,7 +16,7 @@
 
 #include "IvyObject.h"
 #include "DxWindow.h"
-#include "DxCamera.h"
+#include "IvyCamera.h"
 #include "DxTexture.h"
 
 #include "SystemEventDispatcher.h"
@@ -65,7 +65,7 @@ protected:
     void EndFrame();
 
     DxWindow* m_pWindow;
-    DxCamera* m_pCamera;
+    IvyCamera* m_pCamera;
 
     Point2 m_mousePos;
 

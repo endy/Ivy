@@ -1,8 +1,8 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///
-///     Ivy Engine - Generic DirectX Test App
+///     Ivy Engine - Generic OpenGL Test App
 ///
-///     Copyright 2010-2011, Brandon Light
+///     Copyright 2010-2012, Brandon Light
 ///     All rights reserved.
 ///
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -12,12 +12,12 @@
 #include "IvyUtils.h"
 
 #include "IvyImporter.h"
+#include "IvyCamera.h"
 
 #include "GLWindow.h"
 
-#define GLEW_STATIC 1
-#include "GL\glew.h"
-#include "GL\wglew.h"
+#include "IvyGL.h"
+#include "GLShader.h"
 
 GLTestApp::GLTestApp(GLTestAppCreateInfo* pAppInfo)
     :
@@ -56,7 +56,7 @@ bool GLTestApp::Init()
     return success;
 }
 
-
+/*
 void FormatDebugOutputAMD(char outStr[], size_t outStrSize, GLenum category, GLuint id,
     GLenum severity, const char *msg)
 {
@@ -86,6 +86,7 @@ void FormatDebugOutputAMD(char outStr[], size_t outStrSize, GLenum category, GLu
     _snprintf(outStr, outStrSize, "OpenGL: %s [category=%s severity=%s id=%d]",
         msg, categoryStr, severityStr, id);
 }
+*/
 /*
 typedef void (APIENTRY *GLDEBUGPROCAMD)(GLuint id,
     GLenum category,
@@ -93,7 +94,6 @@ typedef void (APIENTRY *GLDEBUGPROCAMD)(GLuint id,
     GLsizei length,
     const GLchar* message,
     GLvoid* userParam);
-*/
 
 void DebugCallbackAMD(
     GLuint id,
@@ -109,34 +109,15 @@ void DebugCallbackAMD(
     FormatDebugOutputAMD(finalMsg, 256, category, id, severity, message);
     fprintf(outFile, "%s\n", finalMsg);
 }
-
+*/
 
 void GLTestApp::Run()
 {
+    //RenderGL2();
     RenderGL4();
 }
 
-const CHAR* gVS2String = "                       \n\
-attribute  vec3 in_Position;                    \n\
-attribute  vec4 in_Color;                       \n\
-varying    vec4 v_Color;                        \n\
-                                                \n\
-void main(void)                                 \n\
-{                                               \n\
-    gl_Position = vec4(in_Position, 1.0);       \n\
-    v_Color = in_Color;                         \n\
-}                                               \n\
-                                                ";
 
-const CHAR* gFS2String = "                      \n\
-varying  vec4 v_Color;                          \n\
-out vec4 out_Color;                             \n\
-                                                \n\
-void main(void)                                 \n\
-{                                               \n\
-    gl_FragColor = v_Color;                     \n\
-}                                               \n\
-                                                ";
 
 void GLTestApp::RenderGL2()
 {
@@ -186,8 +167,8 @@ void GLTestApp::RenderGL2()
     //  glDebugMessageCallbackAMD((GLDEBUGPROCAMD)DebugCallbackAMD, NULL);
 
     //  glDebugMessageEnableAMD(0, 0, 0, NULL, TRUE);
-    //glDebugMessageInsertAMDattribute  vec2 in_Position;                    \
-    attribute  vec3 in_Color;                       \
+    //glDebugMessageInsertAMDattribute  vec2 in_Position;                    
+    //attribute  vec3 in_Color;                       
     ////////////glGetDebugMessageLogAMD
 
     const GLubyte* pString = glGetString(GL_VERSION);
@@ -198,77 +179,107 @@ void GLTestApp::RenderGL2()
 
     const GLubyte* pExtension = glGetString(GL_EXTENSIONS);
 
-    int vsLength = 0;
-    int fsLength = 0; 
-    GLenum errorEnum = glGetError();
-    GLuint vsId = glCreateShader(GL_VERTEX_SHADER);
-    errorEnum = glGetError();
-    glShaderSource(vsId, 1, &gVS2String, NULL);
-    errorEnum = glGetError();
+    GLShader* pVSShader = GLShader::CreateFromFile(IvyVertexShader, "VertexShader", "gl2.vert");
+    GLShader* pFSShader = GLShader::CreateFromFile(IvyFragmentShader, "FragmentShader", "gl2.frag");
 
-    ////////////////////////////  glGetError()
+    GLProgram* pProgram = GLProgram::Create();
+    pProgram->AttachShader(pVSShader);
+    pProgram->AttachShader(pFSShader);
 
-    glCompileShader(vsId);
+    pProgram->Link();
+    pProgram->Bind();
 
-    GLint vsOK = 0;
-    glGetShaderiv(vsId, GL_COMPILE_STATUS, &vsOK);
+    struct CameraBufferData
+    {
+        XMMATRIX worldMatrix;
+        XMMATRIX viewMatrix;
 
-    GLsizei bufferLength = 1024;
-    GLchar buffer[1024];
-    memset(buffer, 0, bufferLength);
-    GLsizei logLength = 0;
-    glGetShaderInfoLog(vsId, bufferLength, &logLength, buffer);
-    printf(buffer);
+        XMMATRIX projectionMatrix;
+    };
 
-    GLuint fsId = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fsId, 1, &gFS2String, NULL);
+    CameraBufferData cameraBufferData;
+    cameraBufferData.worldMatrix      = XMMatrixScaling(0.5, 1.0, 1); //XMMatrixIdentity(); //XMMatrixRotationX(-3.14f/2.0f) * XMMatrixScaling(2, 2, 1); //XMMatrixIdentity();
+    cameraBufferData.viewMatrix = XMMatrixTranslation(0, 0, 3.0f) * m_pCamera->W2C();
+    //cameraBufferData.viewMatrix       = XMMatrixIdentity(); //XMMatrixTranslation(0, 0, 3.0f) * pCamera->W2C(); 
+    cameraBufferData.projectionMatrix = m_pCamera->C2S();
+    //cameraBufferData.projectionMatrix = XMMatrixIdentity(); // 
 
-    glCompileShader(fsId);
+    UINT worldMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "worldMatrix");
+    UINT viewMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "viewMatrix");
+    UINT projMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "projectionMatrix");
 
-    GLint fsOK = 0;
-    glGetShaderiv(fsId, GL_COMPILE_STATUS, &fsOK);
 
-    memset(buffer, 0, bufferLength);
-    logLength = 0;
-    glGetShaderInfoLog(fsId, bufferLength, &logLength, buffer);
-    printf(buffer);
+    glUniformMatrix4fv(worldMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.worldMatrix));
+    glUniformMatrix4fv(viewMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.viewMatrix));
+    glUniformMatrix4fv(projMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.projectionMatrix));
 
-    GLuint programId = glCreateProgram();
-    glAttachShader(programId, vsId);
-    glAttachShader(programId, fsId);
 
     VertexPTN triangle[3];
     memset(triangle, 0, sizeof(triangle));
 
-    triangle[0].Pos = Point3(-0.5f, 0.5f, 0.0f);
+    triangle[0].Pos = Point3(-1.0f, 1.0f, 0.0f);
     triangle[0].N   = Point4(1.0f, 0.0f, 0.0f, 1.0f);
-    triangle[1].Pos = Point3(0.5f, 0.5f, 0.0f);
+    triangle[1].Pos = Point3(1.0f, 1.0f, 0.0f);
     triangle[1].N   = Point4(0.0f, 1.0f, 0.0f, 1.0f);
-    triangle[2].Pos = Point3(0.5f, -0.5f, 0.0f);
+    triangle[2].Pos = Point3(1.0f, -1.0f, 0.0f);
     triangle[2].N   = Point4(0.0f, 0.0f, 1.0f, 1.0f);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, FALSE, 9*4, triangle);
-    glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1, 4, GL_FLOAT, FALSE, 9*4, &(triangle[0].N));
-    glEnableVertexAttribArray(1);
+    GLint positionAttribLoc = glGetAttribLocation(pProgram->ProgramId(), "in_Position");
+    GLint colorAttribLoc = glGetAttribLocation(pProgram->ProgramId(), "in_Color");
+    GLint textureAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "s_texture");
 
-    glBindAttribLocation(programId, 0, "in_Position");
-    glBindAttribLocation(programId, 1, "in_Color");
+    glBindAttribLocation(pProgram->ProgramId(), positionAttribLoc, "in_Position");
+    glBindAttribLocation(pProgram->ProgramId(), colorAttribLoc, "in_Color");
 
-    glLinkProgram(programId);
+    glVertexAttribPointer(positionAttribLoc, 3, GL_FLOAT, FALSE, 9*4, triangle);
+    glEnableVertexAttribArray(positionAttribLoc);
 
-    GLint positionAttribLoc = glGetAttribLocation(programId, "in_Position");
-    GLint colorAttribLoc = glGetAttribLocation(programId, "in_Color");
+    glVertexAttribPointer(colorAttribLoc, 4, GL_FLOAT, FALSE, 9*4, &(triangle[0].N));
+    glEnableVertexAttribArray(colorAttribLoc);
 
-    memset(buffer, 0, bufferLength);
-    logLength = 0;
-    glGetProgramInfoLog(programId, bufferLength, &logLength, buffer);
-    printf(buffer);
-
-    glUseProgram(programId);
 
     glViewport(0, 0, 800, 450);
+
+    GLuint texId = 0;
+    glGenTextures(1, &texId);
+
+    // GL_TEXTURE_1D
+    // GL_TEXTURE_2D
+    // GL_TEXTURE_3D
+    // GL_TEXTURE_CUBE_MAP
+    glBindTexture(GL_TEXTURE_2D, texId);
+
+    glUniform1i(textureAttribLoc, 0);
+
+    glActiveTexture(GL_TEXTURE0);
+
+    GLubyte texels[] = 
+    {
+        0, 255, 0,
+        0, 0, 255,
+        0, 0, 255,
+        0, 255, 0,
+    };
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 2, 2, 0, GL_RGB, GL_UNSIGNED_BYTE, texels);
+    // glCopyTexImage2D()
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+
+   // GLuint fbId;    // framebuffer id
+  //  glGenFramebuffers(1, &fbId);
+ //   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbId);
+ //   glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texId, 0); //(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE)
+
+   // GL_FRAMEBUFFER_UNSUPPORTED ;
+ //   if (glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    {
+ //       exit(1);
+    }
 
     while (!quit)
     {
@@ -277,39 +288,26 @@ void GLTestApp::RenderGL2()
         glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
+       // glDrawArrays(GL_TRIANGLES, 0, 3);
+
+      //  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+
+        glClearColor(0.4f, 1.0f, 0.4f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
         SwapBuffers(hDC);
     }
 
-    glDeleteProgram(programId);
-    glDeleteShader(vsId);
-    glDeleteShader(fsId);
+
+    glDeleteTextures(1, &texId);
+
+    pProgram->Destroy();
+    pFSShader->Destroy();
+    pVSShader->Destroy();
 }
 
-const CHAR* gVS4String = "                      \n\
-#version 130                                    \n\
-in  vec3 in_Position;                           \n\
-in  vec4 in_Color;                              \n\
-out    vec4 v_Color;                            \n\
-                                                \n\
-void main(void)                                 \n\
-{                                               \n\
-    gl_Position = vec4(in_Position, 1.0);       \n\
-    v_Color = in_Color;                         \n\
-}                                               \n\
-                                                ";
-
-const CHAR* gFS4String = "                      \n\
-#version 130                                    \n\
-in  vec4 v_Color;                               \n\
-out vec4 out_Color;                             \n\
-                                                \n\
-void main(void)                                 \n\
-{                                               \n\
-    out_Color = v_Color;                        \n\
-}                                               \n\
-                                                ";
 
 void GLTestApp::RenderGL4()
 {
@@ -375,56 +373,48 @@ void GLTestApp::RenderGL4()
     glViewport(0, 0, 800, 450);             // context state
     glClearColor(0.4f, 0.4f, 0.4f, 1.0f);   // context state
 
+    GLShader* pVSShader = GLShader::CreateFromFile(IvyVertexShader, "SimpleVS4", "gl4.vert");
+    GLShader* pFSShader = GLShader::CreateFromFile(IvyFragmentShader, "SimpleFS4", "gl4.frag");
 
-    // setup vertex data
-    // setup shaders
-    int vsLength = 0;
-    int fsLength = 0; 
-    GLenum errorEnum = glGetError();
-    GLuint vsId = glCreateShader(GL_VERTEX_SHADER);
-    errorEnum = glGetError();
-    glShaderSource(vsId, 1, &gVS4String, NULL);
-    errorEnum = glGetError();
+    GLProgram* pProgram = GLProgram::Create();
+    pProgram->AttachShader(pVSShader);
+    pProgram->AttachShader(pFSShader);
+    pProgram->Link();
+    pProgram->Bind();
 
-    ////////////////////////////  glGetError()
+    struct CameraBufferData
+    {
+        XMMATRIX worldMatrix;
+        XMMATRIX viewMatrix;
 
-    glCompileShader(vsId);
+        XMMATRIX projectionMatrix;
+    };
 
-    GLint vsOK = 0;
-    glGetShaderiv(vsId, GL_COMPILE_STATUS, &vsOK);
+    CameraBufferData cameraBufferData;
+    cameraBufferData.worldMatrix      = XMMatrixScaling(0.5, 1.0, 1); //XMMatrixIdentity(); //XMMatrixRotationX(-3.14f/2.0f) * XMMatrixScaling(2, 2, 1); //XMMatrixIdentity();
+    cameraBufferData.viewMatrix = XMMatrixTranslation(0, 0, 3.0f) * m_pCamera->W2C();
+    //cameraBufferData.viewMatrix       = XMMatrixIdentity(); //XMMatrixTranslation(0, 0, 3.0f) * pCamera->W2C(); 
+    cameraBufferData.projectionMatrix = m_pCamera->C2S();
+    //cameraBufferData.projectionMatrix = XMMatrixIdentity(); // 
 
-    GLsizei bufferLength = 1024;
-    GLchar buffer[1024];
-    memset(buffer, 0, bufferLength);
-    GLsizei logLength = 0;
-    glGetShaderInfoLog(vsId, bufferLength, &logLength, buffer);
-    printf(buffer);
+    UINT worldMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "worldMatrix");
+    UINT viewMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "viewMatrix");
+    UINT projMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "projectionMatrix");
 
-    GLuint fsId = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fsId, 1, &gFS4String, NULL);
 
-    glCompileShader(fsId);
+    glUniformMatrix4fv(worldMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.worldMatrix));
+    glUniformMatrix4fv(viewMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.viewMatrix));
+    glUniformMatrix4fv(projMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.projectionMatrix));
 
-    GLint fsOK = 0;
-    glGetShaderiv(fsId, GL_COMPILE_STATUS, &fsOK);
-
-    memset(buffer, 0, bufferLength);
-    logLength = 0;
-    glGetShaderInfoLog(fsId, bufferLength, &logLength, buffer);
-    printf(buffer);
-
-    GLuint programId = glCreateProgram();
-    glAttachShader(programId, vsId);
-    glAttachShader(programId, fsId);
 
     VertexPTN triangle[3];
     memset(triangle, 0, sizeof(triangle));
 
-    triangle[0].Pos = Point3(-0.5f, 0.5f, 0.5f);
+    triangle[0].Pos = Point3(-0.5f, 0.5f, 0.0f);
     triangle[0].N   = Point4(1.0f, 0.0f, 0.0f, 1.0f);
-    triangle[1].Pos = Point3(-0.5f, -0.5f, 0.0f);
+    triangle[1].Pos = Point3(0.5f, 0.5f, 0.0f);
     triangle[1].N   = Point4(0.0f, 1.0f, 0.0f, 1.0f);
-    triangle[2].Pos = Point3(0.5f, 0.5f, 0.0f);
+    triangle[2].Pos = Point3(0.5f, -0.5f, 0.0f);
     triangle[2].N   = Point4(0.0f, 0.0f, 1.0f, 1.0f);
 
     GLuint vbId = 0;
@@ -432,27 +422,18 @@ void GLTestApp::RenderGL4()
     glBindBuffer(GL_ARRAY_BUFFER, vbId);
     glBufferData(GL_ARRAY_BUFFER, sizeof(VertexPTN)*3, triangle, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, FALSE, sizeof(VertexPTN), 0);
-    glEnableVertexAttribArray(0);
+    GLint positionAttribLoc = glGetAttribLocation(pProgram->ProgramId(), "in_Position");
+    GLint colorAttribLoc = glGetAttribLocation(pProgram->ProgramId(), "in_Color");
+
+    glBindAttribLocation(pProgram->ProgramId(), positionAttribLoc, "in_Position");
+    glBindAttribLocation(pProgram->ProgramId(), colorAttribLoc, "in_Color");
+
+    glVertexAttribPointer(positionAttribLoc, 3, GL_FLOAT, FALSE, sizeof(VertexPTN), 0);
+    glEnableVertexAttribArray(positionAttribLoc);
 
     GLuint offset = 5*4;
-    glVertexAttribPointer(1, 4, GL_FLOAT, FALSE, sizeof(VertexPTN), (const GLvoid*)offset);
-    glEnableVertexAttribArray(1);
-
-    glBindAttribLocation(programId, 0, "in_Position");
-    glBindAttribLocation(programId, 1, "in_Color");
-
-    glLinkProgram(programId);
-
-   // GLint positionAttribLoc = glGetAttribLocation(programId, "in_Position");
-   // GLint colorAttribLoc = glGetAttribLocation(programId, "in_Color");
-
-    memset(buffer, 0, bufferLength);
-    logLength = 0;
-    glGetProgramInfoLog(programId, bufferLength, &logLength, buffer);
-    printf(buffer);
-
-    glUseProgram(programId);
+    glVertexAttribPointer(colorAttribLoc, 4, GL_FLOAT, FALSE, sizeof(VertexPTN), (const GLvoid*)offset);
+    glEnableVertexAttribArray(colorAttribLoc);
 
     m_pWindow->Show();
 

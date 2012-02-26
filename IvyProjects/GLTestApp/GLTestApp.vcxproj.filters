@@ -14,10 +14,16 @@
     <ClInclude Include="GLTestApp.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="vs.glsl">
+    <None Include="gl2.frag">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="fs.glsl">
+    <None Include="gl2.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="gl4.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="gl4.vert">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

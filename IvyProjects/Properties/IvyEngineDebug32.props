@@ -3,8 +3,8 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <IncludePath>$(SolutionDir)IvyEngine\core;$(SolutionDir)IvyEngine\dx;$(SolutionDir)IvyEngine\gl;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)x86\Debug;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)IvyEngine\core;$(SolutionDir)IvyEngine\dx;$(SolutionDir)IvyEngine\gl;$(SolutionDir)..\Lib\SOIL\inc;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)x86\Debug;$(SolutionDir)..\Lib\SOIL\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>
