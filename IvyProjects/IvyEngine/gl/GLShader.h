@@ -7,10 +7,12 @@
 ///
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-///@TODO Add Reload shader utility function
+#ifndef _GLSHADER_H_
+#define _GLSHADER_H_
+
+/// @todo Add Reload shader utility function
 
 /*
-
 use cases for reloading:
 
 typically edit 1 shader, not multiple
@@ -19,9 +21,6 @@ reloading shaders is a debug/development feature...not really a performance conc
 
 easiest is to reload a program, then reload the specific shader (thus creating a new shader)
 */
-
-#ifndef _GLSHADER_H_
-#define _GLSHADER_H_
 
 #include "IvyObject.h"
 
@@ -54,7 +53,7 @@ protected:
     GLShader(IvyShaderType shaderType, const CHAR* pShaderName, const CHAR* pShaderFilename);
     virtual ~GLShader(); 
 
-    ///@TODO move these values up into IvyShader class
+    /// @todo move these values up into IvyShader class
     IvyShaderType m_type;           ///< Shader type
     std::string m_shaderName;
     std::string m_shaderFile;
@@ -76,8 +75,8 @@ public:
 
     void AttachShader(GLShader* pShader);
 
-    bool Link();    // Link the VS and the PS into a complete program
-    void Bind();    // Bind program to the pipeline
+    bool Link();    ///< Link the VS and the PS into a complete program
+    void Bind();    ///< Bind program to the pipeline
 
     void Reload();
 

@@ -75,6 +75,12 @@
     <ClCompile Include="gl\GLShader.cpp">
       <Filter>gl</Filter>
     </ClCompile>
+    <ClCompile Include="gl\GLTexture.cpp">
+      <Filter>gl</Filter>
+    </ClCompile>
+    <ClCompile Include="core\IvyTexture.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dx\DxApp.h">
@@ -163,6 +169,12 @@
     </ClInclude>
     <ClInclude Include="core\IvyMath.h">
       <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\IvyTexture.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="gl\GLTexture.h">
+      <Filter>gl</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

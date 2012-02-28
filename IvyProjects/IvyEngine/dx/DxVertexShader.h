@@ -16,7 +16,7 @@ class DxVertexShader :
     public DxShader
 {
 public:  
-    ///@TODO VertexShader::Create called by a shader manager?
+    /// @todo VertexShader::Create called by a shader manager?
     static DxVertexShader* CreateFromFile(
         ID3D11Device* pDevice,
         const CHAR* pShaderName,

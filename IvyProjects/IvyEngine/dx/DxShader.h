@@ -7,7 +7,7 @@
 ///
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-///@TODO Add Reload shader utility function
+/// @todo Add Reload shader utility function
 
 #ifndef _DXSHADER_H_
 #define _DXSHADER_H_

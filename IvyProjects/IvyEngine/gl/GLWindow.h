@@ -28,7 +28,7 @@ public:
     static GLWindow* Create(UINT windowWidth, UINT windowHeight);
     VOID Destroy();
 
-    /// Process a window message, if any
+    // Process a window message, if any
     BOOL ProcessMsg(BOOL* pQuit);
 
     VOID Show();

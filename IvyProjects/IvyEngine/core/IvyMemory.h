@@ -13,7 +13,7 @@
 #include "IvyUtils.h"
 
 /**
-@Notes
+/// @note
 
 1.  All allocations should be done thru use of macros.
 2.  Objects are created with new/delete and POD with malloc/free.

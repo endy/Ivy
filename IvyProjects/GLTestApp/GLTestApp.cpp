@@ -15,12 +15,10 @@
 #include "IvyCamera.h"
 
 #include "GLWindow.h"
+#include "GLTexture.h"
 
 #include "IvyGL.h"
 #include "GLShader.h"
-
-
-#include "SOIL.h"
 
 GLTestApp::GLTestApp(GLTestAppCreateInfo* pAppInfo)
     :
@@ -47,10 +45,19 @@ GLTestApp* GLTestApp::Create(GLTestAppCreateInfo* pAppInfo)
     return pApp;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/// GLTestApp::Destroy
+///
+/// @brief
+///     Destroys the instance
+/// @return
+///     N/A
+///////////////////////////////////////////////////////////////////////////////////////////////////
 void GLTestApp::Destroy()
 {
     GLApp::Destroy();
 }
+
 
 bool GLTestApp::Init()
 {
@@ -248,69 +255,43 @@ void GLTestApp::RenderGL2()
     glVertexAttribPointer(texAttribLoc, 2, GL_FLOAT, FALSE, 9*4, &(triangle[0].Tex));
     glEnableVertexAttribArray(texAttribLoc);
 
-    glViewport(0, 0, 800, 450);
+    // Setup Textures
+    GLint textureAttribLoc = 0;
 
-    GLuint texId = 0;
-    glGenTextures(1, &texId);
-
-    // GL_TEXTURE_1D
-    // GL_TEXTURE_2D
-    // GL_TEXTURE_3D
-    // GL_TEXTURE_CUBE_MAP
-    glBindTexture(GL_TEXTURE_2D, texId);
-
-    GLint textureAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "s_texture");
-    glUniform1i(textureAttribLoc, 0);
-
-    glActiveTexture(GL_TEXTURE0);
-
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-    int imageWidth = 0, imageHeight = 0, channels = 0, force_channels = 0;
-    unsigned char* pImageData = SOIL_load_image("Content/kitten_rgb.dds", &imageWidth, &imageHeight, &channels, SOIL_LOAD_RGB);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imageWidth, imageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, pImageData);
-    SOIL_free_image_data(pImageData);
+    //glActiveTexture(GL_TEXTURE0);
+    GLTexture* pTexture = GLTexture::CreateFromFile(IvyTexture2D, "Content/kitten_rgb.dds");
+    textureAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "s_tex0");
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
+    //glActiveTexture(GL_TEXTURE1);
+    GLTexture* pFirefleaTex = GLTexture::CreateFromFile(IvyTexture2D, "Content/fireflea.png");
+    textureAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "s_tex1");
 
-   // GLuint fbId;    // framebuffer id
-  //  glGenFramebuffers(1, &fbId);
- //   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbId);
- //   glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texId, 0); //(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE)
+    pTexture->Bind(0, textureAttribLoc);
+    pFirefleaTex->Bind(1, textureAttribLoc);
 
-   // GL_FRAMEBUFFER_UNSUPPORTED ;
- //   if (glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-    {
- //       exit(1);
-    }
+    ///@ todo Migrate settings into texture object?  Or have separate sampler that is attached to texture?
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    glViewport(0, 0, 800, 450);
 
     GLubyte indices[] = {0, 1, 2, 0, 2, 3 };
     while (!quit)
     {
         m_pWindow->ProcessMsg(&quit);
 
-        glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-       // glDrawArrays(GL_TRIANGLES, 0, 3);
-
-      //  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-
         glClearColor(0.4f, 1.0f, 0.4f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        //glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, indices);
 
         SwapBuffers(hDC);
     }
 
-
-    glDeleteTextures(1, &texId);
-
+    pTexture->Destroy();
     pProgram->Destroy();
     pFSShader->Destroy();
     pVSShader->Destroy();

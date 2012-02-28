@@ -16,7 +16,7 @@ class DxPixelShader :
     public DxShader
 {
 public:
-    ///@TODO DxPixelShader::Create called by a shader manager?
+    /// @todo DxPixelShader::Create called by a shader manager?
     static DxPixelShader* CreateFromFile(
         ID3D11Device* pDevice,
         const CHAR* pShaderName,

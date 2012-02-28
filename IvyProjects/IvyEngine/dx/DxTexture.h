@@ -11,23 +11,15 @@
 #ifndef _DXTEXTURE_H_
 #define _DXTEXTURE_H_
 
-#include "IvyObject.h"
+#include "IvyTexture.h"
 #include "DxTypes.h"
 
 #include <D3DX11.h>
 
-struct TextureFlags
-{
-    UINT ShaderInput    : 1;
-    UINT RenderTarget   : 1;
-    UINT DepthStencil   : 1;
-    UINT CpuRead        : 1;
-    UINT CpuWrite       : 1;
-};
 
 struct DxTextureCreateInfo
 {
-    TextureFlags flags;
+    IvyTextureFlags flags;
     UINT width;
     UINT height;
     DXGI_FORMAT format;
@@ -48,7 +40,7 @@ protected:
 
     virtual bool Init(ID3D11Device* pDevice) = 0;
 
-    TextureFlags m_flags;
+    IvyTextureFlags m_flags;
     UINT m_width;
     UINT m_height;
     DXGI_FORMAT m_format;
