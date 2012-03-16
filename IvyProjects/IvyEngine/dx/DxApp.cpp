@@ -395,7 +395,7 @@ bool DxApp::Init()
         depthStencilCreateInfo.width = m_screenWidth;
         depthStencilCreateInfo.height = m_screenHeight;
 
-        m_pDepthStencilBuffer = DxDepthTexture::Create(m_pDevice, &depthStencilCreateInfo);
+        m_pDepthStencilBuffer = DxTexture::Create(m_pDevice, &depthStencilCreateInfo);
     }
 
     // Setup viewport
@@ -535,7 +535,7 @@ void DxApp::UpdateSwapChain()
         depthStencilCreateInfo.width = width;
         depthStencilCreateInfo.height = height;
 
-        m_pDepthStencilBuffer = DxDepthTexture::Create(m_pDevice, &depthStencilCreateInfo);
+        m_pDepthStencilBuffer = DxTexture::Create(m_pDevice, &depthStencilCreateInfo);
     }
 }
 

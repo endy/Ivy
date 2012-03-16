@@ -88,7 +88,7 @@ protected:
 
     ///@todo Refactor into a group
     ID3D11RenderTargetView* m_pRenderTargetView;
-    DxDepthTexture* m_pDepthStencilBuffer;
+    DxTexture* m_pDepthStencilBuffer;
 
     ///@todo Create better mapping between viewport & camera
     D3D11_VIEWPORT m_viewport;

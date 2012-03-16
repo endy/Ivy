@@ -105,7 +105,7 @@ void RTApp::Run()
     hwRtEyeTexInfo.width = m_screenWidth;
     hwRtEyeTexInfo.height = m_screenHeight;
 
-    DxColorTexture* pHwRtEyeTexture = DxColorTexture::Create(m_pDevice, &hwRtEyeTexInfo);
+    DxTexture* pHwRtEyeTexture = DxTexture::Create(m_pDevice, &hwRtEyeTexInfo);
 
     // SW RT Image Texture
     DxTextureCreateInfo swRtImageTexInfo;
@@ -117,7 +117,7 @@ void RTApp::Run()
     swRtImageTexInfo.width = m_screenWidth;
     swRtImageTexInfo.height = m_screenHeight;
 
-    DxColorTexture* pSwRtImage = DxColorTexture::Create(m_pDevice, &swRtImageTexInfo);
+    DxTexture* pSwRtImage = DxTexture::Create(m_pDevice, &swRtImageTexInfo);
 
     // Image Sampler
     D3D11_SAMPLER_DESC samplerDesc;

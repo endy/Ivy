@@ -455,7 +455,7 @@ void DxTestApp::Run()
         UINT timeout = 5;
 
         HRESULT hr = m_pUIKeyedMutex_D3D->AcquireSync(aquireKey, timeout);
-
+         
 
         FLOAT blendFactors[4];
         UINT sampleMask = 0xFFFFFFFF;

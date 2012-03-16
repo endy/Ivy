@@ -59,7 +59,7 @@ void MlaaApp::Run()
     edgesTexInfo.width = colorTexWidth;
     edgesTexInfo.height = colorTexHeight;
     
-    DxColorTexture* pEdgesTex = DxColorTexture::Create(m_pDevice, &edgesTexInfo);
+    DxTexture* pEdgesTex = DxTexture::Create(m_pDevice, &edgesTexInfo);
 
     // Texture2D <float4> areaTex : register(t2);
 
@@ -77,7 +77,7 @@ void MlaaApp::Run()
     areaTexInfo.width = PatternWidth * (MaxDistance+1);
     areaTexInfo.height = PatternHeight * (MaxDistance+1);
     
-    DxColorTexture* pAreaTex = DxColorTexture::Create(m_pDevice, &areaTexInfo);
+    DxTexture* pAreaTex = DxTexture::Create(m_pDevice, &areaTexInfo);
     
     
     BYTE* pAreaElement = static_cast<BYTE*>(pAreaTex->Lock(m_pContext));
@@ -136,7 +136,7 @@ void MlaaApp::Run()
     blendTexInfo.width = colorTexWidth;
     blendTexInfo.height = colorTexHeight;
     
-    DxColorTexture* pBlendTex = DxColorTexture::Create(m_pDevice, &blendTexInfo);
+    DxTexture* pBlendTex = DxTexture::Create(m_pDevice, &blendTexInfo);
 
     //
 
@@ -149,7 +149,7 @@ void MlaaApp::Run()
     finalImageInfo.width = colorTexWidth;
     finalImageInfo.height = colorTexHeight;
     
-    DxColorTexture* pFinalImage = DxColorTexture::Create(m_pDevice, &finalImageInfo);
+    DxTexture* pFinalImage = DxTexture::Create(m_pDevice, &finalImageInfo);
 
 
     // Samplers  /////////////////////////////////////////////////////////////////////////////

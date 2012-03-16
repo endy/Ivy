@@ -123,21 +123,23 @@ void CelShadeApp::Run()
     ID3D11ShaderResourceView *pColorTexSRV = NULL;
     HRESULT imageHr = D3DX11CreateShaderResourceViewFromFile(m_pDevice, "halo.jpg", &imageLoadInfo, NULL, &pColorTexSRV, NULL );
 
-    DxTextureCreateInfo shadeTexInfo = {0};
+    DxTextureCreateInfo shadeTexInfo;
+    memset(&shadeTexInfo, 0, sizeof(DxTextureCreateInfo));
     shadeTexInfo.flags.RenderTarget = TRUE;
     shadeTexInfo.flags.ShaderInput = TRUE;
     shadeTexInfo.format = DXGI_FORMAT_R8G8B8A8_UNORM;
     shadeTexInfo.width = m_screenWidth;
     shadeTexInfo.height = m_screenHeight;
-    DxTexture* pShadeTex = DxColorTexture::Create(m_pDevice, &shadeTexInfo);
+    DxTexture* pShadeTex = DxTexture::Create(m_pDevice, &shadeTexInfo);
 
-    DxTextureCreateInfo edgeTexInfo = {0};
+    DxTextureCreateInfo edgeTexInfo;
+    memset(&edgeTexInfo, 0, sizeof(DxTextureCreateInfo));
     edgeTexInfo.flags.RenderTarget = TRUE;
     edgeTexInfo.flags.ShaderInput = TRUE;
     edgeTexInfo.format = DXGI_FORMAT_R8G8B8A8_UNORM;
     edgeTexInfo.width = m_screenWidth;
     edgeTexInfo.height = m_screenHeight;
-    DxTexture* pEdgeTex = DxColorTexture::Create(m_pDevice, &edgeTexInfo);
+    DxTexture* pEdgeTex = DxTexture::Create(m_pDevice, &edgeTexInfo);
 
 
     ID3D11ShaderResourceView* pUI_SRV = NULL;

@@ -34,8 +34,12 @@ enum IvyTextureType
 
 enum IvyTextureFormat
 {
+    // Color Formats
     IvyFormatR8G8B8A8,
     IvyFormatR8G8B8,
+
+    // Depth Formats
+    IvyFormatD24S8,
 };
 
 class IvyTexture :
@@ -49,9 +53,12 @@ protected:
     virtual ~IvyTexture();
 
     IvyTextureType m_type;      ///< Texture type
+    IvyTextureFlags m_flags;    ///< Texture flags
 
     UINT m_width;               ///< Texture width
     UINT m_height;              ///< Texture height
+
+    IvyTextureFormat m_format;  ///< Texture format
 
 };
 
