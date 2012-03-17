@@ -1,0 +1,180 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="dx\DxApp.h">
+      <Filter>dx</Filter>
+    </ClInclude>
+    <ClInclude Include="dx\DxBuffer.h">
+      <Filter>dx</Filter>
+    </ClInclude>
+    <ClInclude Include="dx\DxGeometryShader.h">
+      <Filter>dx</Filter>
+    </ClInclude>
+    <ClInclude Include="dx\DxLight.h">
+      <Filter>dx</Filter>
+    </ClInclude>
+    <ClInclude Include="dx\DxMesh.h">
+      <Filter>dx</Filter>
+    </ClInclude>
+    <ClInclude Include="dx\DxPixelShader.h">
+      <Filter>dx</Filter>
+    </ClInclude>
+    <ClInclude Include="dx\DxShader.h">
+      <Filter>dx</Filter>
+    </ClInclude>
+    <ClInclude Include="dx\DxText.h">
+      <Filter>dx</Filter>
+    </ClInclude>
+    <ClInclude Include="dx\DxTexture.h">
+      <Filter>dx</Filter>
+    </ClInclude>
+    <ClInclude Include="dx\DxTypes.h">
+      <Filter>dx</Filter>
+    </ClInclude>
+    <ClInclude Include="dx\DxUtils.h">
+      <Filter>dx</Filter>
+    </ClInclude>
+    <ClInclude Include="dx\DxVertexShader.h">
+      <Filter>dx</Filter>
+    </ClInclude>
+    <ClInclude Include="dx\DxWindow.h">
+      <Filter>dx</Filter>
+    </ClInclude>
+    <ClInclude Include="gl\GLApp.h">
+      <Filter>gl</Filter>
+    </ClInclude>
+    <ClInclude Include="gl\GLShader.h">
+      <Filter>gl</Filter>
+    </ClInclude>
+    <ClInclude Include="gl\GLTexture.h">
+      <Filter>gl</Filter>
+    </ClInclude>
+    <ClInclude Include="gl\GLWindow.h">
+      <Filter>gl</Filter>
+    </ClInclude>
+    <ClInclude Include="core\IvyCamera.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\IvyEvents.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\IvyImporter.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\IvyInput.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\IvyLight.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\IvyMath.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\IvyMemory.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\IvyObject.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\IvyPerf.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\IvyTexture.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\IvyTypes.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\IvyUtils.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="gl\IvyGL.h">
+      <Filter>gl</Filter>
+    </ClInclude>
+    <ClInclude Include="dx\SystemEventDispatcher.h">
+      <Filter>core</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="dx\DxApp.cpp">
+      <Filter>dx</Filter>
+    </ClCompile>
+    <ClCompile Include="dx\DxBuffer.cpp">
+      <Filter>dx</Filter>
+    </ClCompile>
+    <ClCompile Include="dx\DxGeometryShader.cpp">
+      <Filter>dx</Filter>
+    </ClCompile>
+    <ClCompile Include="dx\DxLight.cpp">
+      <Filter>dx</Filter>
+    </ClCompile>
+    <ClCompile Include="dx\DxMesh.cpp">
+      <Filter>dx</Filter>
+    </ClCompile>
+    <ClCompile Include="dx\DxPixelShader.cpp">
+      <Filter>dx</Filter>
+    </ClCompile>
+    <ClCompile Include="dx\DxShader.cpp">
+      <Filter>dx</Filter>
+    </ClCompile>
+    <ClCompile Include="dx\DxTexture.cpp">
+      <Filter>dx</Filter>
+    </ClCompile>
+    <ClCompile Include="dx\DxVertexShader.cpp">
+      <Filter>dx</Filter>
+    </ClCompile>
+    <ClCompile Include="dx\DxWindow.cpp">
+      <Filter>dx</Filter>
+    </ClCompile>
+    <ClCompile Include="gl\GLApp.cpp">
+      <Filter>gl</Filter>
+    </ClCompile>
+    <ClCompile Include="gl\GLShader.cpp">
+      <Filter>gl</Filter>
+    </ClCompile>
+    <ClCompile Include="gl\GLTexture.cpp">
+      <Filter>gl</Filter>
+    </ClCompile>
+    <ClCompile Include="gl\GLWindow.cpp">
+      <Filter>gl</Filter>
+    </ClCompile>
+    <ClCompile Include="core\IvyCamera.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\IvyImporter.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\IvyInput.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\IvyLight.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\IvyPerf.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\IvyTexture.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\IvyUtils.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="dx\SystemEventDispatcher.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="dx">
+      <UniqueIdentifier>{94f55e17-074f-4e83-9c1c-6f1bdaf9d420}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gl">
+      <UniqueIdentifier>{6bccc121-e506-4ea4-837f-47fdb8dbd1dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core">
+      <UniqueIdentifier>{8f590af8-61b8-4b62-b2e3-676f4cec8ffa}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
