@@ -10,8 +10,8 @@
 #include "CelShadeApp.h"
 
 #include "IvyImporter.h"
-#include "DxVertexShader.h"
-#include "DxPixelShader.h"
+#include "DxShader.h"
+#include "DxShader.h"
 #include "DxTexture.h"
 #include "DxMesh.h"
 #include "DxBuffer.h"
@@ -77,7 +77,7 @@ bool CelShadeApp::Init()
 {
     bool success = DxApp::Init();
 
-    DxVertexShader* pVertexShader = DxVertexShader::CreateFromSource(m_pDevice, "IvyVsPosTex", IvyVsPosTex,PosTexVertexDesc, PosTexElements);
+    DxShader* pVertexShader = DxShader::CreateFromSource(m_pDevice, "IvyVsPosTex", IvyVsPosTex,PosTexVertexDesc, PosTexElements);
 
     if (m_pRenderTarget)
     {
@@ -237,15 +237,15 @@ void CelShadeApp::Run()
 
     // Shaders ////////////////////////////////////////////////////////////////////////////////////
 
-    m_pPosTexTriVS = DxVertexShader::CreateFromFile(m_pDevice, "PosTexTri", "CelShade.hlsl", PosTexVertexDesc, PosTexElements);
-    m_pPosTexNormVS = DxVertexShader::CreateFromFile(m_pDevice, "PosTexNorm", "CelShade.hlsl", PosTexNormVertexDesc, PosTexNormElements);
+    m_pPosTexTriVS = DxShader::CreateFromFile(m_pDevice, "PosTexTri", "CelShade.hlsl", PosTexVertexDesc, PosTexElements);
+    m_pPosTexNormVS = DxShader::CreateFromFile(m_pDevice, "PosTexNorm", "CelShade.hlsl", PosTexNormVertexDesc, PosTexNormElements);
 
-    m_pCelShadePS = DxPixelShader::CreateFromFile(m_pDevice, "CelShade", "CelShade.hlsl");
-    DxPixelShader* pDetectEdges = DxPixelShader::CreateFromFile(m_pDevice, "DetectEdges", "CelShade.hlsl");
-    DxPixelShader* pApplyTexPS = DxPixelShader::CreateFromFile(m_pDevice, "ApplyTex", "CelShade.hlsl");
+    m_pCelShadePS = DxShader::CreateFromFile(m_pDevice, "CelShade", "CelShade.hlsl");
+    DxShader* pDetectEdges = DxShader::CreateFromFile(m_pDevice, "DetectEdges", "CelShade.hlsl");
+    DxShader* pApplyTexPS = DxShader::CreateFromFile(m_pDevice, "ApplyTex", "CelShade.hlsl");
 
-    DxVertexShader* pCubeVS = DxVertexShader::CreateFromFile(m_pDevice, "PosTex", "CelShade.hlsl", PosTexVertexDesc, PosTexElements);
-    DxPixelShader* pCubePS = DxPixelShader::CreateFromFile(m_pDevice, "CubePS", "CelShade.hlsl");
+    DxShader* pCubeVS = DxShader::CreateFromFile(m_pDevice, "PosTex", "CelShade.hlsl", PosTexVertexDesc, PosTexElements);
+    DxShader* pCubePS = DxShader::CreateFromFile(m_pDevice, "CubePS", "CelShade.hlsl");
 
 
     ////////////////////////////////////////////////////////////////////////////////////////
@@ -470,7 +470,8 @@ void CelShadeApp::HandleKeyboardInput(
         switch(pKeyDownEvent->GetData().key)
         {
         case EKeyR:
-            Reload(m_pDevice, &m_pCelShadePS);
+            IvyAssertAlways(); // Reload disabled after shader refactoring
+            //Reload(m_pDevice, &m_pCelShadePS);
             break;
         case EKeyW:
             m_pCamera->Position().z -= 1;

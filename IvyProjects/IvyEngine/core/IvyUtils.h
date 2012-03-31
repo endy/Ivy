@@ -40,7 +40,7 @@ inline void Log(CHAR* msg)
     Log("", msg);
 }
 
-inline void Assert(bool e)
+inline void IvyAssert(bool e)
 {
     bool QuietAssert = false;
 
@@ -52,9 +52,9 @@ inline void Assert(bool e)
     }
 }
 
-inline void AssertAlways()
+inline void IvyAssertAlways()
 {
-    Assert(false);
+    IvyAssert(false);
 }
 
 class Plane

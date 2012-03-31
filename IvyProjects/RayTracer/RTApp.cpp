@@ -5,8 +5,8 @@
 #include "IvyUtils.h"
 
 #include "DxTypes.h"
-#include "DxVertexShader.h"
-#include "DxPixelShader.h"
+#include "DxShader.h"
+#include "DxShader.h"
 #include "DxBuffer.h"
 #include "DxLight.h"
 #include "DxMesh.h"
@@ -136,10 +136,10 @@ void RTApp::Run()
     
     // Shaders ////////////////////////////////////////////////////////////////////////////////////
 
-    DxVertexShader* pVSShader = DxVertexShader::CreateFromFile(m_pDevice, "RtVS", "rtshaders.txt",  PosTexVertexDesc, PosTexElements);
+    DxShader* pVSShader = DxShader::CreateFromFile(m_pDevice, "RtVS", "rtshaders.txt",  PosTexVertexDesc, PosTexElements);
     statusOK = (statusOK && pVSShader != NULL);
 
-    DxPixelShader* pPSShader = DxPixelShader::CreateFromFile(m_pDevice, "RtPS", "rtshaders.txt");
+    DxShader* pPSShader = DxShader::CreateFromFile(m_pDevice, "RtPS", "rtshaders.txt");
     statusOK = (statusOK && pPSShader != NULL);
 
     ////////////////////////////////////////////////////////////////////////////////////////

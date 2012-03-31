@@ -12,9 +12,7 @@
 
 #include "DxApp.h"
 
-class DxVertexShader;
-class DxGeometryShader;
-class DxPixelShader;
+class DxShader;
 
 struct InstancingAppCreateInfo : public DxAppCreateInfo
 {
@@ -44,8 +42,8 @@ protected:
     void Draw2D();
 
 private:
-    DxVertexShader* m_pPosTexTriVS;
-    DxVertexShader* m_pPosTexNormVS;
+    DxShader* m_pPosTexTriVS;
+    DxShader* m_pPosTexNormVS;
 
     ID2D1SolidColorBrush* m_pLightSlateGrayBrush;
     ID2D1SolidColorBrush* m_pCornflowerBlueBrush;

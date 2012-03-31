@@ -7,9 +7,6 @@
     <Filter Include="core">
       <UniqueIdentifier>{453a6f16-5bb8-4e0a-aa9a-cc2a87902ba6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="dx\shaders">
-      <UniqueIdentifier>{42f42703-b208-4973-9972-315efe3be6a6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="gl">
       <UniqueIdentifier>{db830549-e44d-4d8d-9b58-930bcf6d0c27}</UniqueIdentifier>
     </Filter>
@@ -51,18 +48,6 @@
     <ClCompile Include="dx\DxBuffer.cpp">
       <Filter>dx</Filter>
     </ClCompile>
-    <ClCompile Include="dx\DxPixelShader.cpp">
-      <Filter>dx\shaders</Filter>
-    </ClCompile>
-    <ClCompile Include="dx\DxShader.cpp">
-      <Filter>dx\shaders</Filter>
-    </ClCompile>
-    <ClCompile Include="dx\DxGeometryShader.cpp">
-      <Filter>dx\shaders</Filter>
-    </ClCompile>
-    <ClCompile Include="dx\DxVertexShader.cpp">
-      <Filter>dx\shaders</Filter>
-    </ClCompile>
     <ClCompile Include="gl\GLApp.cpp">
       <Filter>gl</Filter>
     </ClCompile>
@@ -79,6 +64,12 @@
       <Filter>gl</Filter>
     </ClCompile>
     <ClCompile Include="core\IvyTexture.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="dx\DxShader.cpp">
+      <Filter>dx</Filter>
+    </ClCompile>
+    <ClCompile Include="core\IvyShader.cpp">
       <Filter>core</Filter>
     </ClCompile>
   </ItemGroup>
@@ -140,18 +131,6 @@
     <ClInclude Include="dx\DxUtils.h">
       <Filter>dx</Filter>
     </ClInclude>
-    <ClInclude Include="dx\DxShader.h">
-      <Filter>dx\shaders</Filter>
-    </ClInclude>
-    <ClInclude Include="dx\DxPixelShader.h">
-      <Filter>dx\shaders</Filter>
-    </ClInclude>
-    <ClInclude Include="dx\DxGeometryShader.h">
-      <Filter>dx\shaders</Filter>
-    </ClInclude>
-    <ClInclude Include="dx\DxVertexShader.h">
-      <Filter>dx\shaders</Filter>
-    </ClInclude>
     <ClInclude Include="gl\GLApp.h">
       <Filter>gl</Filter>
     </ClInclude>
@@ -175,6 +154,12 @@
     </ClInclude>
     <ClInclude Include="gl\GLTexture.h">
       <Filter>gl</Filter>
+    </ClInclude>
+    <ClInclude Include="core\IvyShader.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="dx\DxShader.h">
+      <Filter>dx</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

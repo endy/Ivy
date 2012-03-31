@@ -41,7 +41,7 @@ DxLight* DxLight::Create(
 
     if (pLight->Init(pInfo->pDevice) == false)
     {
-        AssertAlways();
+        IvyAssertAlways();
 
         pLight->Destroy();
         pLight = NULL;

@@ -1,8 +1,8 @@
 
 
 #include "MlaaApp.h"
-#include "DxVertexShader.h"
-#include "DxPixelShader.h"
+#include "DxShader.h"
+#include "DxShader.h"
 #include "DxTexture.h"
 #include "DxMesh.h"
 #include "IvyUtils.h"
@@ -214,17 +214,17 @@ void MlaaApp::Run()
 
     // Shaders ////////////////////////////////////////////////////////////////////////////////////
 
-    DxVertexShader* pPosTexTriVS = DxVertexShader::CreateFromFile(m_pDevice, "PosTexTri", "MlaaShaders.hlsl", PosTexVertexDesc, PosTexElements);
-    DxPixelShader* pGradientPS = DxPixelShader::CreateFromFile(m_pDevice, "Gradient", "MlaaShaders.hlsl");
+    DxShader* pPosTexTriVS = DxShader::CreateFromFile(m_pDevice, "PosTexTri", "MlaaShaders.hlsl", PosTexVertexDesc, PosTexElements);
+    DxShader* pGradientPS = DxShader::CreateFromFile(m_pDevice, "Gradient", "MlaaShaders.hlsl");
 
-    DxPixelShader* pApplyTexPS = DxPixelShader::CreateFromFile(m_pDevice, "ApplyTexture", "MlaaShaders.hlsl");
+    DxShader* pApplyTexPS = DxShader::CreateFromFile(m_pDevice, "ApplyTexture", "MlaaShaders.hlsl");
 
-    DxPixelShader* pEdgeDetectPS = DxPixelShader::CreateFromFile(m_pDevice, "ColorEdgeDetectionPS", "MlaaShaders.hlsl");
-    DxPixelShader* pBlendWeightsPS = DxPixelShader::CreateFromFile(m_pDevice, "BlendingWeightCalculationPS", "MlaaShaders.hlsl");
-    DxPixelShader* pBlendEdgesPS = DxPixelShader::CreateFromFile(m_pDevice, "NeighborhoodBlendingPS", "MlaaShaders.hlsl");
+    DxShader* pEdgeDetectPS = DxShader::CreateFromFile(m_pDevice, "ColorEdgeDetectionPS", "MlaaShaders.hlsl");
+    DxShader* pBlendWeightsPS = DxShader::CreateFromFile(m_pDevice, "BlendingWeightCalculationPS", "MlaaShaders.hlsl");
+    DxShader* pBlendEdgesPS = DxShader::CreateFromFile(m_pDevice, "NeighborhoodBlendingPS", "MlaaShaders.hlsl");
 
-    DxVertexShader* pZoomVS = DxVertexShader::CreateFromFile(m_pDevice, "ZoomVS", "MlaaShaders.hlsl", PosTexVertexDesc, PosTexElements);
-    DxPixelShader* pZoomPS = DxPixelShader::CreateFromFile(m_pDevice, "ZoomPS", "MlaaShaders.hlsl");
+    DxShader* pZoomVS = DxShader::CreateFromFile(m_pDevice, "ZoomVS", "MlaaShaders.hlsl", PosTexVertexDesc, PosTexElements);
+    DxShader* pZoomPS = DxShader::CreateFromFile(m_pDevice, "ZoomPS", "MlaaShaders.hlsl");
 
     ////////////////////////////////////////////////////////////////////////////////////////
 

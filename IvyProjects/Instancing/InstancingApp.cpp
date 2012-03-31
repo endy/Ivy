@@ -10,8 +10,7 @@
 #include "InstancingApp.h"
 
 #include "IvyImporter.h"
-#include "DxVertexShader.h"
-#include "DxPixelShader.h"
+#include "DxShader.h"
 #include "DxTexture.h"
 #include "DxMesh.h"
 #include "DxBuffer.h"
@@ -76,7 +75,7 @@ bool InstancingApp::Init()
 {
     bool success = DxApp::Init();
 
-    DxVertexShader* pVertexShader = DxVertexShader::CreateFromSource(m_pDevice, "IvyVsPosTex", IvyVsPosTex,PosTexVertexDesc, PosTexElements);
+    DxShader* pVertexShader = DxShader::CreateFromSource(m_pDevice, "IvyVsPosTex", IvyVsPosTex,PosTexVertexDesc, PosTexElements);
 
     if (m_pRenderTarget)
     {
@@ -209,13 +208,13 @@ void InstancingApp::Run()
 
     // Shaders ////////////////////////////////////////////////////////////////////////////////////
 
-    m_pPosTexTriVS = DxVertexShader::CreateFromFile(m_pDevice, "PosTexTri", "Instancing.hlsl", PosTexVertexDesc, PosTexElements);
-    m_pPosTexNormVS = DxVertexShader::CreateFromFile(m_pDevice, "PosTexNorm", "Instancing.hlsl", PosTexNormVertexDesc, PosTexNormElements);
+    m_pPosTexTriVS = DxShader::CreateFromFile(m_pDevice, "PosTexTri", "Instancing.hlsl", PosTexVertexDesc, PosTexElements);
+    m_pPosTexNormVS = DxShader::CreateFromFile(m_pDevice, "PosTexNorm", "Instancing.hlsl", PosTexNormVertexDesc, PosTexNormElements);
 
-    DxPixelShader* pApplyTexPS = DxPixelShader::CreateFromFile(m_pDevice, "ApplyTex", "Instancing.hlsl");
+    DxShader* pApplyTexPS = DxShader::CreateFromFile(m_pDevice, "ApplyTex", "Instancing.hlsl");
 
-    DxVertexShader* pCubeVS = DxVertexShader::CreateFromFile(m_pDevice, "PosTex", "Instancing.hlsl", PosTexVertexDesc, PosTexElements);
-    DxPixelShader* pCubePS = DxPixelShader::CreateFromFile(m_pDevice, "CubePS", "Instancing.hlsl");
+    DxShader* pCubeVS = DxShader::CreateFromFile(m_pDevice, "PosTex", "Instancing.hlsl", PosTexVertexDesc, PosTexElements);
+    DxShader* pCubePS = DxShader::CreateFromFile(m_pDevice, "CubePS", "Instancing.hlsl");
     ////////////////////////////////////////////////////////////////////////////////////////
 
     m_pContext->ClearState();

@@ -9,8 +9,7 @@
 
 
 #include "DxTestApp.h"
-#include "DxVertexShader.h"
-#include "DxPixelShader.h"
+#include "DxShader.h"
 #include "DxTexture.h"
 #include "DxBuffer.h"
 #include "DxMesh.h"
@@ -172,12 +171,12 @@ void DxTestApp::Run()
 
     // Shaders ////////////////////////////////////////////////////////////////////////////////////
 
-    DxVertexShader* pPosTexVS = DxVertexShader::CreateFromFile(m_pDevice, "PosTex", "dxtestapp.hlsl", PosTexVertexDesc, PosTexElements);
-    DxPixelShader* pApplyTexPS = DxPixelShader::CreateFromFile(m_pDevice, "ApplyTexture", "dxtestapp.hlsl");
-    DxPixelShader* pVisDepthPS = DxPixelShader::CreateFromFile(m_pDevice, "VisDepth", "dxtestapp.hlsl");
+    DxShader* pPosTexVS = DxShader::CreateFromFile(m_pDevice, "PosTex", "dxtestapp.hlsl", PosTexVertexDesc, PosTexElements);
+    DxShader* pApplyTexPS = DxShader::CreateFromFile(m_pDevice, "ApplyTexture", "dxtestapp.hlsl");
+    DxShader* pVisDepthPS = DxShader::CreateFromFile(m_pDevice, "VisDepth", "dxtestapp.hlsl");
 
-    DxVertexShader* pPosTexNormVS = DxVertexShader::CreateFromFile(m_pDevice, "PosTexNorm", "dxtestapp.hlsl", PosTexNormVertexDesc, PosTexNormElements);
-    DxPixelShader* pVisNormalPS = DxPixelShader::CreateFromFile(m_pDevice, "VisNormal", "dxtestapp.hlsl");
+    DxShader* pPosTexNormVS = DxShader::CreateFromFile(m_pDevice, "PosTexNorm", "dxtestapp.hlsl", PosTexNormVertexDesc, PosTexNormElements);
+    DxShader* pVisNormalPS = DxShader::CreateFromFile(m_pDevice, "VisNormal", "dxtestapp.hlsl");
 
     // Models /////////////////////////////////////////////////////////////////////////////////////
 

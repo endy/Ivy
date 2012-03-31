@@ -44,9 +44,7 @@ GLShader::GLShader(
     const CHAR* pShaderName,
     const CHAR* pShaderFilename)
     :
-    m_type(shaderType),
-    m_shaderName(pShaderName),
-    m_shaderFile(pShaderFilename),
+    IvyShader(shaderType, pShaderName, pShaderFilename),
     m_glShaderId(0)
 {
 

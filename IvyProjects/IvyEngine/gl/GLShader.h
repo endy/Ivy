@@ -22,18 +22,12 @@ reloading shaders is a debug/development feature...not really a performance conc
 easiest is to reload a program, then reload the specific shader (thus creating a new shader)
 */
 
-#include "IvyObject.h"
+#include "IvyShader.h"
 
 #include <string>
 
-enum IvyShaderType
-{
-    IvyVertexShader     = 0,
-    IvyFragmentShader
-};
-
 class GLShader :
-    public IvyObject
+    public IvyShader
 {
 public:
     static GLShader* CreateFromSource(IvyShaderType shaderType, const CHAR* pShaderName, const CHAR* pShaderSource);
@@ -41,11 +35,7 @@ public:
 
     virtual void Destroy();
 
-    IvyShaderType Type() const { return m_type; }
     int ShaderId() const { return m_glShaderId; }
-
-    const CHAR* GetShaderName() { return m_shaderName.c_str(); }
-    const CHAR* GetShaderFilename() { return m_shaderFile.c_str(); }
 
     void Reload();
 
@@ -53,14 +43,8 @@ protected:
     GLShader(IvyShaderType shaderType, const CHAR* pShaderName, const CHAR* pShaderFilename);
     virtual ~GLShader(); 
 
-    /// @todo move these values up into IvyShader class
-    IvyShaderType m_type;           ///< Shader type
-    std::string m_shaderName;
-    std::string m_shaderFile;
-
     // GL-specific shader stuff
     int m_glShaderId;
-
 };
 
 class GLProgram :

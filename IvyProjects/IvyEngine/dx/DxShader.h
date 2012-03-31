@@ -12,32 +12,10 @@
 #ifndef _DXSHADER_H_
 #define _DXSHADER_H_
 
-#include "IvyObject.h"
+#include "IvyShader.h"
 
 #include <D3D11.h>
 #include <string>
-
-class DxShader :
-    public IvyObject
-{
-public:
-    virtual void Destroy() = 0;
-    virtual void Bind(ID3D11DeviceContext* pContext) = 0;
-
-    const CHAR* GetShaderName() { return m_shaderName.c_str(); }
-    const CHAR* GetShaderFilename() { return m_shaderFile.c_str(); }
-
-protected:
-    DxShader(ID3D11Device* pDevice, const CHAR* pShaderName, const CHAR* pShaderFilename);
-    virtual ~DxShader(); 
-
-    ID3D11Device* m_pDevice;
-
-    std::string m_shaderName;
-    std::string m_shaderFile;
-};
-
-
 
 ///@TODO Remove generic shader decls and shader source to a separate header
 
@@ -94,5 +72,63 @@ VS_PT_OUT IvyPosTex( float4 Pos : SV_POSITION,                  \
                                                                 \
     return vsOut;                                               \
 }";
+
+class DxShader :
+    public IvyShader
+{
+public:
+    ///@todo Refactor these to use an info structure?
+    static DxShader* CreateFromFile(
+        ID3D11Device* pDevice,
+        const CHAR* pShaderName,
+        const CHAR* pShaderFilename,
+        const D3D11_INPUT_ELEMENT_DESC* pInputLayoutDesc,
+        UINT numVertexDescElements);
+
+    static DxShader* CreateFromSource(
+        ID3D11Device* pDevice,
+        const CHAR* pShaderName,
+        const CHAR* pShaderSource,
+        const D3D11_INPUT_ELEMENT_DESC* pInputLayoutDesc,
+        UINT numVertexDescElements);
+
+    static DxShader* CreateFromFile(
+        ID3D11Device* pDevice,
+        const CHAR* pShaderName,
+        const CHAR* pShaderFilename);
+
+    static DxShader* CreateFromSource(
+        ID3D11Device* pDevice,
+        const CHAR* pShaderName,
+        const CHAR* pShaderSource);
+
+    virtual void Destroy();
+
+    virtual void Bind(ID3D11DeviceContext* pContext);
+
+private:
+    DxShader(IvyShaderType type, const CHAR* pShaderName, const CHAR* pShaderFilename, ID3D11Device* pDevice);
+    virtual ~DxShader(); 
+
+    DxShader(const DxShader& copy);   // Disallow copy constructor
+
+    // General DxShader Data
+    ID3D11Device* m_pDevice;
+
+    typedef union _DxShaderInterface
+    {
+        ID3D11VertexShader* pVertexShader;
+        ID3D11PixelShader*  pPixelShader;
+    } DxShaderInterface;
+
+    DxShaderInterface m_shaderInterface;
+
+    // Vertex Shader Data
+    const D3D11_INPUT_ELEMENT_DESC* m_pInputLayoutDesc;
+    UINT m_numVertexDescElements;
+    ID3D11InputLayout* m_pInputLayout;
+};
+
+// VOID Reload(ID3D11Device* pDevice, DxShader** ppPixelShader);
 
 #endif // _DXSHADER_H_

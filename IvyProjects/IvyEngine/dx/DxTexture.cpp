@@ -47,7 +47,7 @@ DxTexture* DxTexture::Create(
 
     if (pTexture->Init(pDevice) == false)
     {
-        AssertAlways();
+        IvyAssertAlways();
         pTexture->Destroy();
         pTexture = NULL;
     }

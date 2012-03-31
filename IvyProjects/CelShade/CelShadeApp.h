@@ -12,8 +12,8 @@
 
 #include "DxApp.h"
 
-class DxVertexShader;
-class DxPixelShader;
+class DxShader;
+class DxShader;
 
 struct CelShadeAppCreateInfo : public DxAppCreateInfo
 {
@@ -43,9 +43,9 @@ protected:
     void Draw2D();
 
 private:
-    DxVertexShader* m_pPosTexTriVS;
-    DxVertexShader* m_pPosTexNormVS;
-    DxPixelShader* m_pCelShadePS;
+    DxShader* m_pPosTexTriVS;
+    DxShader* m_pPosTexNormVS;
+    DxShader* m_pCelShadePS;
 
     ID2D1SolidColorBrush* m_pLightSlateGrayBrush;
     ID2D1SolidColorBrush* m_pCornflowerBlueBrush;

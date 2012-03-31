@@ -507,7 +507,7 @@ void DxApp::UpdateSwapChain()
         DXGI_FORMAT_R8G8B8A8_UNORM,
         0);
 
-    Assert(!DxFAIL(hr));
+    IvyAssert(!DxFAIL(hr));
 
     // Get buffer and create a render-target-view.
     ID3D11Texture2D* pBackBuffer;

@@ -29,20 +29,20 @@ void Plane::Create()
 {
 	static const Point3 PosArray[VertCount] = 
 	{
-		//{ -1, 0, 1 }, { 1, 0, 1 }, { 1, 0, -1 },
-		//{ -1, 0, 1 }, { 1, 0, -1 }, { -1, 0, -1 }
+		Point3(-1, 0, 1), Point3( 1, 0, 1 ), Point3(1, 0, -1 ),
+		Point3(-1, 0, 1), Point3(1, 0, -1 ), Point3(-1, 0, -1)
 	};
 
 	static const Point2 TexArray[VertCount] = 
 	{
-		//{ 0, 0 }, { 1, 0 }, { 1, 1 },
-		//{ 0, 0 }, { 1, 1 }, { 0, 1 }
+		Point2(0, 0), Point2(1, 0), Point2(1, 1),
+		Point2(0, 0), Point2(1, 1), Point2(0, 1)
 	};
 
 	static const Point4 NormalArray[VertCount] =
 	{
-		//{ 0, 1, 0, 1 }, { 0, 1, 0, 1 }, { 0, 1, 0, 1 },
-		//{ 0, 1, 0, 1 }, { 0, 1, 0, 1 }, { 0, 1, 0, 1 }
+		Point4(0, 1, 0, 1), Point4(0, 1, 0, 1), Point4(0, 1, 0, 1),
+		Point4(0, 1, 0, 1), Point4(0, 1, 0, 1), Point4(0, 1, 0, 1)
 	};
 
 	if (m_pVB == NULL)

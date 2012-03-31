@@ -55,7 +55,7 @@ DxMesh* DxMesh::Create(
     initData.pSysMem = pCreateInfo->pVertexArray;
     if( DxFAIL( pDevice->CreateBuffer( &vbDesc, &initData, &pMesh->m_pVertexBuffer ) ) )
     {
-        AssertAlways();
+        IvyAssertAlways();
     }
 
     if (pCreateInfo->pIndexArray != NULL)
@@ -70,7 +70,7 @@ DxMesh* DxMesh::Create(
         initData.pSysMem = pCreateInfo->pIndexArray;
         if( DxFAIL( pDevice->CreateBuffer( &ibDesc, &initData, &pMesh->m_pIndexBuffer ) ) )
         {
-            AssertAlways();
+            IvyAssertAlways();
         }
     }
 
@@ -89,7 +89,7 @@ void DxMesh::Destroy()
     else
     {
         // Should be unable to create a Mesh w/o a valid Vertex Buffer
-        AssertAlways();
+        IvyAssertAlways();
     }
 
     if (m_pIndexBuffer != NULL)
