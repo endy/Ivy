@@ -11,7 +11,6 @@
 
 #include "IvyImporter.h"
 #include "DxShader.h"
-#include "DxShader.h"
 #include "DxTexture.h"
 #include "DxMesh.h"
 #include "DxBuffer.h"

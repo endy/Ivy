@@ -6,7 +6,6 @@
 
 #include "DxTypes.h"
 #include "DxShader.h"
-#include "DxShader.h"
 #include "DxBuffer.h"
 #include "DxLight.h"
 #include "DxMesh.h"

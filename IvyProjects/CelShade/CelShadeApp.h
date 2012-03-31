@@ -13,7 +13,6 @@
 #include "DxApp.h"
 
 class DxShader;
-class DxShader;
 
 struct CelShadeAppCreateInfo : public DxAppCreateInfo
 {
