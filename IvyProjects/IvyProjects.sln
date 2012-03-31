@@ -29,6 +29,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MLAA", "MLAA\MLAA.vcxproj",
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AllocatorTest", "AllocatorTest\AllocatorTest.vcxproj", "{B4CA5EEF-4DE7-43EB-8350-B98157B01DFA}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D77ECF9E-A971-404A-8C37-ACE307448144} = {D77ECF9E-A971-404A-8C37-ACE307448144}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CelShade", "CelShade\CelShade.vcxproj", "{31C8C057-5D01-4FD4-AB1D-AA419993B6E8}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -42,6 +45,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{2E16B111-1562-4450-8B05-6CD37F0EC82A}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Instancing", "Instancing\Instancing.vcxproj", "{BDB6D882-EBCE-41D3-B6D8-0BA5F4BCCE45}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D77ECF9E-A971-404A-8C37-ACE307448144} = {D77ECF9E-A971-404A-8C37-ACE307448144}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GLTestApp", "GLTestApp\GLTestApp.vcxproj", "{12B83B2D-30F1-403C-91A2-A68B65869AD8}"
 	ProjectSection(ProjectDependencies) = postProject
