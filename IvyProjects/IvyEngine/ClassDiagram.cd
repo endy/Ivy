@@ -1,2 +1,123 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ClassDiagram /> 
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="DxApp" Collapsed="true">
+    <Position X="14.5" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AMCDUCQAJCASIACkAAACgAiAVAJAAEIAAEAqDJAAAEI=</HashCode>
+      <FileName>dx\dxapp.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DxBuffer" Collapsed="true">
+    <Position X="12.25" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAQAAAEBAAAEAAAAAAAQAAAABAgEAAAAAiACAAAAA=</HashCode>
+      <FileName>dx\dxbuffer.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DxMesh" Collapsed="true">
+    <Position X="5.5" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABBAgAAAAAAAAkAAAAAQAAAAAABBgECAAAAEAAAAAAA=</HashCode>
+      <FileName>dx\dxmesh.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DxShader" Collapsed="true">
+    <Position X="32.5" Y="7" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAEBgABBAAAAAAAAAAAAAEAAAABAAAKAAAAQCAAAAAA=</HashCode>
+      <FileName>dx\dxshader.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DxTexture" Collapsed="true">
+    <Position X="23.5" Y="7" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>iAAQAAAAAAACAAAAEAAAASAwAABgCEIAACAKAAAAAAo=</HashCode>
+      <FileName>dx\dxtexture.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DxWindow" Collapsed="true">
+    <Position X="16.75" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAEAAAAAIAIAAEAAAAAIAAAAAhAAGAAAAAgAIEAAIA=</HashCode>
+      <FileName>dx\dxwindow.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GLApp" Collapsed="true">
+    <Position X="19" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AICDECAQBAAQAAAkAAAAgACAUAJAAEAAAAAiAIAAAEI=</HashCode>
+      <FileName>gl\GLApp.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GLShader" Collapsed="true">
+    <Position X="30.25" Y="7" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIAAAAAAAAAAAAAAAAAAEAAAABAAgAACIAQAAAIAAA=</HashCode>
+      <FileName>gl\GLShader.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GLProgram" Collapsed="true">
+    <Position X="7.75" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAgCQAAAAAACAAAEAIAAAAAABACEAICAAAQAAAAAA=</HashCode>
+      <FileName>gl\GLShader.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GLTexture" Collapsed="true">
+    <Position X="21.25" Y="7" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAgAAAAAAAAAAAAAAAAEAAEABgAQAAAAAAAAIAAAA=</HashCode>
+      <FileName>gl\GLTexture.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GLWindow" Collapsed="true">
+    <Position X="10" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAEAAAAAIAIEAAAAAAAIAAAAABEAEAAAAAgEIEAAIA=</HashCode>
+      <FileName>gl\GLWindow.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="IvyCamera" Collapsed="true">
+    <Position X="27" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAYCAAAAAhAQAACIEAAAAACAFAAAAAAAAAAEI=</HashCode>
+      <FileName>core\ivycamera.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="IvyPerspective" Collapsed="true">
+    <Position X="25.75" Y="7" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAEAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAA=</HashCode>
+      <FileName>core\ivycamera.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="IvyOrthographic" Collapsed="true">
+    <Position X="28" Y="7" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAA=</HashCode>
+      <FileName>core\ivycamera.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="IvyObject" Collapsed="true">
+    <Position X="19" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQCAAAAAAAAAAAAAAAAAAQAAAAFAAAAAAAAAgAAAAAA=</HashCode>
+      <FileName>core\ivyobject.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="IvyTexture" Collapsed="true">
+    <Position X="22.5" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIAAAAEAAAQABAEAAAAAAAAAAAACAAQAAAAAAIAA=</HashCode>
+      <FileName>core\ivytexture.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="IvyShader" Collapsed="true">
+    <Position X="31.5" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACJQAAAAAAAQAAAAAAAAAAAABAAAAAAQAAACAAAAA=</HashCode>
+      <FileName>core\ivyshader.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

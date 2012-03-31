@@ -10,16 +10,10 @@
     <ClInclude Include="dx\DxBuffer.h">
       <Filter>dx</Filter>
     </ClInclude>
-    <ClInclude Include="dx\DxGeometryShader.h">
-      <Filter>dx</Filter>
-    </ClInclude>
     <ClInclude Include="dx\DxLight.h">
       <Filter>dx</Filter>
     </ClInclude>
     <ClInclude Include="dx\DxMesh.h">
-      <Filter>dx</Filter>
-    </ClInclude>
-    <ClInclude Include="dx\DxPixelShader.h">
       <Filter>dx</Filter>
     </ClInclude>
     <ClInclude Include="dx\DxShader.h">
@@ -35,9 +29,6 @@
       <Filter>dx</Filter>
     </ClInclude>
     <ClInclude Include="dx\DxUtils.h">
-      <Filter>dx</Filter>
-    </ClInclude>
-    <ClInclude Include="dx\DxVertexShader.h">
       <Filter>dx</Filter>
     </ClInclude>
     <ClInclude Include="dx\DxWindow.h">
@@ -97,6 +88,9 @@
     <ClInclude Include="dx\SystemEventDispatcher.h">
       <Filter>core</Filter>
     </ClInclude>
+    <ClInclude Include="core\IvyShader.h">
+      <Filter>core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dx\DxApp.cpp">
@@ -105,25 +99,16 @@
     <ClCompile Include="dx\DxBuffer.cpp">
       <Filter>dx</Filter>
     </ClCompile>
-    <ClCompile Include="dx\DxGeometryShader.cpp">
-      <Filter>dx</Filter>
-    </ClCompile>
     <ClCompile Include="dx\DxLight.cpp">
       <Filter>dx</Filter>
     </ClCompile>
     <ClCompile Include="dx\DxMesh.cpp">
       <Filter>dx</Filter>
     </ClCompile>
-    <ClCompile Include="dx\DxPixelShader.cpp">
-      <Filter>dx</Filter>
-    </ClCompile>
     <ClCompile Include="dx\DxShader.cpp">
       <Filter>dx</Filter>
     </ClCompile>
     <ClCompile Include="dx\DxTexture.cpp">
-      <Filter>dx</Filter>
-    </ClCompile>
-    <ClCompile Include="dx\DxVertexShader.cpp">
       <Filter>dx</Filter>
     </ClCompile>
     <ClCompile Include="dx\DxWindow.cpp">
@@ -163,6 +148,9 @@
       <Filter>core</Filter>
     </ClCompile>
     <ClCompile Include="dx\SystemEventDispatcher.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\IvyShader.cpp">
       <Filter>core</Filter>
     </ClCompile>
   </ItemGroup>

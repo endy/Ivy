@@ -1,21 +1,45 @@
-Find all "@TODO", Subfolders, Find Results 1, "Entire Solution"
-  C:\Projects\IvyProjects\IvyEngine\core\IvyImporter.cpp(11):///@todo REMOVE THIS
-  C:\Projects\IvyProjects\IvyEngine\core\IvyImporter.cpp(33):///@todo REFACTOR THIS HEADER OUT
-  C:\Projects\IvyProjects\IvyEngine\core\IvyImporter.cpp(35):///@todo_end
-  C:\Projects\IvyProjects\IvyEngine\core\IvyImporter.cpp(37):///@todo REMOVE THIS TEST
-  C:\Projects\IvyProjects\IvyEngine\core\IvyUtils.h(25):///@todo logging should dump to the console & file
-  C:\Projects\IvyProjects\IvyEngine\core\IvyUtils.h(46):    ///@todo add 'quiet' asserts
-  C:\Projects\IvyProjects\IvyEngine\core\IvyUtils.h(49):        ///@todo add logging to asserts
-  C:\Projects\IvyProjects\IvyEngine\dx\SystemEventDispatcher.cpp(35):    ///@todo Assert if item is intersted multiple times
-  C:\Projects\IvyProjects\IvyEngine\dx\DxApp.cpp(93):    ///@todo Shared surface destruction -- is this correct?
-  C:\Projects\IvyProjects\IvyEngine\dx\DxApp.cpp(112):    ///@todo Add 'Safe Release' calls or some such to release these components
-  C:\Projects\IvyProjects\IvyEngine\dx\DxApp.cpp(395):        depthStencilCreateInfo.format = DXGI_FORMAT_D32_FLOAT;  //@todo texture doesnt read format currently
-  C:\Projects\IvyProjects\IvyEngine\dx\DxApp.cpp(535):        depthStencilCreateInfo.format = DXGI_FORMAT_D32_FLOAT;	//@todo texture doesnt read format currently
-  C:\Projects\IvyProjects\IvyEngine\dx\DxApp.h(14):///@todo: Support multiple adapters
-  C:\Projects\IvyProjects\IvyEngine\dx\DxApp.h(15):///@todo: Support framerate capping
-  C:\Projects\IvyProjects\IvyEngine\dx\DxApp.h(16):///@todo: Create generic config manager
-  C:\Projects\IvyProjects\IvyEngine\dx\DxApp.h(90):    ///@todo Refactor into a group
-  C:\Projects\IvyProjects\IvyEngine\dx\DxApp.h(94):    ///@todo Create better mapping between viewport & camera
-  C:\Projects\IvyProjects\IvyEngine\dx\DxShader.h(66):    ///@TODO Called by a shader manager?
-  C:\Projects\IvyProjects\IvyEngine\dx\DxShader.h(96):    ///@TODO Called by a shader manager?
-  Matching lines: 19    Matching files: 6    Total files searched: 60
+Find all "todo", Subfolders, Find Results 1, "Entire Solution"
+  C:\Projects\Github\Ivy\IvyProjects\RayTracer\RTApp.cpp(300):    ///@ TODO: Take into account padding!
+  C:\Projects\Github\Ivy\IvyProjects\MLAA\MlaaMain.cpp(3):TODO:
+  C:\Projects\Github\Ivy\IvyProjects\AllocatorTest\allocator_main.cpp(153):            ///@TODO Log this to a file
+  C:\Projects\Github\Ivy\IvyProjects\IvyEngine\core\IvyCamera.h(16)://TODO: replace xnamath matrix class with own implementation, at least for 'core' Camera class
+  C:\Projects\Github\Ivy\IvyProjects\IvyEngine\core\IvyCamera.h(44):    // todo: rename these methods to something more reasonable
+  C:\Projects\Github\Ivy\IvyProjects\IvyEngine\core\IvyCamera.h(48):    // todo: refactor these away
+  C:\Projects\Github\Ivy\IvyProjects\IvyEngine\core\IvyImporter.cpp(10):///@todo Remove _CRT_SECURE_NO_WARNINGS
+  C:\Projects\Github\Ivy\IvyProjects\IvyEngine\core\IvyImporter.cpp(32):///@todo REFACTOR THIS HEADER OUT
+  C:\Projects\Github\Ivy\IvyProjects\IvyEngine\core\IvyImporter.cpp(34):///@todo_end
+  C:\Projects\Github\Ivy\IvyProjects\IvyEngine\core\IvyImporter.cpp(36):///@todo REMOVE THIS TEST
+  C:\Projects\Github\Ivy\IvyProjects\IvyEngine\core\IvyShader.h(23):///@todo Make an IvyShaderCreateInfo structure, consumed by API shader classes
+  C:\Projects\Github\Ivy\IvyProjects\IvyEngine\core\IvyUtils.h(26):///@todo logging should dump to the console & file
+  C:\Projects\Github\Ivy\IvyProjects\IvyEngine\core\IvyUtils.h(47):    ///@todo add 'quiet' asserts
+  C:\Projects\Github\Ivy\IvyProjects\IvyEngine\core\IvyUtils.h(50):        ///@todo add logging to asserts
+  C:\Projects\Github\Ivy\IvyProjects\IvyEngine\dx\SystemEventDispatcher.cpp(35):    ///@todo Assert if item is intersted multiple times
+  C:\Projects\Github\Ivy\IvyProjects\IvyEngine\dx\SystemEventDispatcher.h(17):TODO
+  C:\Projects\Github\Ivy\IvyProjects\IvyEngine\dx\DxApp.cpp(92):    ///@todo Shared surface destruction -- is this correct?
+  C:\Projects\Github\Ivy\IvyProjects\IvyEngine\dx\DxApp.cpp(111):    ///@todo Add 'Safe Release' calls or some such to release these components
+  C:\Projects\Github\Ivy\IvyProjects\IvyEngine\dx\DxApp.cpp(394):        depthStencilCreateInfo.format = DXGI_FORMAT_D32_FLOAT;  //@todo texture doesnt read format currently
+  C:\Projects\Github\Ivy\IvyProjects\IvyEngine\dx\DxApp.cpp(534):        depthStencilCreateInfo.format = DXGI_FORMAT_D32_FLOAT;	//@todo texture doesnt read format currently
+  C:\Projects\Github\Ivy\IvyProjects\IvyEngine\dx\DxApp.h(13):///@todo: Support multiple adapters
+  C:\Projects\Github\Ivy\IvyProjects\IvyEngine\dx\DxApp.h(14):///@todo: Support framerate capping
+  C:\Projects\Github\Ivy\IvyProjects\IvyEngine\dx\DxApp.h(15):///@todo: Create generic config manager
+  C:\Projects\Github\Ivy\IvyProjects\IvyEngine\dx\DxApp.h(89):    ///@todo Refactor into a group
+  C:\Projects\Github\Ivy\IvyProjects\IvyEngine\dx\DxApp.h(93):    ///@todo Create better mapping between viewport & camera
+  C:\Projects\Github\Ivy\IvyProjects\IvyEngine\dx\DxLight.h(24):// todo: migrate this light out into a seperate Dx header
+  C:\Projects\Github\Ivy\IvyProjects\IvyEngine\dx\DxShader.cpp(55):    ///@todo Refactor this into an initialization step, constructor, or common IvyShaderCreateInfo
+  C:\Projects\Github\Ivy\IvyProjects\IvyEngine\dx\DxShader.cpp(137):    ///@todo Refactor this into an initialization step, constructor, or common IvyShaderCreateInfo
+  C:\Projects\Github\Ivy\IvyProjects\IvyEngine\dx\DxShader.h(10):/// @todo Add Reload shader utility function
+  C:\Projects\Github\Ivy\IvyProjects\IvyEngine\dx\DxShader.h(20):///@TODO Remove generic shader decls and shader source to a separate header
+  C:\Projects\Github\Ivy\IvyProjects\IvyEngine\dx\DxShader.h(80):    ///@todo Refactor these to use an info structure?
+  C:\Projects\Github\Ivy\IvyProjects\IvyEngine\dx\DxTexture.cpp(133):/// @todo Refactor this method
+  C:\Projects\Github\Ivy\IvyProjects\IvyEngine\dx\DxTexture.cpp(190):            /// @todo pipe in format correctly
+  C:\Projects\Github\Ivy\IvyProjects\IvyEngine\gl\GLApp.h(13):///@todo: Support multiple adapters
+  C:\Projects\Github\Ivy\IvyProjects\IvyEngine\gl\GLApp.h(14):///@todo: Support framerate capping
+  C:\Projects\Github\Ivy\IvyProjects\IvyEngine\gl\GLApp.h(15):///@todo: Create generic config manager
+  C:\Projects\Github\Ivy\IvyProjects\IvyEngine\gl\GLShader.cpp(77):        ///@todo remove this
+  C:\Projects\Github\Ivy\IvyProjects\IvyEngine\gl\GLShader.cpp(84):        ///@todo remove this
+  C:\Projects\Github\Ivy\IvyProjects\IvyEngine\gl\GLShader.cpp(124):    ///@TODO This is pretty wasteful, and unsafe.  Refactor to some generic IvyFile.h/cpp
+  C:\Projects\Github\Ivy\IvyProjects\IvyEngine\gl\GLShader.h(13):/// @todo Add Reload shader utility function
+  C:\Projects\Github\Ivy\IvyProjects\IvyEngine\gl\GLTexture.cpp(14):///@ todo Add a compile-time assert to check this table matches IvyTextureType enums
+  C:\Projects\Github\Ivy\IvyProjects\GLTestApp\GLTestApp.cpp(275):    ///@ todo Migrate settings into texture object?  Or have separate sampler that is attached to texture?
+  C:\Projects\Github\Ivy\IvyProjects\GLTestApp\GLTestApp.cpp(343):    ///@todo detect CreateContextAttribsARB 
+  Matching lines: 43    Matching files: 20    Total files searched: 86
