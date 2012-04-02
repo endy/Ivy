@@ -121,7 +121,7 @@ GLShader* GLShader::CreateFromFile(
     GLint compileStatus = 0;
     int shaderId = 0;
 
-    ///@TODO This is pretty wasteful, and unsafe.  Refactor to some generic IvyFile.h/cpp
+    ///@todo This is pretty wasteful, and unsafe.  Refactor to some generic IvyFile.h/cpp
     FILE* pShaderFile = fopen(pFilename, "r");
     int ShaderBufferSize = 16384;
     CHAR* pShaderSource = new CHAR[ShaderBufferSize];

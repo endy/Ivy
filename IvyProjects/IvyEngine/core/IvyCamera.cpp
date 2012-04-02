@@ -9,6 +9,9 @@
 
 #include "IvyCamera.h"
 
+#include <sstream>
+using std::stringstream;
+
 XMMATRIX Perspective(FLOAT nearZ, FLOAT farZ, FLOAT fovX, FLOAT fovY)
 {
     FLOAT invDenom = 1.0f / (farZ - nearZ);
@@ -70,6 +73,22 @@ void IvyCamera::UpdateViewport(Rect viewport)
 
     XMStoreFloat4x4(&m_screenToRaster, XMMatrixScaling(1.0f/imagePlaneWidth, 1.0f/imagePlaneHeight, 1.0f) *
                                        XMMatrixTranslation(-m_viewport.left, -m_viewport.top, 0));
+
+    stringstream ss;
+    ss << "IvyCamera: UpdateViewport\n";
+    ss << "Right: " << m_viewport.right << "\tLeft: " << m_viewport.left << std::endl;
+
+    for (UINT x = 0; x < 4; ++x)
+    {
+        for (UINT y = 0; y < 4; ++y)
+        {
+            ss << "[" << x << "][" << y << "]=" << m_screenToRaster.m[x][y] << " ";
+        }
+        ss << std::endl;
+    }
+
+    IvyLog(ss.str().c_str());
+    IVY_PRINT(ss.str().c_str());
 }
 
 

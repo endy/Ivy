@@ -103,6 +103,8 @@ bool DxTestApp::Init()
 
 void DxTestApp::Run()
 {
+    IVY_PRINT("DxTestApp D3D11 Path");
+
     HRESULT hr;
 
     // Resources ////////////////////////////////////////////////////////////////////////////////////   
@@ -113,7 +115,7 @@ void DxTestApp::Run()
     kittenLoadInfo.Format = DXGI_FORMAT_BC1_UNORM;
 
     ID3D11ShaderResourceView *pKittenSRView = NULL;
-    D3DX11CreateShaderResourceViewFromFile(m_pDevice, "kitten.dds", &kittenLoadInfo, NULL, &pKittenSRView, NULL );
+    D3DX11CreateShaderResourceViewFromFile(m_pDevice, "Content/kitten_rgb.dds", &kittenLoadInfo, NULL, &pKittenSRView, NULL );
 
 
     // Samplers  /////////////////////////////////////////////////////////////////////////////
@@ -171,12 +173,12 @@ void DxTestApp::Run()
 
     // Shaders ////////////////////////////////////////////////////////////////////////////////////
 
-    DxShader* pPosTexVS = DxShader::CreateFromFile(m_pDevice, "PosTex", "dxtestapp.hlsl", PosTexVertexDesc, PosTexElements);
-    DxShader* pApplyTexPS = DxShader::CreateFromFile(m_pDevice, "ApplyTexture", "dxtestapp.hlsl");
-    DxShader* pVisDepthPS = DxShader::CreateFromFile(m_pDevice, "VisDepth", "dxtestapp.hlsl");
+    DxShader* pPosTexVS = DxShader::CreateFromFile(m_pDevice, "PosTex", "DXTestApp/dxtestapp.hlsl", PosTexVertexDesc, PosTexElements);
+    DxShader* pApplyTexPS = DxShader::CreateFromFile(m_pDevice, "ApplyTexture", "DXTestApp/dxtestapp.hlsl");
+    DxShader* pVisDepthPS = DxShader::CreateFromFile(m_pDevice, "VisDepth", "DXTestApp/dxtestapp.hlsl");
 
-    DxShader* pPosTexNormVS = DxShader::CreateFromFile(m_pDevice, "PosTexNorm", "dxtestapp.hlsl", PosTexNormVertexDesc, PosTexNormElements);
-    DxShader* pVisNormalPS = DxShader::CreateFromFile(m_pDevice, "VisNormal", "dxtestapp.hlsl");
+    DxShader* pPosTexNormVS = DxShader::CreateFromFile(m_pDevice, "PosTexNorm", "DXTestApp/dxtestapp.hlsl", PosTexNormVertexDesc, PosTexNormElements);
+    DxShader* pVisNormalPS = DxShader::CreateFromFile(m_pDevice, "VisNormal", "DXTestApp/dxtestapp.hlsl");
 
     // Models /////////////////////////////////////////////////////////////////////////////////////
 
@@ -224,9 +226,9 @@ void DxTestApp::Run()
 
     Point3 rotation = Point3(0.0f, 0.0f, 0.0f);
     FLOAT clearColor[4];
-    clearColor[0] = 0.0f;
-    clearColor[1] = 0.0f;
-    clearColor[2] = 0.0f; 
+    clearColor[0] = 0.4f;
+    clearColor[1] = 1.0f;
+    clearColor[2] = 0.4f; 
     clearColor[3] = 1.0f;
 
     FLOAT depthClearValue = 1.0f;
@@ -255,12 +257,12 @@ void DxTestApp::Run()
 
     D3D11_RASTERIZER_DESC rsDesc;
     rsDesc.FillMode = D3D11_FILL_SOLID;
-    rsDesc.CullMode = D3D11_CULL_BACK;
+    rsDesc.CullMode = D3D11_CULL_NONE;
     rsDesc.FrontCounterClockwise = FALSE;
     rsDesc.DepthBias = 0;
     rsDesc.DepthBiasClamp = 0.0f;
     rsDesc.SlopeScaledDepthBias = 0;
-    rsDesc.DepthClipEnable = true;
+    rsDesc.DepthClipEnable = false;
     rsDesc.ScissorEnable = false;
     rsDesc.MultisampleEnable = false;
     rsDesc.AntialiasedLineEnable = false;
@@ -351,12 +353,11 @@ void DxTestApp::Run()
         m_pContext->PSSetConstantBuffers(0, 1, &pLightBuffer);
 
         m_pContext->PSSetConstantBuffers(1, 1, &pMaterialBuffer);
-        m_pContext->RSSetState(pRasterizerState);    
-
+        m_pContext->RSSetState(pRasterizerState);
 
         m_pContext->PSSetSamplers(0, 1, &pSamplerState);
 
-        m_pContext->OMSetDepthStencilState(pDbState, StencilRef);   
+        m_pContext->OMSetDepthStencilState(pDbState, StencilRef);
 
         // UPDATE RENDER STATE
         m_pContext->ClearRenderTargetView(m_pRenderTargetView, clearColor);
@@ -397,10 +398,14 @@ void DxTestApp::Run()
         // DRAW BUNNY WITH CAMERA /////////////////////////////
 
         pCameraBufferData = reinterpret_cast<CameraBufferData*>(pCameraBuffer->Map(m_pContext));
-        pCameraBufferData->worldMatrix = XMMatrixScaling(25, 25, 25) * XMMatrixRotationY(rotation.x);
+        pCameraBufferData->worldMatrix = XMMatrixScaling(5, 5, 1); // * XMMatrixRotationY(rotation.x);
+        
         // translate world +6 in Z to position camera -9 from world origin
-        pCameraBufferData->viewMatrix = XMMatrixTranslation(0, -3, 4.0f) * m_pCamera->W2C(); 
+        pCameraBufferData->viewMatrix = XMMatrixIdentity(); 
+        pCameraBufferData->viewMatrix = XMMatrixTranslation(0, 0, 2.0f) * m_pCamera->W2C(); 
+        
         pCameraBufferData->projectionMatrix = m_pCamera->C2S();
+        
         pCameraBuffer->Unmap(m_pContext);
 
         pPosTexNormVS->Bind(m_pContext);

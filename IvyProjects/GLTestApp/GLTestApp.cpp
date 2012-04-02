@@ -9,16 +9,17 @@
 
 
 #include "GLTestApp.h"
+
 #include "IvyUtils.h"
 
 #include "IvyImporter.h"
 #include "IvyCamera.h"
 
+#include "IvyGL.h"
 #include "GLWindow.h"
 #include "GLTexture.h"
-
-#include "IvyGL.h"
 #include "GLShader.h"
+#include "GLMesh.h"
 
 GLTestApp::GLTestApp(GLTestAppCreateInfo* pAppInfo)
     :
@@ -123,14 +124,16 @@ void DebugCallbackAMD(
 
 void GLTestApp::Run()
 {
-    RenderGL2();
-    //RenderGL4();
+   // RenderGL2();
+    RenderGL4();
 }
 
 
 
 void GLTestApp::RenderGL2()
 {
+    IVY_PRINT("GLTestApp OpenGL 2.0 Path");
+
     BOOL quit = FALSE;
 
     m_pWindow->Show();
@@ -255,6 +258,19 @@ void GLTestApp::RenderGL2()
     glVertexAttribPointer(texAttribLoc, 2, GL_FLOAT, FALSE, 9*4, &(triangle[0].Tex));
     glEnableVertexAttribArray(texAttribLoc);
 
+
+    IvyMeshCreateInfo meshCreateInfo = {0};
+    meshCreateInfo.vertexSizeInBytes = sizeof(VertexPTN);
+
+    VertexPTN* pVB;
+    UINT* pIB;
+
+    Import(meshCreateInfo.numVertices, &pVB, meshCreateInfo.numIndicies, &pIB);
+    meshCreateInfo.pVertexData = pVB;
+    meshCreateInfo.pIndexData = pIB;
+
+    GLMesh* pMesh = GLMesh::Create(&meshCreateInfo);
+
     // Setup Textures
     GLint textureAttribLoc = 0;
 
@@ -300,6 +316,8 @@ void GLTestApp::RenderGL2()
 
 void GLTestApp::RenderGL4()
 {
+    IVY_PRINT("GLTestApp OpenGL 4.0 Path");
+
     static PIXELFORMATDESCRIPTOR pfd =              // pfd Tells Windows How We Want Things To Be
     {
         sizeof(PIXELFORMATDESCRIPTOR),              // Size Of This Pixel Format Descriptor
@@ -360,10 +378,10 @@ void GLTestApp::RenderGL4()
     wglMakeCurrent(hDC, hGlrc);
 
     glViewport(0, 0, 800, 450);             // context state
-    glClearColor(0.4f, 0.4f, 0.4f, 1.0f);   // context state
+    glClearColor(0.4f, 1.0f, 0.4f, 1.0f);   // context state
 
-    GLShader* pVSShader = GLShader::CreateFromFile(IvyVertexShader, "SimpleVS4", "gl4.vert");
-    GLShader* pFSShader = GLShader::CreateFromFile(IvyFragmentShader, "SimpleFS4", "gl4.frag");
+    GLShader* pVSShader = GLShader::CreateFromFile(IvyVertexShader, "SimpleVS4", "GLTestApp/gl4.vert");
+    GLShader* pFSShader = GLShader::CreateFromFile(IvyFragmentShader, "SimpleFS4", "GLTestApp/gl4.frag");
 
     GLProgram* pProgram = GLProgram::Create();
     pProgram->AttachShader(pVSShader);
@@ -380,8 +398,8 @@ void GLTestApp::RenderGL4()
     };
 
     CameraBufferData cameraBufferData;
-    cameraBufferData.worldMatrix      = XMMatrixScaling(0.5, 1.0, 1); //XMMatrixIdentity(); //XMMatrixRotationX(-3.14f/2.0f) * XMMatrixScaling(2, 2, 1); //XMMatrixIdentity();
-    cameraBufferData.viewMatrix = XMMatrixTranslation(0, 0, 3.0f) * m_pCamera->W2C();
+    cameraBufferData.worldMatrix      = XMMatrixScaling(5, 5, 1); //XMMatrixIdentity(); //XMMatrixRotationX(-3.14f/2.0f) * XMMatrixScaling(2, 2, 1); //XMMatrixIdentity();
+    cameraBufferData.viewMatrix = XMMatrixTranslation(0, 0, 2.0f) * m_pCamera->W2C();
     //cameraBufferData.viewMatrix       = XMMatrixIdentity(); //XMMatrixTranslation(0, 0, 3.0f) * pCamera->W2C(); 
     cameraBufferData.projectionMatrix = m_pCamera->C2S();
     //cameraBufferData.projectionMatrix = XMMatrixIdentity(); // 
@@ -433,6 +451,19 @@ void GLTestApp::RenderGL4()
     glVertexAttribPointer(texAttribLoc, 4, GL_FLOAT, FALSE, sizeof(VertexPTN), (const GLvoid*)offset);
     glEnableVertexAttribArray(texAttribLoc);
 
+
+    IvyMeshCreateInfo meshCreateInfo = {0};
+    meshCreateInfo.vertexSizeInBytes = sizeof(VertexPTN);
+
+    VertexPTN* pVB;
+    UINT* pIB;
+
+    Import(meshCreateInfo.numVertices, &pVB, meshCreateInfo.numIndicies, &pIB);
+    meshCreateInfo.pVertexData = pVB;
+    meshCreateInfo.pIndexData = pIB;
+
+    GLMesh* pMesh = GLMesh::Create(&meshCreateInfo);
+
     m_pWindow->Show();
 
     BOOL quit = FALSE;
@@ -442,7 +473,26 @@ void GLTestApp::RenderGL4()
 
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        // Update camera for Bunny
+        cameraBufferData.worldMatrix = XMMatrixIdentity(); 
+        cameraBufferData.worldMatrix = XMMatrixScaling(5, 5.0, 1.0); //XMMatrixTranslation(0, 0, 0); // * XMMatrixRotationY(0);
+
+        // translate world +6 in Z to position camera -9 from world origin
+        //cameraBufferData.viewMatrix = XMMatrixIdentity(); 
+        cameraBufferData.viewMatrix = m_pCamera->W2C(); //XMMatrixTranslation(0, -3, 10) * m_pCamera->W2C();
+
+        cameraBufferData.projectionMatrix = XMMatrixIdentity();
+        cameraBufferData.projectionMatrix = m_pCamera->C2S();
+
+        glUniformMatrix4fv(worldMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.worldMatrix));
+        glUniformMatrix4fv(viewMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.viewMatrix));
+        glUniformMatrix4fv(projMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.projectionMatrix));
+
+        pMesh->Bind(pProgram);
+      //  pMesh->Draw();
+        glDrawElements(GL_TRIANGLES, meshCreateInfo.numIndicies, GL_UNSIGNED_INT, meshCreateInfo.pIndexData);
+
+      //  glDrawArrays(GL_TRIANGLES, 0, 3);
 
         SwapBuffers(hDC);
     }

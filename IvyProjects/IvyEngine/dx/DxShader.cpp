@@ -78,7 +78,7 @@ DxShader* DxShader::CreateFromFile(
     {
         //AssertAlways();
         memcpy(errorMsg, pErrorMsgs->GetBufferPointer(), pErrorMsgs->GetBufferSize());
-        Log("VERTEX SHADER: ", errorMsg);
+        IvyLog("VERTEX SHADER: ", errorMsg);
         MessageBox(NULL, errorMsg, "Vertex Shader", MB_ICONERROR);
         memset(errorMsg, 0, sizeof(errorMsg));
     }
@@ -158,7 +158,7 @@ DxShader* DxShader::CreateFromSource(
     {
         //AssertAlways();
         memcpy(errorMsg, pErrorMsgs->GetBufferPointer(), pErrorMsgs->GetBufferSize());
-        Log("VERTEX SHADER: ", errorMsg);
+        IvyLog("VERTEX SHADER: ", errorMsg);
         MessageBox(NULL, errorMsg, "Vertex Shader", MB_ICONERROR);
         memset(errorMsg, 0, sizeof(errorMsg));
     }
@@ -221,7 +221,7 @@ DxShader* DxShader::CreateFromFile(
     if (pErrorMsgs != NULL)
     {
         memcpy(errorMsg, pErrorMsgs->GetBufferPointer(), pErrorMsgs->GetBufferSize());
-        Log("PIXEL SHADER: ", errorMsg);
+        IvyLog("PIXEL SHADER: ", errorMsg);
         //MessageBox(NULL, errorMsg, "Pixel Shader", MB_ICONERROR);
         memset(errorMsg, 0, sizeof(errorMsg));
     }
@@ -279,7 +279,7 @@ DxShader* DxShader::CreateFromSource(
     if (pErrorMsgs != NULL)
     {
         memcpy(errorMsg, pErrorMsgs->GetBufferPointer(), pErrorMsgs->GetBufferSize());
-        Log("PIXEL SHADER: ", errorMsg);
+        IvyLog("PIXEL SHADER: ", errorMsg);
         //MessageBox(NULL, errorMsg, "Pixel Shader", MB_ICONERROR);
         memset(errorMsg, 0, sizeof(errorMsg));
     }

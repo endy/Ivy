@@ -82,7 +82,7 @@ bool GLApp::Init()
     cameraCreateInfo.farZ = m_farZ;
     cameraCreateInfo.nearZ = m_nearZ;
     cameraCreateInfo.viewport.bottom = m_screenHeight;
-    cameraCreateInfo.viewport.left = m_screenWidth;
+    cameraCreateInfo.viewport.right = m_screenWidth;
     cameraCreateInfo.fovX = m_fovX;
     cameraCreateInfo.fovY = m_fovY;
 

@@ -21,7 +21,17 @@ out vec2 v_Texture;
 void main(void)
 {
     vec4 position = vec4(in_Position, 1.0);
-    gl_Position = position * projectionMatrix * viewMatrix * worldMatrix;
+    position = position * worldMatrix;
+    position = position * viewMatrix;
+    position = position * projectionMatrix;
+    //position = position * projectionMatrix * viewMatrix * worldMatrix;
+
+    //position = position * projectionMatrix;
+    //position = position * viewMatrix;
+    //position = position * worldMatrix;
+
+    gl_Position = position; 
+    //gl_Position = vec4(in_Position, 0.25);
     v_Color = in_Color;
     v_Texture = in_Tex;
 }

@@ -36,8 +36,8 @@ m_pWindow(NULL),
     m_pRenderTarget(NULL),
     m_screenWidth(pAppInfo->screenWidth),
     m_screenHeight(pAppInfo->screenHeight),
-    m_fovX(90 * (XM_PI/180)),
-    m_fovY(90 * (XM_PI/180)),
+    m_fovX(90 * (IvyPi/180)),
+    m_fovY(90 * (IvyPi/180)),
     m_nearZ(pAppInfo->nearZ),
     m_farZ(pAppInfo->farZ),
     m_pITextBrush(NULL),
@@ -411,7 +411,7 @@ bool DxApp::Init()
     cameraInfo.viewport.left = 0;
     cameraInfo.viewport.top = 0;
     cameraInfo.viewport.right = m_screenWidth;
-    cameraInfo.viewport.left = m_screenHeight;
+    cameraInfo.viewport.bottom = m_screenHeight;
     cameraInfo.nearZ = m_nearZ;
     cameraInfo.farZ = m_farZ;
     cameraInfo.fovX = m_fovX;

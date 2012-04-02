@@ -18,8 +18,8 @@ int main()
     DxTestAppCreateInfo appCreateInfo;
     memset(&appCreateInfo, 0, sizeof(DxTestAppCreateInfo));
 
-    appCreateInfo.screenWidth = 1600;
-    appCreateInfo.screenHeight = 900;
+    appCreateInfo.screenWidth = 800;
+    appCreateInfo.screenHeight = 450;
     appCreateInfo.nearZ = 1.0f;
     appCreateInfo.farZ = 20.0f;
 
@@ -33,7 +33,7 @@ int main()
     app->Destroy();
     app = NULL;
 
-	return 0;
+    return 0;
 }
 
 

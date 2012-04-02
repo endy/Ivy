@@ -23,8 +23,10 @@ inline void IvyPrint (const char* message, const char* file, unsigned int line)
     std::cout << message << " Line(" << line << ") " << file << std::endl;
 }
 
+#define IVY_PRINT(msg) IvyPrint((msg), __FILE__, __LINE__)
+
 ///@todo logging should dump to the console & file
-inline void Log(CHAR* component, CHAR* msg)
+inline void IvyLog(const CHAR* component, const CHAR* msg)
 {
     static const CHAR* pFilename = "log.txt";
 
@@ -35,9 +37,9 @@ inline void Log(CHAR* component, CHAR* msg)
     fsLog.close();
 }
 
-inline void Log(CHAR* msg)
+inline void IvyLog(const CHAR* msg)
 {
-    Log("", msg);
+    IvyLog("", msg);
 }
 
 inline void IvyAssert(bool e)

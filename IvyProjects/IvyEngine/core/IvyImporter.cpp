@@ -392,7 +392,7 @@ void ImportCString(
             FXMVECTOR xv12 = XMVector3Normalize(XMVectorSubtract(xv1, xv2));
 
             FXMVECTOR norm = XMVector3Cross(xv01, xv12);
-            
+
             Point4 p(norm.m128_f32[0], norm.m128_f32[1], norm.m128_f32[2], 0);
             v0.N = p;
             v1.N = p;
@@ -426,7 +426,7 @@ void Import(
     UINT& numIndices,
     UINT** ppIB)
 {
-    ImportCString("../Content/bun_zipper_res4.ply", numVertices, ppVB, numIndices, ppIB);
+    ImportCString("Content/bun_zipper_res4.ply", numVertices, ppVB, numIndices, ppIB);
     //ImportFstream(numVertices, ppVB, numIndices, ppIB);
 }
 
