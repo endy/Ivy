@@ -18,7 +18,7 @@
 
 static const FLOAT IvyPi = 3.14159f;
 
-inline void IvyPrint (const char* message, const char* file, unsigned int line)
+inline void IvyPrint (const CHAR* message, const CHAR* file, unsigned int line)
 {
     std::cout << message << " Line(" << line << ") " << file << std::endl;
 }
@@ -50,7 +50,11 @@ inline void IvyAssert(bool e)
     if (e == false && QuietAssert == false)
     {
         ///@todo add logging to asserts
+#ifdef _WIN32
         DebugBreak();
+#else
+        asm("int3");
+#endif
     }
 }
 

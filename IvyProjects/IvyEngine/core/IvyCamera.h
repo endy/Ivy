@@ -13,9 +13,10 @@
 #include "IvyTypes.h"
 #include "IvyObject.h"
 
-//TODO: replace xnamath matrix class with own implementation, at least for 'core' Camera class
-#include <Windows.h>
+///@todo Replace xnamath matrix class with own implementation, at least for 'core' Camera class
+#ifdef _WIN32
 #include <xnamath.h>
+#endif // _WIN32
 
 struct CameraBufferData
 {

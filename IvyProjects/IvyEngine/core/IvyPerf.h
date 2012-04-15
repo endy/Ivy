@@ -17,7 +17,9 @@
 
 #include "IvyTypes.h"
 
-#include <Windows.h>
+#ifndef _WIN32
+#define STUB_PERF 1
+#endif // _WIN32
 
 class PerfData
 {
@@ -34,7 +36,10 @@ private:
     UINT m_top; 
 
     // Perf counter frequency
+#ifdef _WIN32
     LARGE_INTEGER m_perfCounterFreq;
+#endif
+
 };
 
 class FramerateTracker
