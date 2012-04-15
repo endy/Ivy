@@ -18,13 +18,13 @@
 
 static const FLOAT IvyPi = 3.14159f;
 
-inline void IvyPrint (const char* message, const char* file, unsigned int line)
+inline void IvyPrint (const CHAR* message, const CHAR* file, unsigned int line)
 {
     std::cout << message << " Line(" << line << ") " << file << std::endl;
 }
 
 ///@todo logging should dump to the console & file
-inline void Log(CHAR* component, CHAR* msg)
+inline void Log(const CHAR* component, const CHAR* msg)
 {
     static const CHAR* pFilename = "log.txt";
 
@@ -35,7 +35,7 @@ inline void Log(CHAR* component, CHAR* msg)
     fsLog.close();
 }
 
-inline void Log(CHAR* msg)
+inline void Log(const CHAR* msg)
 {
     Log("", msg);
 }
@@ -48,7 +48,11 @@ inline void IvyAssert(bool e)
     if (e == false && QuietAssert == false)
     {
         ///@todo add logging to asserts
+#ifdef _WIN32
         DebugBreak();
+#else
+        asm("int3");
+#endif
     }
 }
 

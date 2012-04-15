@@ -9,16 +9,17 @@
 
 #include "IvyPerf.h"
 
-#include <Windows.h>
+#include <cstdio>
+#include <cstring>
 
 PerfData::PerfData()
 {
     m_top = 0;
     memset(m_data, 0, 256);
-
+#ifndef STUB_PERF
     // Perf counter frequency
     QueryPerformanceFrequency(&m_perfCounterFreq);
-
+#endif // STUB_PERF
 }
 
 PerfData::~PerfData()
@@ -28,22 +29,28 @@ PerfData::~PerfData()
 
 void PerfData::push()
 {
+#ifndef STUB_PERF
     LARGE_INTEGER tick;
     QueryPerformanceCounter(&tick);
 
     m_data[m_top++] = tick.QuadPart;
 
     // = __rdtsc();
+#endif // STUB_PERF
 }
 
 DOUBLE PerfData::pop()
 {
+#ifndef STUB_PERF
     LARGE_INTEGER tick;
     QueryPerformanceCounter(&tick);
 
     UINT64 e = tick.QuadPart - m_data[--m_top];
 
     return e / (DOUBLE)m_perfCounterFreq.QuadPart;
+#else 
+    return 0.0;
+#endif // STUB_PERF
 }
 
 FramerateTracker::FramerateTracker()

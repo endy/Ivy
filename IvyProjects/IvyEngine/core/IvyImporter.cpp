@@ -13,13 +13,16 @@
 #include "IvyTypes.h"
 #include "IvyMemory.h"
 #include "IvyImporter.h"
-
-#include <Windows.h>
+#include "IvyPerf.h"
 
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include <string>
+
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 #include <vector>
 #include <algorithm>
@@ -30,15 +33,10 @@ using std::stringstream;
 using std::string;
 
 ///@todo REFACTOR THIS HEADER OUT
+#ifdef _WIN32
 #include <xnamath.h>
-///@todo_end
+#endif 
 
-///@todo REMOVE THIS TEST
-
-#include <cstdio>
-
-
-#include "IvyPerf.h"
 
 inline bool mygetline(
     std::vector<char>::iterator& beginPos,
@@ -227,6 +225,7 @@ void ImportFstream(
             VertexPTN& v1 = pVerts[pIB[fIdx*3+1]];
             VertexPTN& v2 = pVerts[pIB[fIdx*3+2]];
 
+#ifdef _WIN32 // Stub code
             FXMVECTOR xv0 = XMVectorSet(v0.Pos.x, v0.Pos.y, v0.Pos.z, 1.0f);
             FXMVECTOR xv1 = XMVectorSet(v1.Pos.x, v1.Pos.y, v1.Pos.z, 1.0f);
             FXMVECTOR xv2 = XMVectorSet(v2.Pos.x, v2.Pos.y, v2.Pos.z, 1.0f);
@@ -242,7 +241,7 @@ void ImportFstream(
             v0.N = p;
             v1.N = p;
             v2.N = p;
-
+#endif // _WIN32
             // error handlign for correct number of properties per element
         }
         else
@@ -384,6 +383,7 @@ void ImportCString(
             VertexPTN& v1 = pVerts[pIB[fIdx*3+1]];
             VertexPTN& v2 = pVerts[pIB[fIdx*3+2]];
 
+#ifdef _WIN32 // Stub
             FXMVECTOR xv0 = XMVectorSet(v0.Pos.x, v0.Pos.y, v0.Pos.z, 1.0f);
             FXMVECTOR xv1 = XMVectorSet(v1.Pos.x, v1.Pos.y, v1.Pos.z, 1.0f);
             FXMVECTOR xv2 = XMVectorSet(v2.Pos.x, v2.Pos.y, v2.Pos.z, 1.0f);
@@ -397,7 +397,7 @@ void ImportCString(
             v0.N = p;
             v1.N = p;
             v2.N = p;
-
+#endif
             // error handlign for correct number of properties per element
         }
         else

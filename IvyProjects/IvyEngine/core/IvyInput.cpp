@@ -9,15 +9,24 @@
 
 #include "IvyInput.h"
 
-#include <windows.h>
+#ifdef _WIN32
 #include <XInput.h>
+#endif // _WIN32
+
 #include <iostream>
+
+#ifndef _WIN32
+#define STUB_INPUT 1
+#endif // _WIN32
 
 UINT input()
 {
     UINT b;
     UINT max = 4;
-    UINT dwResult;    
+    UINT dwResult;  
+
+#ifndef STUB_INPUT
+  
     for (DWORD i=0; i< max; i++ )
     {
         XINPUT_STATE state;
@@ -58,4 +67,9 @@ UINT input()
     }
 
     return b;
+#else
+    return 0;
+#endif // STUB_INPUT
+
+   
 }

@@ -11,7 +11,7 @@
 #define _IVYMEMORY_H_
 
 #include "IvyUtils.h"
-
+#include <cstdlib>
 /**
 /// @note
 

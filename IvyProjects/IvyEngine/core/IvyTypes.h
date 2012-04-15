@@ -10,14 +10,28 @@
 #ifndef _IVYTYPES_H_
 #define _IVYTYPES_H_
 
-#ifdef _WIN32
-#include <Windows.h>
-#endif
+#include "IvyPlatform.h"
 
+#ifdef _WIN32
+#else
+#include <inttypes.h>
+#endif // _WIN32
+
+#ifdef _WIN32
 typedef char CHAR;
 typedef unsigned int UINT;
 typedef float FLOAT;
-typedef unsigned __int64 UINT64;
+#else
+typedef char CHAR;
+typedef unsigned int UINT;
+typedef float FLOAT;
+typedef double DOUBLE;
+typedef uint64_t UINT64;
+#endif
+
+#ifndef _WIN32
+#define FALSE false
+#endif
 
 struct Rect
 {
