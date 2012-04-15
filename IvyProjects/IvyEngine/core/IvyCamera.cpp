@@ -76,7 +76,30 @@ void IvyCamera::UpdateViewport(Rect viewport)
 
     stringstream ss;
     ss << "IvyCamera: UpdateViewport\n";
-    ss << "Right: " << m_viewport.right << "\tLeft: " << m_viewport.left << std::endl;
+
+    ss << "World To Camera...\n";
+
+    for (UINT x = 0; x < 4; ++x)
+    {
+        for (UINT y = 0; y < 4; ++y)
+        {
+            ss << "[" << x << "][" << y << "]=" << m_worldToCamera.m[x][y] << " ";
+        }
+        ss << std::endl;
+    }
+
+    ss << "Camera To Screen...\n";
+
+    for (UINT x = 0; x < 4; ++x)
+    {
+        for (UINT y = 0; y < 4; ++y)
+        {
+            ss << "[" << x << "][" << y << "]=" << m_cameraToScreen.m[x][y] << " ";
+        }
+        ss << std::endl;
+    }
+
+    ss << "Screen To Raster...\n";
 
     for (UINT x = 0; x < 4; ++x)
     {
