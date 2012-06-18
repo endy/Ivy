@@ -35,8 +35,17 @@ protected:
 private:
     GLTestApp(const GLTestApp& copy); // disallow copy constructor
 
-    void RenderGL2();
-    void RenderGL4();
+    void InitGL2();
+    void InitGL4();
+
+    void DrawTestGL2();
+    void DrawTestGL4();
+
+    void DrawParticles();
+
+    // Win32 handles
+    HDC m_hDC;
+    HGLRC m_hGLRC;
 };
 
 #endif // _GLTESTAPP_H_
