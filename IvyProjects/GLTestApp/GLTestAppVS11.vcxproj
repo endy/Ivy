@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="glmain.cpp" />
     <ClCompile Include="GLTestApp.cpp" />
+    <ClCompile Include="Particles.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GLTestApp.h" />

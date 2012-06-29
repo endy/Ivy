@@ -32,6 +32,8 @@ protected:
 
     virtual bool Init();
 
+    virtual void ReceiveEvent(const Event* pEvent);
+
 private:
     GLTestApp(const GLTestApp& copy); // disallow copy constructor
 
@@ -41,7 +43,8 @@ private:
     void DrawTestGL2();
     void DrawTestGL4();
 
-    void DrawParticles();
+    void ParticlesTest();
+    void ReceiveEventParticles(const Event* pEvent);
 
     // Win32 handles
     HDC m_hDC;

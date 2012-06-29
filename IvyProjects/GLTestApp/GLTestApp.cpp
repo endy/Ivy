@@ -126,7 +126,13 @@ void GLTestApp::Run()
     //DrawTestGL2();
     //DrawTestGL4();
 
-    DrawParticles();
+    ParticlesTest();
+}
+
+void GLTestApp::ReceiveEvent(
+    const Event* pEvent)
+{
+    ReceiveEventParticles(pEvent);
 }
 
 
@@ -460,135 +466,5 @@ void GLTestApp::DrawTestGL4()
     wglDeleteContext(m_hGLRC);
 }
 
-void GLTestApp::DrawParticles()
-{
-    InitGL2();
-
-    m_pWindow->Show();
-
-    GLShader* pVSShader = GLShader::CreateFromFile(IvyVertexShader, "ParticleVS", "Content/shaders/particles.vert");
-    GLShader* pFSShader = GLShader::CreateFromFile(IvyFragmentShader, "ParticlesFS", "Content/shaders/particles.frag");
-
-    GLProgram* pProgram = GLProgram::Create();
-    pProgram->AttachShader(pVSShader);
-    pProgram->AttachShader(pFSShader);
-    pProgram->Link();
-    pProgram->Bind();
-
-    struct CameraBufferData
-    {
-        XMMATRIX worldMatrix;
-        XMMATRIX viewMatrix;
-        XMMATRIX projectionMatrix;
-    };
-
-    CameraBufferData cameraBufferData;
-    cameraBufferData.worldMatrix = XMMatrixScaling(1.0, 1.0, 1); 
-    //XMMatrixIdentity(); //XMMatrixRotationX(-3.14f/2.0f) * XMMatrixScaling(2, 2, 1); //XMMatrixIdentity();
-    cameraBufferData.viewMatrix = XMMatrixTranslation(0, 0, 3.0f) * m_pCamera->W2C();
-    cameraBufferData.projectionMatrix = m_pCamera->C2S();
-
-    UINT worldMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "worldMatrix");
-    UINT viewMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "viewMatrix");
-    UINT projMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "projectionMatrix");
-
-    glUniformMatrix4fv(worldMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.worldMatrix));
-    glUniformMatrix4fv(viewMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.viewMatrix));
-    glUniformMatrix4fv(projMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.projectionMatrix));
 
 
-    int width = 64, height = 64;
-
-    
-    Point4* pPoints = new Point4[width * height];
-    memset(pPoints, 0, sizeof(pPoints));
-
-    for (int w = 0; w < width; ++w)
-    {
-        for (int h = 0; h < height; ++h)
-        {
-            int index = (h * width) + w;
-
-            pPoints[index].x = -1.0 + ((2.0 / width) * w);
-            pPoints[index].y = -1.0 + ((2.0 / height) * h);
-            pPoints[index].z = 0.5;
-            pPoints[index].w = 1.0;
-        }
-    }
-
-    GLint positionAttribLoc = glGetAttribLocation(pProgram->ProgramId(), "in_Position");
-  //  GLint colorAttribLoc = glGetAttribLocation(pProgram->ProgramId(), "in_Color");
-  //  GLint texAttribLoc = glGetAttribLocation(pProgram->ProgramId(), "in_TexCoord");
-
-    glBindAttribLocation(pProgram->ProgramId(), positionAttribLoc, "in_Position");
-  //  glBindAttribLocation(pProgram->ProgramId(), colorAttribLoc, "in_Color");
-   // glBindAttribLocation(pProgram->ProgramId(), texAttribLoc, "in_TexCoord");
-
-    glVertexAttribPointer(positionAttribLoc, 4, GL_FLOAT, FALSE, 4*4, &(pPoints[0].x));
-    glEnableVertexAttribArray(positionAttribLoc);
-
-  //  glVertexAttribPointer(colorAttribLoc, 4, GL_FLOAT, FALSE, 9*4, &(quad[0].N));
-   // glEnableVertexAttribArray(colorAttribLoc);
-
-   // glVertexAttribPointer(texAttribLoc, 2, GL_FLOAT, FALSE, 9*4, &(quad[0].Tex));
-   // glEnableVertexAttribArray(texAttribLoc);
-
-    GLenum error = glGetError();
-    // Setup Textures
-    GLint textureAttribLoc = 0;
-
-    //glActiveTexture(GL_TEXTURE0);
-    GLTexture* pTexture = GLTexture::CreateFromFile(IvyTexture2D, "Content/kitten_rgb.dds");
-    textureAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "s_tex0");
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    error = glGetError();
-    //glActiveTexture(GL_TEXTURE1);
-    GLTexture* pFirefleaTex = GLTexture::CreateFromFile(IvyTexture2D, "Content/fireflea.png");
-    textureAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "s_tex1");
-
-    pTexture->Bind(0, textureAttribLoc);
-    pFirefleaTex->Bind(1, textureAttribLoc);
-    error = glGetError();
-    ///@ todo Migrate settings into texture object?  Or have separate sampler that is attached to texture?
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-    glViewport(0, 0, 800, 450);
-
-    BOOL quit = false;
-
-    GLubyte* pIndices = NULL;
-
-    glEnable(GL_PROGRAM_POINT_SIZE);
-    
-    GLubyte* pIndicies = new GLubyte[width*height];
-
-    for (int i = 0; i < width * height; ++i)
-    {
-        pIndicies[i] = i;
-    }
-
-    while (!quit)
-    {
-        m_pWindow->ProcessMsg(&quit);
-        error = glGetError();
-        //glClearColor(0.4f, 1.0f, 0.4f, 1.0f);
-        glClearColor(0,0,0,1.0f);
-        error = glGetError();
-        glClear(GL_COLOR_BUFFER_BIT);
-        error = glGetError();
-
-
-        glDrawArrays(GL_POINTS, 0, width * height);
-       // glDrawElements(GL_POINTS, 256, GL_UNSIGNED_BYTE, pIndicies);
-
-        SwapBuffers(m_hDC);
-    }
-
-    pTexture->Destroy();
-    pProgram->Destroy();
-    pFSShader->Destroy();
-    pVSShader->Destroy();
-}
