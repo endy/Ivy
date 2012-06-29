@@ -124,19 +124,23 @@ void DebugCallbackAMD(
 
 void GLTestApp::Run()
 {
-   // RenderGL2();
-    RenderGL4();
+    //DrawTestGL2();
+    //DrawTestGL4();
+
+    ParticlesTest();
+}
+
+void GLTestApp::ReceiveEvent(
+    const Event* pEvent)
+{
+    ReceiveEventParticles(pEvent);
 }
 
 
 
-void GLTestApp::RenderGL2()
+void GLTestApp::InitGL2()
 {
     IVY_PRINT("GLTestApp OpenGL 2.0 Path");
-
-    BOOL quit = FALSE;
-
-    m_pWindow->Show();
 
     static PIXELFORMATDESCRIPTOR pfd =              // pfd Tells Windows How We Want Things To Be
     {
@@ -160,14 +164,14 @@ void GLTestApp::RenderGL2()
         0, 0, 0										// Layer Masks Ignored
     };
 
-    HDC hDC = GetDC(m_pWindow->GetHwnd());
+    m_hDC = GetDC(m_pWindow->GetHwnd());
 
 
-    int PixelFormat = ChoosePixelFormat(hDC,&pfd);
-    BOOL setPixFmt = SetPixelFormat(hDC, PixelFormat, &pfd);
+    int PixelFormat = ChoosePixelFormat(m_hDC,&pfd);
+    BOOL setPixFmt = SetPixelFormat(m_hDC, PixelFormat, &pfd);
 
-    HGLRC hGlc = wglCreateContext(hDC);
-    wglMakeCurrent(hDC, hGlc);
+    m_hGLRC = wglCreateContext(m_hDC);
+    wglMakeCurrent(m_hDC, m_hGLRC);
 
     if( glewInit() != GLEW_OK)
     {
@@ -191,9 +195,79 @@ void GLTestApp::RenderGL2()
     glGetIntegerv(GL_MINOR_VERSION, &minorVersion);
 
     const GLubyte* pExtension = glGetString(GL_EXTENSIONS);
+    Log(reinterpret_cast<const char*>(pExtension));
+}
 
-    GLShader* pVSShader = GLShader::CreateFromFile(IvyVertexShader, "VertexShader", "GLTestApp/gl2.vert");
-    GLShader* pFSShader = GLShader::CreateFromFile(IvyFragmentShader, "FragmentShader", "GLTestApp/gl2.frag");
+void GLTestApp::InitGL4()
+{
+    static PIXELFORMATDESCRIPTOR pfd =              // pfd Tells Windows How We Want Things To Be
+    {
+        sizeof(PIXELFORMATDESCRIPTOR),              // Size Of This Pixel Format Descriptor
+        1,                                          // Version Number
+        PFD_DRAW_TO_WINDOW |                        // Format Must Support Window
+        PFD_SUPPORT_OPENGL |                        // Format Must Support OpenGL
+        PFD_DOUBLEBUFFER,                           // Must Support Double Buffering
+        PFD_TYPE_RGBA,                              // Request An RGBA Format
+        32,                                         // Select Our Color Depth
+        0, 0, 0, 0, 0, 0,                           // Color Bits Ignored
+        0,											// No Alpha Buffer
+        0,											// Shift Bit Ignored
+        0,											// No Accumulation Buffer
+        0, 0, 0, 0,									// Accumulation Bits Ignored
+        32,											// 16Bit Z-Buffer (Depth Buffer)  
+        8,											// No Stencil Buffer
+        0,											// No Auxiliary Buffer
+        PFD_MAIN_PLANE,								// Main Drawing Layer
+        0,											// Reserved
+        0, 0, 0										// Layer Masks Ignored
+    };
+
+    m_hDC = GetDC(m_pWindow->GetHwnd());
+
+    int PixelFormat = ChoosePixelFormat(m_hDC,&pfd);
+    BOOL setPixFmt = SetPixelFormat(m_hDC, PixelFormat, &pfd);
+
+    HGLRC tempGLRC = wglCreateContext(m_hDC);
+    wglMakeCurrent(m_hDC, tempGLRC);
+
+    if( glewInit() != GLEW_OK)
+    {
+        exit(1);
+    }
+
+    if (GLEW_VERSION_4_1 == 0)
+    {
+        exit(1);
+    }
+
+    ///@todo detect CreateContextAttribsARB 
+
+    int attribs[] =
+    {
+        WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
+        WGL_CONTEXT_MINOR_VERSION_ARB, 1,
+        WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB | WGL_CONTEXT_DEBUG_BIT_ARB,
+        WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,
+        0
+    };
+
+    m_hGLRC = wglCreateContextAttribsARB(m_hDC,0, attribs);
+
+    wglMakeCurrent(NULL, NULL); // can't we just make current on the context we just created?
+    wglDeleteContext(tempGLRC);
+
+    wglMakeCurrent(m_hDC, m_hGLRC);
+}
+
+void GLTestApp::DrawTestGL2()
+{
+    InitGL2();
+
+    BOOL quit = FALSE;
+    m_pWindow->Show();
+    
+    GLShader* pVSShader = GLShader::CreateFromFile(IvyVertexShader, "VertexShader", "Content/shaders/gl2.vert");
+    GLShader* pFSShader = GLShader::CreateFromFile(IvyFragmentShader, "FragmentShader", "Content/shaders/gl2.frag");
 
     GLProgram* pProgram = GLProgram::Create();
     pProgram->AttachShader(pVSShader);
@@ -218,7 +292,6 @@ void GLTestApp::RenderGL2()
     UINT worldMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "worldMatrix");
     UINT viewMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "viewMatrix");
     UINT projMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "projectionMatrix");
-
 
     glUniformMatrix4fv(worldMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.worldMatrix));
     glUniformMatrix4fv(viewMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.viewMatrix));
@@ -304,7 +377,7 @@ void GLTestApp::RenderGL2()
 
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, indices);
 
-        SwapBuffers(hDC);
+        SwapBuffers(m_hDC);
     }
 
     pTexture->Destroy();
@@ -313,75 +386,17 @@ void GLTestApp::RenderGL2()
     pVSShader->Destroy();
 }
 
-
-void GLTestApp::RenderGL4()
+void GLTestApp::DrawTestGL4()
 {
     IVY_PRINT("GLTestApp OpenGL 4.0 Path");
 
-    static PIXELFORMATDESCRIPTOR pfd =              // pfd Tells Windows How We Want Things To Be
-    {
-        sizeof(PIXELFORMATDESCRIPTOR),              // Size Of This Pixel Format Descriptor
-        1,                                          // Version Number
-        PFD_DRAW_TO_WINDOW |                        // Format Must Support Window
-        PFD_SUPPORT_OPENGL |                        // Format Must Support OpenGL
-        PFD_DOUBLEBUFFER,                           // Must Support Double Buffering
-        PFD_TYPE_RGBA,                              // Request An RGBA Format
-        32,                                         // Select Our Color Depth
-        0, 0, 0, 0, 0, 0,                           // Color Bits Ignored
-        0,											// No Alpha Buffer
-        0,											// Shift Bit Ignored
-        0,											// No Accumulation Buffer
-        0, 0, 0, 0,									// Accumulation Bits Ignored
-        32,											// 16Bit Z-Buffer (Depth Buffer)  
-        8,											// No Stencil Buffer
-        0,											// No Auxiliary Buffer
-        PFD_MAIN_PLANE,								// Main Drawing Layer
-        0,											// Reserved
-        0, 0, 0										// Layer Masks Ignored
-    };
-
-    HDC hDC = GetDC(m_pWindow->GetHwnd());
-
-    int PixelFormat = ChoosePixelFormat(hDC,&pfd);
-    BOOL setPixFmt = SetPixelFormat(hDC, PixelFormat, &pfd);
-
-    HGLRC hTempGlc = wglCreateContext(hDC);
-    wglMakeCurrent(hDC, hTempGlc);
-
-    if( glewInit() != GLEW_OK)
-    {
-        exit(1);
-    }
-
-    if (GLEW_VERSION_4_1 == 0)
-    {
-        exit(1);
-    }
-
-    ///@todo detect CreateContextAttribsARB 
-
-    int attribs[] =
-    {
-        WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
-        WGL_CONTEXT_MINOR_VERSION_ARB, 1,
-        WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB | WGL_CONTEXT_DEBUG_BIT_ARB,
-        WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,
-        0
-    };
-
-    HGLRC hGlrc = wglCreateContextAttribsARB(hDC,0, attribs);
-
-
-    wglMakeCurrent(NULL, NULL); // can't we just make current on the context we just created?
-    wglDeleteContext(hTempGlc);
-
-    wglMakeCurrent(hDC, hGlrc);
+    InitGL4();
 
     glViewport(0, 0, 800, 450);             // context state
     glClearColor(0.4f, 1.0f, 0.4f, 1.0f);   // context state
 
-    GLShader* pVSShader = GLShader::CreateFromFile(IvyVertexShader, "SimpleVS4", "GLTestApp/gl4.vert");
-    GLShader* pFSShader = GLShader::CreateFromFile(IvyFragmentShader, "SimpleFS4", "GLTestApp/gl4.frag");
+    GLShader* pVSShader = GLShader::CreateFromFile(IvyVertexShader, "SimpleVS4", "gl4.vert");
+    GLShader* pFSShader = GLShader::CreateFromFile(IvyFragmentShader, "SimpleFS4", "gl4.frag");
 
     GLProgram* pProgram = GLProgram::Create();
     pProgram->AttachShader(pVSShader);
@@ -494,9 +509,12 @@ void GLTestApp::RenderGL4()
 
       //  glDrawArrays(GL_TRIANGLES, 0, 3);
 
-        SwapBuffers(hDC);
+        SwapBuffers(m_hDC);
     }
 
     wglMakeCurrent(NULL, NULL);
-    wglDeleteContext(hGlrc);
+    wglDeleteContext(m_hGLRC);
 }
+
+
+
