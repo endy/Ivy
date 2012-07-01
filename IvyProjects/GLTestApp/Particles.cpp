@@ -39,15 +39,15 @@ void InitParticles2DArray(Particles* pParticles, int width, int height)
         {
             int index = (h * width) + w;
 
-            float posx = -1.0 + ((2.0 / width) * w);
-            float posy = -1.0 + ((2.0 / height) * h);
+            float posx = -1.0f + ((2.0f / width) * w);
+            float posy = -1.0f + ((2.0f / height) * h);
 
             pParticles->pPositions[index].x = posx;
             pParticles->pPositions[index].y = posy;
             pParticles->pPositions[index].z = 0.5;
 
             pParticles->pTexCoords[index].x = w / (float)width;
-            pParticles->pTexCoords[index].y = 1.0 - h / (float)height;
+            pParticles->pTexCoords[index].y = 1.0f - h / (float)height;
 
             float magnitude = sqrt(posx*posx + posy*posy);
 
@@ -66,7 +66,7 @@ void UpdateParticles(Particles* particles, float timestep)
 
     // calculate new velocity with x/'friction' or y/'gravity' constants
     float gravityDecel = 4 * timestep;
-    float xFriction = 3.0 * timestep;
+    float xFriction = 3.0f * timestep;
     for(int i = 0; i < particles->count; ++i)
     {
        // particles->pVelocity[i].x *= (particles->pVelocity[i].x > 0) ? -xFriction : xFriction;
@@ -95,7 +95,11 @@ void UpdateParticles(Particles* particles, float timestep)
 
 void GLTestApp::ParticlesTest()
 {
+#if IVY_GL_ES
+    InitGLES2();
+#else
     InitGL2();
+#endif // IVY_GL_ES
 
     m_pWindow->Show();
 
@@ -164,8 +168,8 @@ void GLTestApp::ParticlesTest()
     GLTexture* pFirefleaTex = GLTexture::CreateFromFile(IvyTexture2D, "Content/fireflea.png");
     textureAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "s_tex1");
 
-    pTexture->Bind(0, textureAttribLoc);
-    pFirefleaTex->Bind(1, textureAttribLoc);
+   // pTexture->Bind(0, textureAttribLoc);
+   // pFirefleaTex->Bind(1, textureAttribLoc);
     error = glGetError();
     ///@ todo Migrate settings into texture object?  Or have separate sampler that is attached to texture?
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -177,8 +181,10 @@ void GLTestApp::ParticlesTest()
 
     GLubyte* pIndices = NULL;
 
+#if !(IVY_GL_ES)
     glEnable(GL_PROGRAM_POINT_SIZE);
-    
+#endif !(IVY_GL_ES)
+
     GLubyte* pIndicies = new GLubyte[width*height];
 
     for (int i = 0; i < width * height; ++i)
@@ -192,16 +198,16 @@ void GLTestApp::ParticlesTest()
         error = glGetError();
         //glClearColor(0.4f, 1.0f, 0.4f, 1.0f);
 
-        glClearColor(0,0,0,1.0f);
+        glClearColor(1.0f,0,0,1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        UpdateParticles(pParticles, 0.005);
+        UpdateParticles(pParticles, 0.005f);
 
         glDrawArrays(GL_POINTS, 0, width * height);
-        SwapBuffers(m_hDC);
+        IvySwapBuffers();
     }
 
-    pTexture->Destroy();
+    //pTexture->Destroy();
     pProgram->Destroy();
     pFSShader->Destroy();
     pVSShader->Destroy();

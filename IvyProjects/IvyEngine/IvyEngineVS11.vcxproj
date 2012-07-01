@@ -59,6 +59,7 @@
     <Import Project="..\Properties\DX11Debug32.props" />
     <Import Project="..\Properties\IvyEngineDebug32.props" />
     <Import Project="..\Properties\OpenGLDebug32.props" />
+    <Import Project="..\Properties\GLES2Debug32.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -153,6 +154,7 @@
     <ClCompile Include="core\IvyImporter.cpp" />
     <ClCompile Include="core\IvyInput.cpp" />
     <ClCompile Include="core\IvyLight.cpp" />
+    <ClCompile Include="core\IvyMesh.cpp" />
     <ClCompile Include="core\IvyPerf.cpp" />
     <ClCompile Include="core\IvyShader.cpp" />
     <ClCompile Include="core\IvyTexture.cpp" />
@@ -166,6 +168,7 @@
     <ClCompile Include="dx\DxWindow.cpp" />
     <ClCompile Include="dx\SystemEventDispatcher.cpp" />
     <ClCompile Include="gl\GLApp.cpp" />
+    <ClCompile Include="gl\GLMesh.cpp" />
     <ClCompile Include="gl\GLShader.cpp" />
     <ClCompile Include="gl\GLTexture.cpp" />
     <ClCompile Include="gl\GLWindow.cpp" />
@@ -178,6 +181,7 @@
     <ClInclude Include="core\IvyMath.h" />
     <ClInclude Include="core\IvyMemory.h" />
     <ClInclude Include="core\IvyLight.h" />
+    <ClInclude Include="core\IvyMesh.h" />
     <ClInclude Include="core\IvyObject.h" />
     <ClInclude Include="core\IvyShader.h" />
     <ClInclude Include="core\IvyTexture.h" />
@@ -196,6 +200,7 @@
     <ClInclude Include="dx\DxWindow.h" />
     <ClInclude Include="dx\SystemEventDispatcher.h" />
     <ClInclude Include="gl\GLApp.h" />
+    <ClInclude Include="gl\GLMesh.h" />
     <ClInclude Include="gl\GLShader.h" />
     <ClInclude Include="gl\GLTexture.h" />
     <ClInclude Include="gl\GLWindow.h" />

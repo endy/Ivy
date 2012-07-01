@@ -91,6 +91,12 @@
     <ClInclude Include="core\IvyShader.h">
       <Filter>core</Filter>
     </ClInclude>
+    <ClInclude Include="gl\GLMesh.h">
+      <Filter>gl</Filter>
+    </ClInclude>
+    <ClInclude Include="core\IvyMesh.h">
+      <Filter>core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dx\DxApp.cpp">
@@ -151,6 +157,12 @@
       <Filter>core</Filter>
     </ClCompile>
     <ClCompile Include="core\IvyShader.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="gl\GLMesh.cpp">
+      <Filter>gl</Filter>
+    </ClCompile>
+    <ClCompile Include="core\IvyMesh.cpp">
       <Filter>core</Filter>
     </ClCompile>
   </ItemGroup>

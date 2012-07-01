@@ -16,7 +16,6 @@
 
 #include "IvyObject.h"
 
-
 #include "SystemEventDispatcher.h"
 #include "IvyInput.h"
 #include "IvyPerf.h"

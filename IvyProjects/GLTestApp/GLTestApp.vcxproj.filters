@@ -9,21 +9,28 @@
   <ItemGroup>
     <ClCompile Include="glmain.cpp" />
     <ClCompile Include="GLTestApp.cpp" />
+    <ClCompile Include="Particles.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GLTestApp.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="gl2.frag">
+    <None Include="..\Content\shaders\gl2.frag">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="gl2.vert">
+    <None Include="..\Content\shaders\gl2.vert">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="gl4.frag">
+    <None Include="..\Content\shaders\gl4.frag">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="gl4.vert">
+    <None Include="..\Content\shaders\gl4.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\Content\shaders\particles.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\Content\shaders\particles.vert">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

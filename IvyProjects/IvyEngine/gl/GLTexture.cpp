@@ -14,10 +14,17 @@
 ///@ todo Add a compile-time assert to check this table matches IvyTextureType enums
 const GLenum IvyToGLTexTypeTable[] =
 {
+#if IVY_GL_ES
+    0,                      // IvyTexture1D
+    GL_TEXTURE_2D,          // IvyTexture2D
+    0,                      // IvyTexture3D
+    GL_TEXTURE_CUBE_MAP     // IvyTextureCubeMap
+#else
     GL_TEXTURE_1D,          // IvyTexture1D
     GL_TEXTURE_2D,          // IvyTexture2D
     GL_TEXTURE_3D,          // IvyTexture3D
     GL_TEXTURE_CUBE_MAP,    // IvyTextureCubeMap
+#endif // IVY_GL_ES
 };
 
 const GLenum IvyToGLFormatTable[] =
@@ -81,7 +88,7 @@ GLTexture* GLTexture::CreateFromFile(
     glBindTexture(glTexType, texId);
 
     int texWidth = 0, texHeight = 0, channels = 0;
-    unsigned char* pImageData = SOIL_load_image(pFilename, &texWidth, &texHeight, &channels, SOIL_LOAD_RGB);
+    unsigned char* pImageData = NULL; //SOIL_load_image(pFilename, &texWidth, &texHeight, &channels, SOIL_LOAD_RGB);
 
     GLTexture* pNewTexture = NULL;
 
@@ -92,7 +99,7 @@ GLTexture* GLTexture::CreateFromFile(
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, pImageData);
 
-        SOIL_free_image_data(pImageData);
+        //SOIL_free_image_data(pImageData);
     }
 
 

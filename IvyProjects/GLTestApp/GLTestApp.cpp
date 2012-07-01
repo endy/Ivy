@@ -11,11 +11,9 @@
 #include "GLTestApp.h"
 
 #include "IvyUtils.h"
-
 #include "IvyImporter.h"
 #include "IvyCamera.h"
 
-#include "IvyGL.h"
 #include "GLWindow.h"
 #include "GLTexture.h"
 #include "GLShader.h"
@@ -23,7 +21,8 @@
 
 GLTestApp::GLTestApp(GLTestAppCreateInfo* pAppInfo)
     :
-    GLApp(pAppInfo)
+    GLApp(pAppInfo),
+    m_useEgl(FALSE)
 {
 
 }
@@ -126,6 +125,7 @@ void GLTestApp::Run()
 {
     //DrawTestGL2();
     //DrawTestGL4();
+    //DrawTestGLES2();
 
     ParticlesTest();
 }
@@ -136,10 +136,9 @@ void GLTestApp::ReceiveEvent(
     ReceiveEventParticles(pEvent);
 }
 
-
-
 void GLTestApp::InitGL2()
 {
+#if !(IVY_GL_ES)
     IVY_PRINT("GLTestApp OpenGL 2.0 Path");
 
     static PIXELFORMATDESCRIPTOR pfd =              // pfd Tells Windows How We Want Things To Be
@@ -195,11 +194,13 @@ void GLTestApp::InitGL2()
     glGetIntegerv(GL_MINOR_VERSION, &minorVersion);
 
     const GLubyte* pExtension = glGetString(GL_EXTENSIONS);
-    Log(reinterpret_cast<const char*>(pExtension));
+    IvyLog(reinterpret_cast<const char*>(pExtension));
+#endif // !(IVY_GL_ES)
 }
 
 void GLTestApp::InitGL4()
 {
+#if !(IVY_GL_ES)
     static PIXELFORMATDESCRIPTOR pfd =              // pfd Tells Windows How We Want Things To Be
     {
         sizeof(PIXELFORMATDESCRIPTOR),              // Size Of This Pixel Format Descriptor
@@ -257,10 +258,163 @@ void GLTestApp::InitGL4()
     wglDeleteContext(tempGLRC);
 
     wglMakeCurrent(m_hDC, m_hGLRC);
+#endif // !(IVY_GL_ES)
+}
+
+void GLTestApp::InitGLES2()
+{
+#if IVY_GL_ES
+
+    GLenum err = glGetError();
+    typedef EGLAPI EGLDisplay EGLAPIENTRY FPTR_EGL_GET_DISPLAY(EGLNativeDisplayType display_id);
+
+    FPTR_EGL_GET_DISPLAY* pEglGetDisplay;
+
+    pEglGetDisplay = &eglGetDisplay;
+
+    EGLint majorVersion;
+    EGLint minorVersion;
+
+    m_eglDisplay = (*pEglGetDisplay)(EGL_DEFAULT_DISPLAY);
+    m_eglDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+    if (m_eglDisplay == EGL_NO_DISPLAY)
+    {
+        // unable to get display
+        return;
+    }
+
+    if (!eglInitialize(m_eglDisplay, &majorVersion, &minorVersion))
+    {
+        // unable to init display
+        return;
+    }
+
+    EGLint numConfigs;
+    eglGetConfigs(m_eglDisplay, NULL, 0, &numConfigs);
+
+    EGLConfig* pConfigs = new EGLConfig[numConfigs];
+
+    eglGetConfigs(m_eglDisplay, pConfigs, numConfigs, &numConfigs);
+
+    struct EglAttribList
+    {
+        EGLint attribType;
+        const char* attribName;
+    };
+
+    EglAttribList attribList[] = 
+    {
+        { EGL_RED_SIZE, "EGL_RED_SIZE" },
+        { EGL_GREEN_SIZE, "EGL_GREEN_SIZE" },
+        { EGL_BLUE_SIZE, "EGL_BLUE_SIZE" },
+        { EGL_LUMINANCE_SIZE, "EGL_LUMINANCE_SIZE" },
+        { EGL_ALPHA_SIZE, "EGL_ALPHA_SIZE" },
+        { EGL_DEPTH_SIZE, "EGL_DEPTH_SIZE" },
+        { EGL_STENCIL_SIZE, "EGL_STENCIL_SIZE" },
+
+        { EGL_MAX_PBUFFER_WIDTH, "EGL_MAX_PBUFFER_WIDTH" },
+        { EGL_MAX_PBUFFER_HEIGHT, "EGL_MAX_PBUFFER_HEIGHT" },
+        { EGL_MAX_PBUFFER_PIXELS, "EGL_MAX_PBUFFER_PIXELS" },
+
+        { EGL_SAMPLES, "EGL_SAMPLES" },
+        { EGL_SAMPLE_BUFFERS, "EGL_SAMPLE_BUFFERS" }
+    };
+
+    const int AttribListSize = sizeof(attribList) / sizeof(EglAttribList);
+
+    for (int configIdx = 0; configIdx < numConfigs; ++configIdx)
+    {
+        std::cout << "Config " << configIdx << ":" << std::endl;
+
+        EGLint attribValue;
+        for (int attribIdx = 0; attribIdx < AttribListSize; ++attribIdx)
+        {
+            eglGetConfigAttrib(m_eglDisplay, pConfigs[0], attribList[attribIdx].attribType, &attribValue);
+            std::cout << "\t" << attribList[attribIdx].attribName << "=" << attribValue << std::endl;
+        }
+    }
+
+    const EGLint windowAttribList[] = 
+    {
+        EGL_RENDER_BUFFER, EGL_BACK_BUFFER,
+        EGL_NONE
+    };
+
+    m_eglSurface = eglCreateWindowSurface(m_eglDisplay, pConfigs[0], m_pWindow->GetHwnd(), NULL); //, &windowAttribList[0]);
+
+    if (m_eglSurface == EGL_NO_SURFACE)
+    {
+        // no surface
+        switch (eglGetError())
+        {
+        case EGL_BAD_NATIVE_WINDOW:
+            break;
+        }
+    }
+
+    EGLint contextAttribs[] =
+    {
+        EGL_CONTEXT_CLIENT_VERSION, 2,
+        EGL_NONE,
+    };
+
+    m_eglContext = eglCreateContext(m_eglDisplay, pConfigs[0], EGL_NO_CONTEXT, NULL); // &contextAttribs[0]);
+
+    eglMakeCurrent(m_eglDisplay, m_eglSurface, m_eglSurface, m_eglContext);
+
+    delete [] pConfigs;
+    pConfigs = NULL;
+
+    m_useEgl = TRUE;
+
+#endif // IVY_GL_ES
+}
+
+void GLTestApp::IvySwapBuffers()
+{
+#if IVY_GL_ES
+    if (m_useEgl)
+    {
+        eglSwapBuffers(m_eglDisplay, m_eglSurface);
+    }
+    else
+#endif // IVY_GL_ES
+    {
+        SwapBuffers(m_hDC);
+    }
+}
+
+void GLTestApp::DrawTestGLES2()
+{
+#if IVY_GL_ES
+
+    InitGLES2();
+
+    m_pWindow->Show();
+
+    GLenum err = glGetError();
+
+    BOOL quit = FALSE;
+    while (!quit)
+    {
+        m_pWindow->ProcessMsg(&quit);
+
+        // draw stuff
+
+        glClearColor(1.0f, 0.0f, 1.0, 1.0);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        IvySwapBuffers();
+    }
+
+    eglDestroyContext(m_eglDisplay, m_eglContext);
+    eglDestroySurface(m_eglDisplay, m_eglSurface);
+#endif // IVY_GL_ES
 }
 
 void GLTestApp::DrawTestGL2()
 {
+#if !(IVY_GL_ES)
     InitGL2();
 
     BOOL quit = FALSE;
@@ -377,17 +531,19 @@ void GLTestApp::DrawTestGL2()
 
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, indices);
 
-        SwapBuffers(m_hDC);
+        IvySwapBuffers();
     }
 
     pTexture->Destroy();
     pProgram->Destroy();
     pFSShader->Destroy();
     pVSShader->Destroy();
+#endif // !(IVY_GL_ES)
 }
 
 void GLTestApp::DrawTestGL4()
 {
+#if !(IVY_GL_ES)
     IVY_PRINT("GLTestApp OpenGL 4.0 Path");
 
     InitGL4();
@@ -504,16 +660,17 @@ void GLTestApp::DrawTestGL4()
         glUniformMatrix4fv(projMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.projectionMatrix));
 
         pMesh->Bind(pProgram);
-      //  pMesh->Draw();
+        //pMesh->Draw();
         glDrawElements(GL_TRIANGLES, meshCreateInfo.numIndicies, GL_UNSIGNED_INT, meshCreateInfo.pIndexData);
 
-      //  glDrawArrays(GL_TRIANGLES, 0, 3);
+        //glDrawArrays(GL_TRIANGLES, 0, 3);
 
-        SwapBuffers(m_hDC);
+        IvySwapBuffers();
     }
 
     wglMakeCurrent(NULL, NULL);
     wglDeleteContext(m_hGLRC);
+#endif // !(IVY_GL_ES)
 }
 
 
