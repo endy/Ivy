@@ -173,5 +173,8 @@
     <ClInclude Include="gl\GLMesh.h">
       <Filter>gl</Filter>
     </ClInclude>
+    <ClInclude Include="core\IvyPlatform.h">
+      <Filter>core</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

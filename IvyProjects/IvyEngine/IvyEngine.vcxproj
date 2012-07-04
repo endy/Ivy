@@ -178,6 +178,7 @@
     <ClInclude Include="core\IvyLight.h" />
     <ClInclude Include="core\IvyMesh.h" />
     <ClInclude Include="core\IvyObject.h" />
+    <ClInclude Include="core\IvyPlatform.h" />
     <ClInclude Include="core\IvyShader.h" />
     <ClInclude Include="core\IvyTexture.h" />
     <ClInclude Include="core\IvyTypes.h" />
