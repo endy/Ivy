@@ -133,7 +133,20 @@ void GLTestApp::Run()
 void GLTestApp::ReceiveEvent(
     const Event* pEvent)
 {
-    ReceiveEventParticles(pEvent);
+    GLApp::ReceiveEvent(pEvent);
+
+    switch (pEvent->GetType())
+    {
+        case EventTypeWindowResize:
+            glViewport(0, 0, m_pWindow->GetDrawableArea().right, m_pWindow->GetDrawableArea().bottom);
+            break;
+        case EventTypeKeyDown:
+            ReceiveEventParticles(pEvent);
+            break;
+        default:
+            break;
+    }
+
 }
 
 void GLTestApp::InitGL2()
