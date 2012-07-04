@@ -9,7 +9,8 @@
 
 #include "GLTexture.h"
 #include "IvyGL.h"
-#include "SOIL.h"
+
+#include <corona.h>
 
 ///@ todo Add a compile-time assert to check this table matches IvyTextureType enums
 const GLenum IvyToGLTexTypeTable[] =
@@ -87,21 +88,46 @@ GLTexture* GLTexture::CreateFromFile(
     GLenum glTexType = IvyToGLTexTypeTable[type];
     glBindTexture(glTexType, texId);
 
-    int texWidth = 0, texHeight = 0, channels = 0;
-    unsigned char* pImageData = NULL; //SOIL_load_image(pFilename, &texWidth, &texHeight, &channels, SOIL_LOAD_RGB);
+    /*
+    corona::Image *image = corona::OpenImage(filename.c_str(), corona::PF_R8G8B8A8, corona::FF_PNG);
+
+    if(!image)
+    {
+        return NULL;
+    }
+    CTexture *tex = new CTexture(image->getWidth(), image->getHeight(), RGBA);
+
+    byte* pixels = (byte*)image->getPixels();
+
+    for(int row = 0; row < image->getHeight(); ++row)
+    {
+        for(int col = 0; col < image->getWidth(); ++col)
+        {
+            float r = (*pixels)/255.f; pixels++;
+            float g = (*pixels)/255.f; pixels++;
+            float b = (*pixels)/255.f; pixels++;
+            float a = (*pixels)/255.f; pixels++;
+
+            int rowrow = image->getHeight() - row - 1;
+            tex->SetPixel(col, rowrow, CTexel(r, g, b, a));
+        }
+    }
+    */
+
+
+    corona::Image *pImage = corona::OpenImage(pFilename, corona::PF_R8G8B8A8, corona::FF_PNG);
 
     GLTexture* pNewTexture = NULL;
 
-    if (pImageData != NULL)
+    if (pImage != NULL)
     {
-        pNewTexture = new GLTexture(type, texId, texWidth, texHeight);
+        pNewTexture = new GLTexture(type, texId, pImage->getWidth(), pImage->getHeight());
 
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, pImageData);
-
-        //SOIL_free_image_data(pImageData);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, pImage->getWidth(), pImage->getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, pImage->getPixels());
     }
 
+    delete pImage;
 
     return pNewTexture;
 }

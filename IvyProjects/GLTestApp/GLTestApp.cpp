@@ -515,7 +515,7 @@ void GLTestApp::DrawTestGL2()
     GLint textureAttribLoc = 0;
 
     //glActiveTexture(GL_TEXTURE0);
-    GLTexture* pTexture = GLTexture::CreateFromFile(IvyTexture2D, "Content/kitten_rgb.dds");
+    GLTexture* pTexture = GLTexture::CreateFromFile(IvyTexture2D, "Content/kitten_rgb.png");
     textureAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "s_tex0");
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);

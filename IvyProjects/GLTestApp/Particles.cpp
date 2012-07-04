@@ -157,19 +157,19 @@ void GLTestApp::ParticlesTest()
     // Setup Textures
     GLint textureAttribLoc = 0;
 
-    //glActiveTexture(GL_TEXTURE0);
-    GLTexture* pTexture = GLTexture::CreateFromFile(IvyTexture2D, "Content/kitten_rgb.dds");
+    glActiveTexture(GL_TEXTURE0);
+    GLTexture* pTexture = GLTexture::CreateFromFile(IvyTexture2D, "Content/kitten_rgb.png");
     textureAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "s_tex0");
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     error = glGetError();
-    //glActiveTexture(GL_TEXTURE1);
+    glActiveTexture(GL_TEXTURE1);
     GLTexture* pFirefleaTex = GLTexture::CreateFromFile(IvyTexture2D, "Content/fireflea.png");
     textureAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "s_tex1");
 
    // pTexture->Bind(0, textureAttribLoc);
-   // pFirefleaTex->Bind(1, textureAttribLoc);
+    pFirefleaTex->Bind(1, textureAttribLoc);
     error = glGetError();
     ///@ todo Migrate settings into texture object?  Or have separate sampler that is attached to texture?
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -207,7 +207,7 @@ void GLTestApp::ParticlesTest()
         IvySwapBuffers();
     }
 
-    //pTexture->Destroy();
+    pTexture->Destroy();
     pProgram->Destroy();
     pFSShader->Destroy();
     pVSShader->Destroy();
