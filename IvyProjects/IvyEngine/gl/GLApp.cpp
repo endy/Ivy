@@ -104,15 +104,15 @@ void GLApp::ReceiveEvent(
 {
     switch (pEvent->GetType())
     {
-    case EventTypeWindowResize:
-        m_pWindow->Resize();
-        break;
-    case EventTypeMouseMove:
-        UpdateMousePosition();
-        break;
-    default:
-        // Do nothing
-        break;
+        case EventTypeWindowResize:
+            m_pWindow->Resize();
+            break;
+        case EventTypeMouseMove:
+            UpdateMousePosition();
+            break;
+        default:
+            // Do nothing
+            break;
     }
 }
 

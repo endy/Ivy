@@ -21,15 +21,18 @@
   <ItemGroup>
     <ClCompile Include="glmain.cpp" />
     <ClCompile Include="GLTestApp.cpp" />
+    <ClCompile Include="Particles.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GLTestApp.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="gl2.frag" />
-    <None Include="gl2.vert" />
-    <None Include="gl4.frag" />
-    <None Include="gl4.vert" />
+    <None Include="..\Content\shaders\gl2.frag" />
+    <None Include="..\Content\shaders\gl2.vert" />
+    <None Include="..\Content\shaders\gl4.frag" />
+    <None Include="..\Content\shaders\gl4.vert" />
+    <None Include="..\Content\shaders\particles.frag" />
+    <None Include="..\Content\shaders\particles.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{12B83B2D-30F1-403C-91A2-A68B65869AD8}</ProjectGuid>
@@ -68,6 +71,7 @@
     <Import Project="..\Properties\IvyEngineDebug32.props" />
     <Import Project="..\Properties\OpenGLDebug32.props" />
     <Import Project="..\Properties\DX11Debug32.props" />
+    <Import Project="..\Properties\GLES2Debug32.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -113,7 +117,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>OpenGL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>

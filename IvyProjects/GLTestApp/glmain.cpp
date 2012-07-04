@@ -13,6 +13,8 @@
 
 int main()
 {
+    GLenum err = glGetError();
+
     GLTestAppCreateInfo appCreateInfo;
     memset(&appCreateInfo, 0, sizeof(GLTestAppCreateInfo));
 

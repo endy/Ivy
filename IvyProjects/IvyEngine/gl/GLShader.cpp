@@ -154,6 +154,7 @@ GLShader* GLShader::CreateFromFile(
 
         glGetShaderInfoLog(shaderId, bufferLength, &logLength, buffer);
         printf(buffer);
+        IvyAssertAlways();
     }
     else
     {
