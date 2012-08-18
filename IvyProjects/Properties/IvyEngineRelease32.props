@@ -3,7 +3,7 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <IncludePath>$(SolutionDir)IvyEngine\core;$(SolutionDir)IvyEngine\dx;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)IvyEngine\core;$(SolutionDir)IvyEngine\dx;$(SolutionDir)IvyEngine\gl;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)x86\Release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup>

@@ -28,7 +28,7 @@ struct Particles
 
 ///@TODO get rid of these globals
 Particles* pParticles = NULL;
-int width = 64, height = 64;
+int width = 100, height = 100;
 
 
 void InitParticles2DArray(Particles* pParticles, int width, int height)
@@ -198,7 +198,7 @@ void GLTestApp::ParticlesTest()
         error = glGetError();
         //glClearColor(0.4f, 1.0f, 0.4f, 1.0f);
 
-        glClearColor(1.0f,0,0,1.0f);
+        glClearColor(0.0f,0.4,0.4,1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         UpdateParticles(pParticles, 0.005f);

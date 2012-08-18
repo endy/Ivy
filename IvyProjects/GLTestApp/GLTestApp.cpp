@@ -278,6 +278,8 @@ void GLTestApp::InitGLES2()
 {
 #if IVY_GL_ES
 
+    IVY_PRINT("GLTestApp OpenGL ES 2 Path");
+
     GLenum err = glGetError();
     typedef EGLAPI EGLDisplay EGLAPIENTRY FPTR_EGL_GET_DISPLAY(EGLNativeDisplayType display_id);
 
