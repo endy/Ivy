@@ -14,14 +14,8 @@
 ///@todo: Support framerate capping
 ///@todo: Create generic config manager
 
-#include "IvyObject.h"
-#include "DxWindow.h"
-#include "IvyCamera.h"
+#include "IvyApp.h"
 #include "DxTexture.h"
-
-#include "SystemEventDispatcher.h"
-#include "IvyInput.h"
-#include "IvyPerf.h"
 
 #include <D3DX11.h>
 #include <D2D1.h>
@@ -38,19 +32,14 @@ struct DxAppCreateInfo
 };
 
 class DxApp :
-    public IvyObject,
-    public IEventReceiver
+    public IvyApp
 {
 public:
     static DxApp* Create(DxAppCreateInfo* pAppInfo);
 
     virtual void Destroy();
 
-    virtual void Run();
-
     virtual void ReceiveEvent(const Event* pEvent);
-
-    Point2 GetMousePos() { return m_mousePos; }
 
 protected:
     DxApp(DxAppCreateInfo* pAppInfo);
@@ -59,15 +48,6 @@ protected:
     virtual bool Init();
 
     void UpdateSwapChain();
-    void UpdateMousePosition();
-
-    void BeginFrame();
-    void EndFrame();
-
-    DxWindow* m_pWindow;
-    IvyCamera* m_pCamera;
-
-    Point2 m_mousePos;
 
     // D3D
     ID3D11Device* m_pDevice;
@@ -103,22 +83,9 @@ protected:
     IDWriteTextFormat* m_pITextFormat;
     IDWriteFactory* m_pIDWriteFactory;
 
-    FLOAT m_fovX;           // FOV X
-    FLOAT m_fovY;           // FOV Y
-    FLOAT m_nearZ;          // near plane
-    FLOAT m_farZ;           // far plane
-    UINT  m_screenWidth;    // viewport width
-    UINT  m_screenHeight;   // viewport height
-
-    static const UINT BufferCount;
-
 private:
     DxApp(const DxApp& copy);               // Disallow copy constructor
     DxApp& operator=(const DxApp& copy);    // Disallow assignment operator
-
-    FramerateTracker m_framerateTracker;
-
-    KeyboardState m_keys;
 };
 
 #endif // _DXAPP_H_

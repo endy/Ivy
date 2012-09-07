@@ -6,7 +6,7 @@
 #include "IvyImporter.h"
 #include "IvyCamera.h"
 
-#include "GLWindow.h"
+#include "IvyWindow.h"
 #include "GLTexture.h"
 
 #include "IvyGL.h"

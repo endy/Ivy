@@ -9,6 +9,9 @@
 
 
 #include "DxTestApp.h"
+#include "IvyWindow.h"
+#include "IvyCamera.h"
+
 #include "DxShader.h"
 #include "DxTexture.h"
 #include "DxBuffer.h"
@@ -287,7 +290,7 @@ void DxTestApp::Run()
     CameraBufferData* pCameraBufferData = NULL; ;
     Material* pMaterialCB = NULL;   
 
-    m_pWindow->DisplayWindow();
+    m_pWindow->Show();
 
     /* // IHV-independent counters were removed from D3D11 (change from D3D10)
     D3D11_COUNTER_DESC counterDesc;

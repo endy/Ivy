@@ -1,6 +1,8 @@
 
 
 #include "RTApp.h"
+#include "IvyWindow.h"
+#include "IvyCamera.h"
 
 #include "IvyUtils.h"
 
@@ -177,7 +179,7 @@ void RTApp::Run()
     ID3D11RasterizerState* pRasterizerState = NULL;
     m_pDevice->CreateRasterizerState(&rsDesc, &pRasterizerState);
 
-    m_pWindow->DisplayWindow();
+    m_pWindow->Show();
 
     BOOL quit = false;
     while (statusOK && !quit)

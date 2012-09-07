@@ -59,7 +59,8 @@
     <Import Project="..\Properties\DX11Debug32.props" />
     <Import Project="..\Properties\IvyEngineDebug32.props" />
     <Import Project="..\Properties\OpenGLDebug32.props" />
-    <Import Project="..\Properties\GLES2Debug32.props" />
+    <Import Project="..\Properties\GLES2_32.props" />
+    <Import Project="..\Properties\Corona32.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -70,6 +71,9 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\Properties\DX11Release32.props" />
     <Import Project="..\Properties\IvyEngineRelease32.props" />
+    <Import Project="..\Properties\Corona32.props" />
+    <Import Project="..\Properties\GLES2_32.props" />
+    <Import Project="..\Properties\OpenGLDebug32.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -150,6 +154,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="core\IvyApp.cpp" />
     <ClCompile Include="core\IvyCamera.cpp" />
     <ClCompile Include="core\IvyImporter.cpp" />
     <ClCompile Include="core\IvyInput.cpp" />
@@ -159,21 +164,21 @@
     <ClCompile Include="core\IvyShader.cpp" />
     <ClCompile Include="core\IvyTexture.cpp" />
     <ClCompile Include="core\IvyUtils.cpp" />
+    <ClCompile Include="core\IvyWindow.cpp" />
     <ClCompile Include="dx\DxApp.cpp" />
     <ClCompile Include="dx\DxBuffer.cpp" />
     <ClCompile Include="dx\DxLight.cpp" />
     <ClCompile Include="dx\DxMesh.cpp" />
     <ClCompile Include="dx\DxShader.cpp" />
     <ClCompile Include="dx\DxTexture.cpp" />
-    <ClCompile Include="dx\DxWindow.cpp" />
     <ClCompile Include="dx\SystemEventDispatcher.cpp" />
     <ClCompile Include="gl\GLApp.cpp" />
     <ClCompile Include="gl\GLMesh.cpp" />
     <ClCompile Include="gl\GLShader.cpp" />
     <ClCompile Include="gl\GLTexture.cpp" />
-    <ClCompile Include="gl\GLWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="core\IvyApp.h" />
     <ClInclude Include="core\IvyCamera.h" />
     <ClInclude Include="core\IvyEvents.h" />
     <ClInclude Include="core\IvyImporter.h" />
@@ -188,6 +193,7 @@
     <ClInclude Include="core\IvyTypes.h" />
     <ClInclude Include="core\IvyPerf.h" />
     <ClInclude Include="core\IvyUtils.h" />
+    <ClInclude Include="core\IvyWindow.h" />
     <ClInclude Include="dx\DxApp.h" />
     <ClInclude Include="dx\DxBuffer.h" />
     <ClInclude Include="dx\DxLight.h" />
@@ -197,13 +203,11 @@
     <ClInclude Include="dx\DxTexture.h" />
     <ClInclude Include="dx\DxTypes.h" />
     <ClInclude Include="dx\DxUtils.h" />
-    <ClInclude Include="dx\DxWindow.h" />
     <ClInclude Include="dx\SystemEventDispatcher.h" />
     <ClInclude Include="gl\GLApp.h" />
     <ClInclude Include="gl\GLMesh.h" />
     <ClInclude Include="gl\GLShader.h" />
     <ClInclude Include="gl\GLTexture.h" />
-    <ClInclude Include="gl\GLWindow.h" />
     <ClInclude Include="gl\IvyGL.h" />
   </ItemGroup>
   <ItemGroup>

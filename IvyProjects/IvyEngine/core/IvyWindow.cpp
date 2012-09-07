@@ -2,24 +2,23 @@
 ///
 ///     Ivy Engine
 ///
-///     Copyright 2010-2011, Brandon Light
+///     Copyright 2012, Brandon Light
 ///     All rights reserved.
 ///
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "GLWindow.h"
+#include "IvyWindow.h"
 #include "SystemEventDispatcher.h"
 
-/**
-***************************************************************************************************
-*   WndProc
-*
-*   @brief
-*       Message handler for the window
-*   @return
-*       LRESULT
-***************************************************************************************************
-*/
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/// WndProc
+///
+/// @brief
+///     Message handler for the window
+/// @return
+///     LRESULT
+///////////////////////////////////////////////////////////////////////////////////////////////////
 LRESULT CALLBACK WndProc(
     HWND hWnd,          ///< A handle to the window
     UINT Msg,           ///< A message
@@ -30,87 +29,87 @@ LRESULT CALLBACK WndProc(
 
     switch(Msg)
     {
-        case WM_DESTROY:
-            PostQuitMessage(WM_QUIT);
+    case WM_DESTROY:
+        PostQuitMessage(WM_QUIT);
+        break;
+    case WM_SIZE:
+        pEvent = new EventWindowResize();
+        break;
+    case WM_MOUSEMOVE:
+        pEvent = new EventMouseMove();
+        break;
+    case WM_LBUTTONDOWN:
+    case WM_LBUTTONUP:
+    case WM_LBUTTONDBLCLK:
+    case WM_RBUTTONDOWN:
+    case WM_RBUTTONUP:
+    case WM_RBUTTONDBLCLK:
+        break;
+    case WM_KEYDOWN:
+        EventDataKeyDown data;
+        switch(wParam)
+        {
+        case '1':
+            data.key = EKey1;
             break;
-        case WM_SIZE:
-            pEvent = new EventWindowResize();
+        case '2':
+            data.key = EKey2;
             break;
-        case WM_MOUSEMOVE:
-            pEvent = new EventMouseMove();
+        case '3':
+            data.key = EKey3;
             break;
-        case WM_LBUTTONDOWN:
-        case WM_LBUTTONUP:
-        case WM_LBUTTONDBLCLK:
-        case WM_RBUTTONDOWN:
-        case WM_RBUTTONUP:
-        case WM_RBUTTONDBLCLK:
+        case '4':
+            data.key = EKey4;
             break;
-        case WM_KEYDOWN:
-            EventDataKeyDown data;
-            switch(wParam)
-            {
-                case '1':
-                    data.key = EKey1;
-                    break;
-                case '2':
-                    data.key = EKey2;
-                    break;
-                case '3':
-                    data.key = EKey3;
-                    break;
-                case '4':
-                    data.key = EKey4;
-                    break;
-                case '5':
-                    data.key = EKey5;
-                    break;
-                case '6':
-                    data.key = EKey6;
-                    break;
-                case '7':
-                    data.key = EKey7;
-                    break;
-                case '8':
-                    data.key = EKey8;
-                    break;
-                case '9':
-                    data.key = EKey9;
-                    break;
-                case '0':
-                    data.key = EKey0;
-                    break;
-                case 'r':
-                case 'R':
-                    data.key = EKeyR;
-                    break;
-                case 'w':
-                case 'W':
-                    data.key = EKeyW;
-                    break;
-                case 'a':
-                case 'A':
-                    data.key = EKeyA;
-                    break;
-                case 's':
-                case 'S':
-                    data.key = EKeyS;
-                    break;
-                case 'd':
-                case 'D':
-                    data.key = EKeyD;
-                    break;
-            }
-            pEvent = new EventKeyDown(data);
+        case '5':
+            data.key = EKey5;
             break;
-        default:
-            return DefWindowProc(hWnd, Msg, wParam, lParam);
+        case '6':
+            data.key = EKey6;
+            break;
+        case '7':
+            data.key = EKey7;
+            break;
+        case '8':
+            data.key = EKey8;
+            break;
+        case '9':
+            data.key = EKey9;
+            break;
+        case '0':
+            data.key = EKey0;
+            break;
+        case 'r':
+        case 'R':
+            data.key = EKeyR;
+            break;
+        case 'w':
+        case 'W':
+            data.key = EKeyW;
+            break;
+        case 'a':
+        case 'A':
+            data.key = EKeyA;
+            break;
+        case 's':
+        case 'S':
+            data.key = EKeyS;
+            break;
+        case 'd':
+        case 'D':
+            data.key = EKeyD;
+            break;
+        }
+        pEvent = new EventKeyDown(data);
+        break;
+    default:
+        return DefWindowProc(hWnd, Msg, wParam, lParam);
     }
 
     if (pEvent != NULL)
     {
         SystemEventDispatcher::Get()->Dispatch(pEvent);
-        
+
         delete pEvent;
         pEvent = NULL;
     }
@@ -119,41 +118,42 @@ LRESULT CALLBACK WndProc(
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/// GLWindow::GLWindow
+/// IvyWindow::IvyWindow
 ///
 /// @brief
 ///     Constructor
 /// @return
 ///     N/A
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-GLWindow::GLWindow()
+IvyWindow::IvyWindow()
 {
 
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/// GLWindow::~GLWindow
+/// IvyWindow::~IvyWindow
 ///
 /// @brief
 ///     Destructor
 /// @return
 ///     N/A
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-GLWindow::~GLWindow()
+IvyWindow::~IvyWindow()
 {
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/// GLWindow::Create
+/// IvyWindow::Create
 ///
 /// @brief
-///     A static method used for instantiation of GLWindow
+///     A static method used for instantiation of IvyWindow
 /// @return
-///     A pointer to a newly created GLWindow instance
+///     A pointer to a newly created IvyWindow instance
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-GLWindow* GLWindow::Create(UINT clientWidth, UINT clientHeight)
+IvyWindow* IvyWindow::Create(UINT clientWidth, UINT clientHeight)
 {
-    GLWindow* pNewWindow = new GLWindow();
+    IvyWindow* pNewWindow = new IvyWindow();
 
     pNewWindow->m_pClassName  = "IvyWindowClass";
     pNewWindow->m_pWindowName = "IvyEngine";
@@ -186,16 +186,16 @@ GLWindow* GLWindow::Create(UINT clientWidth, UINT clientHeight)
 
     // Create the window object
     pNewWindow->m_hWindow = CreateWindow(pNewWindow->m_pClassName,
-                                         pNewWindow->m_pWindowName,
-                                         WS_OVERLAPPEDWINDOW,
-                                         CW_USEDEFAULT,
-                                         CW_USEDEFAULT,
-                                         winRect.right - winRect.left,
-                                         winRect.bottom - winRect.top,
-                                         NULL,
-                                         NULL,
-                                         hInstance,
-                                         NULL);
+        pNewWindow->m_pWindowName,
+        WS_OVERLAPPEDWINDOW,
+        CW_USEDEFAULT,
+        CW_USEDEFAULT,
+        winRect.right - winRect.left,
+        winRect.bottom - winRect.top,
+        NULL,
+        NULL,
+        hInstance,
+        NULL);
 
     if( !pNewWindow->m_hWindow )
     {
@@ -213,27 +213,27 @@ GLWindow* GLWindow::Create(UINT clientWidth, UINT clientHeight)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/// GLWindow::Destroy
+/// IvyWindow::Destroy
 ///
 /// @brief
 ///     Deletes the instance
 /// @return
 ///     N/A
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-VOID GLWindow::Destroy()
+VOID IvyWindow::Destroy()
 {
     delete this;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/// GLWindow::Show
+/// IvyWindow::Show
 ///
 /// @brief
 ///     Displays the window
 /// @return
 ///     N/A
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-VOID GLWindow::Show()
+VOID IvyWindow::Show()
 {
     // Display the window to the user
     ShowWindow(m_hWindow, SW_SHOWNORMAL);
@@ -241,14 +241,14 @@ VOID GLWindow::Show()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/// GLWindow::ProcessMsg
+/// IvyWindow::ProcessMsg
 ///
 /// @brief
 ///     Processes all outstanding window messages
 /// @return
 ///     TRUE if a message was processed, FALSE if it was not
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-BOOL GLWindow::ProcessMsg(
+BOOL IvyWindow::ProcessMsg(
     BOOL* pQuit) ///< [out] TRUE if a quit message was received, false otherwise
 {
     BOOL processedMsg = FALSE;
@@ -263,7 +263,7 @@ BOOL GLWindow::ProcessMsg(
         }
         else if (msg.message == WM_SIZE)
         {
-            
+
         }
         else
         {
@@ -275,12 +275,28 @@ BOOL GLWindow::ProcessMsg(
     return processedMsg;
 }
 
-void GLWindow::Resize()
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/// IvyWindow::Resize
+///
+/// @brief
+///     
+/// @return
+///     N/A
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void IvyWindow::Resize()
 {
     GetClientRect(m_hWindow, &m_clientRect);
 }
 
-Rect GLWindow::GetDrawableArea()
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/// IvyWindow::GetDrawableArea
+///
+/// @brief
+///     
+/// @return
+///     N/A
+///////////////////////////////////////////////////////////////////////////////////////////////////
+Rect IvyWindow::GetDrawableArea()
 {
     Rect area;
     area.top = m_clientRect.top;
@@ -290,3 +306,5 @@ Rect GLWindow::GetDrawableArea()
 
     return area;
 }
+
+

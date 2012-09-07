@@ -8,6 +8,8 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "CelShadeApp.h"
+#include "IvyWindow.h"
+#include "IvyCamera.h"
 
 #include "IvyImporter.h"
 #include "DxShader.h"
@@ -276,7 +278,7 @@ void CelShadeApp::Run()
 
     m_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    m_pWindow->DisplayWindow();
+    m_pWindow->Show();
 
     BOOL quit = false;
     FLOAT yRotationAngle = 0.0f;

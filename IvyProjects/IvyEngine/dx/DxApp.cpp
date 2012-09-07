@@ -2,7 +2,7 @@
 ///
 ///     Ivy Engine
 ///
-///     Copyright 2010-2011, Brandon Light
+///     Copyright 2010-2012, Brandon Light
 ///     All rights reserved.
 ///
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -10,8 +10,8 @@
 #include "DxApp.h"
 #include "DxUtils.h"
 
-
-const UINT DxApp::BufferCount = 1;
+#include "IvyWindow.h"
+#include "IvyCamera.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// DxApp::DxApp
@@ -19,8 +19,6 @@ const UINT DxApp::BufferCount = 1;
 DxApp::DxApp(
     DxAppCreateInfo* pAppInfo)
     :
-m_pWindow(NULL),
-    m_pCamera(NULL),
     m_pDevice(NULL),
     m_pContext(NULL),
     m_pSwapChain(NULL),
@@ -34,12 +32,6 @@ m_pWindow(NULL),
     m_pDepthStencilBuffer(NULL),
     m_pDirect2dFactory(NULL),
     m_pRenderTarget(NULL),
-    m_screenWidth(pAppInfo->screenWidth),
-    m_screenHeight(pAppInfo->screenHeight),
-    m_fovX(90 * (IvyPi/180)),
-    m_fovY(90 * (IvyPi/180)),
-    m_nearZ(pAppInfo->nearZ),
-    m_farZ(pAppInfo->farZ),
     m_pITextBrush(NULL),
     m_pITextFormat(NULL),
     m_pIDWriteFactory(NULL)
@@ -204,15 +196,10 @@ DxApp::Create
 **************************************************************************************************/
 bool DxApp::Init()
 {
+    bool success = IvyApp::Init();
+
     EnumerateAdapters();
     DxEnumDisplayDevices();
-
-    SystemEventDispatcher::Get()->RegisterReceiver(this);
-
-    bool success = TRUE;
-
-    // Setup Window
-    m_pWindow = DxWindow::Create(m_screenWidth, m_screenHeight);
 
     // Create Swap Chain & Device
     DXGI_SWAP_CHAIN_DESC sd;
@@ -406,19 +393,6 @@ bool DxApp::Init()
     m_viewport.TopLeftX = 0;
     m_viewport.TopLeftY = 0;
 
-    IvyPerspectiveCameraInfo cameraInfo;
-    memset(&cameraInfo, 0, sizeof(IvyPerspectiveCameraInfo));
-    cameraInfo.viewport.left = 0;
-    cameraInfo.viewport.top = 0;
-    cameraInfo.viewport.right = m_screenWidth;
-    cameraInfo.viewport.bottom = m_screenHeight;
-    cameraInfo.nearZ = m_nearZ;
-    cameraInfo.farZ = m_farZ;
-    cameraInfo.fovX = m_fovX;
-    cameraInfo.fovY = m_fovY;
-
-    m_pCamera = new IvyPerspective(&cameraInfo);
-
     // DWrite
 
     DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED,
@@ -442,14 +416,6 @@ bool DxApp::Init()
     return success;
 }
 
-/**************************************************************************************************
-DxApp::Run
-**************************************************************************************************/
-void DxApp::Run()
-{
-
-}
-
 void DxApp::ReceiveEvent(
     const Event* pEvent)
 {
@@ -468,16 +434,6 @@ void DxApp::ReceiveEvent(
     }
 }
 
-void DxApp::UpdateMousePosition()
-{
-    POINT point;
-
-    GetCursorPos(&point);
-    ScreenToClient(m_pWindow->GetHwnd(), &point);
-
-    m_mousePos.x = static_cast<FLOAT>(point.x);
-    m_mousePos.y = static_cast<FLOAT>(point.y);
-}
 
 void DxApp::UpdateSwapChain()
 {
@@ -537,15 +493,5 @@ void DxApp::UpdateSwapChain()
 
         m_pDepthStencilBuffer = DxTexture::Create(m_pDevice, &depthStencilCreateInfo);
     }
-}
-
-void DxApp::BeginFrame()
-{
-    m_framerateTracker.BeginFrame();
-}
-
-void DxApp::EndFrame()
-{
-    m_framerateTracker.EndFrame();
 }
 

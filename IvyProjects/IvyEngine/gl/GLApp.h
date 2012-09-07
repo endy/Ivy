@@ -10,11 +10,13 @@
 #ifndef _GLAPP_H_
 #define _GLAPP_H_
 
+#include "IvyApp.h"
+
 ///@todo: Support multiple adapters
 ///@todo: Support framerate capping
 ///@todo: Create generic config manager
 
-#include "IvyObject.h"
+#include "IvyApp.h"
 
 #include "SystemEventDispatcher.h"
 #include "IvyInput.h"
@@ -22,7 +24,7 @@
 
 #include <vector>
 
-class GLWindow;
+class IvyWindow;
 class IvyCamera;
 
 struct GLAppCreateInfo
@@ -37,54 +39,21 @@ struct GLAppCreateInfo
 /// GLApp Class
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 class GLApp :
-    public IvyObject,
-    public IEventReceiver
+    public IvyApp
 {
 public:
     static GLApp* Create(GLAppCreateInfo* pAppInfo);
 
     virtual void Destroy();
 
-    virtual void Run();
-
-    virtual void ReceiveEvent(const Event* pEvent);
-
-    Point2 GetMousePos() { return m_mousePos; }
-
 protected:
     GLApp(GLAppCreateInfo* pAppInfo);
     virtual ~GLApp();
 
-    virtual bool Init();
-
-    void UpdateSwapChain();
-    void UpdateMousePosition();
-
-    void BeginFrame();
-    void EndFrame();
-
-    GLWindow* m_pWindow;
-
-    Point2 m_mousePos;
-
-    FLOAT m_fovX;           // FOV X
-    FLOAT m_fovY;           // FOV Y
-    FLOAT m_nearZ;          // near plane
-    FLOAT m_farZ;           // far plane
-    UINT  m_screenWidth;    // viewport width
-    UINT  m_screenHeight;   // viewport height
-
-    static const UINT BufferCount;
-
-    IvyCamera* m_pCamera;
-
 private:
     GLApp(const GLApp& copy);               // Disallow copy constructor
     GLApp& operator=(const GLApp& copy);    // Disallow assignment operator
-
-    FramerateTracker m_framerateTracker;
-
-    KeyboardState m_keys;
 };
 
 #endif // _GLAPP_H_
+
