@@ -19,9 +19,9 @@
 #include "GLShader.h"
 #include "GLMesh.h"
 
-GLTestApp::GLTestApp(GLTestAppCreateInfo* pAppInfo)
+GLTestApp::GLTestApp()
     :
-    GLApp(pAppInfo),
+    IvyApp(),
     m_useEgl(FALSE)
 {
 
@@ -32,9 +32,9 @@ GLTestApp::~GLTestApp()
 
 }
 
-GLTestApp* GLTestApp::Create(GLTestAppCreateInfo* pAppInfo)
+GLTestApp* GLTestApp::Create()
 {
-    GLTestApp* pApp = new GLTestApp(pAppInfo);
+    GLTestApp* pApp = new GLTestApp();
 
     if (pApp->Init() == false)
     {
@@ -55,13 +55,13 @@ GLTestApp* GLTestApp::Create(GLTestAppCreateInfo* pAppInfo)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void GLTestApp::Destroy()
 {
-    GLApp::Destroy();
+    IvyApp::Destroy();
 }
 
 
 bool GLTestApp::Init()
 {
-    bool success = GLApp::Init();
+    bool success = IvyApp::Init();
 
     return success;
 }
@@ -133,7 +133,7 @@ void GLTestApp::Run()
 void GLTestApp::ReceiveEvent(
     const Event* pEvent)
 {
-    GLApp::ReceiveEvent(pEvent);
+    IvyApp::ReceiveEvent(pEvent);
 
     switch (pEvent->GetType())
     {

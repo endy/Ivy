@@ -10,25 +10,21 @@
 #ifndef _GLTESTAPP_H_
 #define _GLTESTAPP_H_
 
-#include "GLApp.h"
+#include "IvyApp.h"
 #include "IvyGL.h"
 
-struct GLTestAppCreateInfo : public GLAppCreateInfo
-{
 
-};
-
-class GLTestApp : public GLApp
+class GLTestApp : public IvyApp
 {
 public:
-    static GLTestApp* Create(GLTestAppCreateInfo* pAppInfo);
+    static GLTestApp* Create();
 
     virtual void Destroy();
 
     virtual void Run();
 
 protected:
-    GLTestApp(GLTestAppCreateInfo* pAppInfo);
+    GLTestApp();
     virtual ~GLTestApp();
 
     virtual bool Init();

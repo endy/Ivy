@@ -15,15 +15,7 @@ int main()
 {
     GLenum err = glGetError();
 
-    GLTestAppCreateInfo appCreateInfo;
-    memset(&appCreateInfo, 0, sizeof(GLTestAppCreateInfo));
-
-    appCreateInfo.screenWidth = 800;
-    appCreateInfo.screenHeight = 450;
-    appCreateInfo.nearZ = 1.0f;
-    appCreateInfo.farZ = 20.0f;
-
-    GLTestApp* app = GLTestApp::Create(&appCreateInfo);
+    GLTestApp* app = GLTestApp::Create();
 
     if (app != NULL)
     {
