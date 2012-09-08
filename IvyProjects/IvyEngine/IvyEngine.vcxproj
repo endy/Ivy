@@ -150,6 +150,7 @@
   <ItemGroup>
     <ClCompile Include="core\IvyApp.cpp" />
     <ClCompile Include="core\IvyCamera.cpp" />
+    <ClCompile Include="core\IvyConfig.cpp" />
     <ClCompile Include="core\IvyImporter.cpp" />
     <ClCompile Include="core\IvyInput.cpp" />
     <ClCompile Include="core\IvyLight.cpp" />
@@ -173,6 +174,7 @@
   <ItemGroup>
     <ClInclude Include="core\IvyApp.h" />
     <ClInclude Include="core\IvyCamera.h" />
+    <ClInclude Include="core\IvyConfig.h" />
     <ClInclude Include="core\IvyEvents.h" />
     <ClInclude Include="core\IvyImporter.h" />
     <ClInclude Include="core\IvyInput.h" />

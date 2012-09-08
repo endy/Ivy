@@ -8,12 +8,12 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-#include "IvyInput.h"
 #include "GLTestApp.h"
+#include "IvyConfig.h"
 
-int main()
+int main(unsigned int argc, const char** argv)
 {
-    GLenum err = glGetError();
+    const char* configString = IvyConfigBuildString(argc, argv);
 
     GLTestApp* app = GLTestApp::Create();
 
@@ -25,7 +25,7 @@ int main()
     app->Destroy();
     app = NULL;
 
-	return 0;
+    return 0;
 }
 
 

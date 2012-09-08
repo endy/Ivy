@@ -1,147 +1,55 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///
-///     App Config Sandbox
+///     Ivy Engine
 ///
-///     Copyright 2011-2012, Brandon Light
+///     Copyright 2012, Brandon Light
 ///     All rights reserved.
 ///
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include "IvyConfig.h"
+
+
+///@TODO Debug Includes
 #include <iostream>
 
-
-/*
-Precidence:
-1. Command line  - last read value
-2. Config file - last read value.
-3. App defaults
-
-Config file: name=value pairs.
-Will ignore comments that take the form of // or # as first character on the line
-
-Any bad command will be thrown into log file as an error and application exits
-
-All values must have valid defaults at app-start time.
-Settings without valid defaults are required.
-
-Settings can be required, without valid value program will end.
-
-any settings can be in config file or overridden in command line
-
-type initial prefixes all names by convention, not required.
-
-Any 'required' fields that the user is expected to input will require a temporary application to receive said input
-else will fallback on STDIN.
-
-Expected Ivy Required Fields but with defaults
-Window Width / Height
-DX or GL.. default is 
-
-
-
-GetName / GetValue
-return non-null if got token, null else.  start = end if no more tokens
-
-startpos = endpos if found nothing
-
-
-*/
-
-const char* ConsoleHeader = "\
-Ivy Engine - Version 0.0001                 \n\
-Copyright 2011, 2012 - Brandon Light              \n\n";
-
-enum ArgType
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/// IvyConfigGetItem
+///
+/// @brief
+///     
+/// @return
+///     
+///////////////////////////////////////////////////////////////////////////////////////////////////
+IvyConfigItem* IvyConfigGetItem(IvyConfigItem* pItemList, const char* name)
 {
-    IvyUnknown = 0,
-    IvyInt,
-    IvyUint,
-    IvyFloat,
-    IvyBool,
-    IvyChar,
-    IvyString,
-};
-
-struct ArgData
-{
-    const char* argName;
-    const char* argDesc;
-    ArgType type;
-
-    //*
-    union 
-    {
-        void*           pvValue;
-        unsigned int*   puValue;
-        int*            piValue;
-        float*          pfValue;
-        bool*           pbValue;
-        const char*     pcValue;
-        const char**    ppStrValue;
-    } value;
-    //*/
-
-    bool required;
-};
-
-// 
-unsigned int screenWidth = 640;
-unsigned int screenHeight = 480;
-bool useGL = true;
-bool useD3D = false;
-
-char buttonX = 'x';
-char buttonY = 'y';
-float scale = 0.0f;
-int offset = 0;
-char* testString = "DEFAULT SETTING";
-
-ArgData inputArgs[] = 
-{
-    { "uScreenWidth",   "Screen Width",                 IvyUint,    &screenWidth,   false },
-    { "uScreenHeight",  "Screen Height",                IvyUint,    &screenHeight,  false },
-    { "bUseGL",         "Use OpenGL",                   IvyBool,    &useGL,         false },
-    { "bUseD3D",        "Use Direct3D",                 IvyBool,    &useD3D,        false },
-
-    // test params
-    { "cButtonX", "X Button", IvyChar, &buttonX, false },
-    { "cButtonY", "Y Button", IvyChar, &buttonY, false },
-    { "fScale", "Generic Scale", IvyFloat, &scale, false },
-    { "iOffset", "Generic Offset", IvyInt, &offset, false },
-    { "sPrintValue",    "Print the argument to output", IvyString,  &testString,   false },
-
-    // Sentinel
-    { NULL, NULL, IvyUnknown, NULL, false }
-};
-
-/*
-i,u,f,b,c,s
-uPrintNumber=3
-uPrintValue="blah"
-uScreenWidth=512 uScreenHeight=512 bUseGL bUseD3D
-*/
-
-ArgData* GetArgData(const char* name)
-{
-    ArgData* pArgData = NULL;
+    IvyConfigItem* pConfigItem = NULL;
 
     unsigned int count = 0;
-    while (inputArgs[count].argName != NULL)
+    while (pItemList[count].name != NULL)
     {
-        if (stricmp(name, inputArgs[count].argName) == 0)
+        if (stricmp(name, pItemList[count].name) == 0)
         {
-            pArgData = &inputArgs[count];
+            pConfigItem = &pItemList[count];
             break;
         }
 
         count++;
     }
 
-    return pArgData;
+    return pConfigItem;
 }
 
-// Return NULL if didnt find name, endPos=0 if it found invalid input
-char* GetName(
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/// IvyConfigGetName
+///
+/// @brief
+///     
+/// @return
+///     Return NULL if GetName didn't find name, endPos=0 if it found invalid input
+///////////////////////////////////////////////////////////////////////////////////////////////////
+char* IvyConfigGetName(
     const char* argString,  ///<
     unsigned int startPos,  ///<
     char* nameToken,        ///<
@@ -195,8 +103,16 @@ char* GetName(
     return retPtr;
 }
 
-char* GetValue(
-    char* argString,        ///<
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/// IvyConfigGetValue
+///
+/// @brief
+///     
+/// @return
+///     
+///////////////////////////////////////////////////////////////////////////////////////////////////
+char* IvyConfigGetValue(
+    const char* argString,  ///<
     unsigned int startPos,  ///< 
     char* valueToken,       ///< [out]
     unsigned int* endPos)   ///< [out]
@@ -213,7 +129,7 @@ char* GetValue(
         startPos++;
     }
 
-    char *delim = strchr(&argString[startPos], ' ');
+    const char *delim = strchr(&argString[startPos], ' ');
 
     if (delim != NULL)
     {
@@ -230,16 +146,9 @@ char* GetValue(
     return retPtr;
 }
 
-int main(unsigned int argc, char** argv)
+
+const char* IvyConfigBuildString(unsigned int argc, const char** argv)
 {
-    std::cout << ConsoleHeader;
-
-    // Print command line arguments
-    for (unsigned int idx = 0; idx < argc; ++idx)
-    {
-        std::cout << idx << " " << argv[idx] << std::endl;
-    }
-
     // Calculate Argument String Length
     unsigned int argBufferLength = 0;
     for (unsigned int idx = 1; idx < argc; ++idx)
@@ -256,11 +165,19 @@ int main(unsigned int argc, char** argv)
     {
         strcpy(&argBuffer[argBufferProgress], argv[idx]);
         argBufferProgress += strlen(argv[idx]);
-        
+
         // add space delimiter
         argBuffer[argBufferProgress] = ' ';
         argBufferProgress++;
     }
+
+    return argBuffer;
+}
+
+
+
+bool IvyConfigParseConfigString(const char* configString, IvyConfigItem* pItemList)
+{
 
     // Parse argument string
     bool argError = false;
@@ -275,21 +192,21 @@ int main(unsigned int argc, char** argv)
         memset(nameTokenBuffer, 0, 1024);
         memset(valueTokenBuffer, 0, 1024);
 
-        if (GetName(argBuffer, startPos, nameTokenBuffer, &endPos))
+        if (IvyConfigGetName(configString, startPos, nameTokenBuffer, &endPos))
         {
             startPos = endPos;
 
-            ArgData* pArgData = GetArgData(nameTokenBuffer);
+            IvyConfigItem* pConfigItem = IvyConfigGetItem(pItemList, nameTokenBuffer);
 
-            if (pArgData == NULL)
+            if (pConfigItem == NULL)
             {
                 argError = true;
             }
             else
             {
-                if (pArgData->type != IvyBool)
+                if (pConfigItem->type != IvyBool)
                 {
-                    if (GetValue(argBuffer, startPos, valueTokenBuffer, &endPos))
+                    if (IvyConfigGetValue(configString, startPos, valueTokenBuffer, &endPos))
                     {
                         startPos = endPos;
                     }
@@ -335,7 +252,6 @@ int main(unsigned int argc, char** argv)
         std::cout << "ERROR ERROR ERROR" << std::endl;
     }
 
-    std::cout << "Print String = " << testString << std::endl;
-
-    return 0;
+    return !argError;
 }
+

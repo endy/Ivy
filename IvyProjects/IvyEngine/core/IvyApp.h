@@ -18,6 +18,7 @@
 
 class IvyWindow;
 class IvyCamera;
+struct IvyConfigItem;
 
 class IvyApp : 
     public IvyObject,
@@ -68,6 +69,13 @@ private:
 
     KeyboardState m_keys;
 
+    // Configuration
+    static unsigned int ScreenWidth;
+    static unsigned int ScreenHeight;
+    static bool UseGL;
+    static bool UseD3D;
+
+    static IvyConfigItem IvyAppConfig[];
 };
 
 #endif // _IVYAPP_H_
