@@ -14,16 +14,10 @@
 
 class DxShader;
 
-struct CelShadeAppCreateInfo : public DxAppCreateInfo
-{
-
-};
-
-
 class CelShadeApp : public DxApp
 {
 public:
-    static CelShadeApp* Create(CelShadeAppCreateInfo* pAppInfo);
+    static CelShadeApp* Create();
 
     virtual void Destroy();
 
@@ -32,7 +26,7 @@ public:
     virtual void ReceiveEvent(const Event* pEvent);
 
 protected:
-    CelShadeApp(CelShadeAppCreateInfo* pAppInfo);
+    CelShadeApp();
     virtual ~CelShadeApp();
 
     virtual bool Init();

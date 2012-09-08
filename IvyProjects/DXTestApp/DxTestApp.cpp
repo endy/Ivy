@@ -22,9 +22,9 @@
 #include "IvyImporter.h"
 #include "DxLight.h"
 
-DxTestApp::DxTestApp(DxTestAppCreateInfo* pAppInfo)
+DxTestApp::DxTestApp()
     :
-    DxApp(pAppInfo),
+    DxApp(),
     m_pLightSlateGrayBrush(NULL),
     m_pCornflowerBlueBrush(NULL)
 {
@@ -44,9 +44,9 @@ DxTestApp::~DxTestApp()
 /// @return
 ///     DxTestApp instance
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-DxTestApp* DxTestApp::Create(DxTestAppCreateInfo* pAppInfo)
+DxTestApp* DxTestApp::Create()
 {
-    DxTestApp* pApp = new DxTestApp(pAppInfo);
+    DxTestApp* pApp = new DxTestApp();
 
     if (pApp->Init() == false)
     {

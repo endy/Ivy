@@ -13,19 +13,13 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// main
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-int main()
+int main(unsigned int argc, const char** argv)
 {
+    IvyApp::Configure(argc, argv);
+
     input();
 
-    CelShadeAppCreateInfo appCreateInfo;
-    memset(&appCreateInfo, 0, sizeof(CelShadeAppCreateInfo));
-
-    appCreateInfo.screenWidth = 800;
-    appCreateInfo.screenHeight = 800;
-    appCreateInfo.nearZ = 1.0f;
-    appCreateInfo.farZ = 200.0f;
-
-    CelShadeApp* app = CelShadeApp::Create(&appCreateInfo);
+    CelShadeApp* app = CelShadeApp::Create();
 
     if (app != NULL)
     {

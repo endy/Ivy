@@ -12,22 +12,17 @@
 
 #include "DxApp.h"
 
-struct DxTestAppCreateInfo : public DxAppCreateInfo
-{
-
-};
-
 class DxTestApp : public DxApp
 {
 public:
-    static DxTestApp* Create(DxTestAppCreateInfo* pAppInfo);
+    static DxTestApp* Create();
 
     virtual void Destroy();
 
     virtual void Run();
 
 protected:
-    DxTestApp(DxTestAppCreateInfo* pAppInfo);
+    DxTestApp();
     virtual ~DxTestApp();
 
     virtual bool Init();

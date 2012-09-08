@@ -8,9 +8,9 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "IvyConfig.h"
+#include "IvyMemory.h"
 
-
-///@TODO Debug Includes
+///@TODO Debug Includes, remove
 #include <iostream>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -146,8 +146,15 @@ char* IvyConfigGetValue(
     return retPtr;
 }
 
-
-const char* IvyConfigBuildString(unsigned int argc, const char** argv)
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/// IvyConfigBuildString
+///
+/// @brief
+///     
+/// @return
+///     
+///////////////////////////////////////////////////////////////////////////////////////////////////
+char* IvyConfigBuildString(unsigned int argc, const char** argv)
 {
     // Calculate Argument String Length
     unsigned int argBufferLength = 0;
@@ -174,15 +181,22 @@ const char* IvyConfigBuildString(unsigned int argc, const char** argv)
     return argBuffer;
 }
 
-
-
-bool IvyConfigParseConfigString(const char* configString, IvyConfigItem* pItemList)
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/// IvyConfigParseConfigString
+///
+/// @brief
+///     
+/// @return
+///     
+///////////////////////////////////////////////////////////////////////////////////////////////////
+bool IvyConfigParseConfigString(
+    const char* configString,   ///<
+    IvyConfigItem* pItemList)   ///<
 {
-
     // Parse argument string
     bool argError = false;
-    char* nameTokenBuffer = new char[1024];
-    char* valueTokenBuffer = new char[1024];
+    char* nameTokenBuffer = IvyTypeAlloc(char, 1024);
+    char* valueTokenBuffer = IvyTypeAlloc(char, 1024);
 
     unsigned int startPos = 0;
     unsigned int endPos = 0;
@@ -215,8 +229,31 @@ bool IvyConfigParseConfigString(const char* configString, IvyConfigItem* pItemLi
                         argError = true;
                     }
                 }
+            }
 
-                std::cout << "Name: " << nameTokenBuffer << "  Value: " << valueTokenBuffer << std::endl;
+            // process name,value pair
+            std::cout << "Name: " << nameTokenBuffer << "  Value: " << valueTokenBuffer << std::endl;
+
+            switch (pConfigItem->type)
+            {
+                case IvyInt:
+                    break;
+                case IvyUint:
+                    sscanf(valueTokenBuffer, "%u", pConfigItem->value.puValue);
+                    break;
+                case IvyFloat:
+                    break;
+                case IvyBool:
+                    break;
+                case IvyChar:
+                    break;
+                case IvyString:
+                    // *inputArgs[idx].value.ppStrValue = argv[count+1];
+                    break;
+                case IvyUnknown:
+                    // Fall through
+                default:
+                    break;
             }
         }
         else
@@ -224,33 +261,15 @@ bool IvyConfigParseConfigString(const char* configString, IvyConfigItem* pItemLi
             argError = (endPos == 0);
             break;
         }
-
-        // process name,value pair
-
-        /*
-        for (int idx = 0; idx < 2; ++idx)
-        {
-            if (stricmp(argv[count], inputArgs[idx].argName) == 0)
-            {
-                if (inputArgs[idx].type == IvyUint)
-                {
-                    sscanf(argv[count+1], "%u", inputArgs[idx].value.puValue);
-                }
-                else if (inputArgs[idx].type == IvyString)
-                {
-                    *inputArgs[idx].value.ppStrValue = argv[count+1];
-                }
-
-                count++;
-            }
-        }
-        */
     }
 
     if (argError)
     {
         std::cout << "ERROR ERROR ERROR" << std::endl;
     }
+
+    IvyFree(nameTokenBuffer);
+    IvyFree(valueTokenBuffer);
 
     return !argError;
 }

@@ -41,8 +41,8 @@ IvyConfigItem IvyApp::IvyAppConfig[] =
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 IvyApp::IvyApp() :
     m_pWindow(NULL),
-    m_screenWidth(640),
-    m_screenHeight(480),
+    m_screenWidth(ScreenWidth),
+    m_screenHeight(ScreenHeight),
     m_fovX(90 * (IvyPi/180)),
     m_fovY(90 * (IvyPi/180)),
     m_nearZ(1.0),
@@ -76,6 +76,25 @@ IvyApp::~IvyApp()
 void IvyApp::Destroy()
 {
     delete this;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/// IvyApp::Configure
+///
+/// @brief
+///     
+/// @return
+///     N/A
+///////////////////////////////////////////////////////////////////////////////////////////////////
+bool IvyApp::Configure(unsigned int argc, const char** argv)
+{
+    char* pConfigString = IvyConfigBuildString(argc, argv);
+
+    bool success = IvyConfigParseConfigString(pConfigString, IvyAppConfig);
+
+    IvyFree(pConfigString);
+
+    return success;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

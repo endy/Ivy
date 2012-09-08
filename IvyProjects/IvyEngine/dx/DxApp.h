@@ -12,7 +12,6 @@
 
 ///@todo: Support multiple adapters
 ///@todo: Support framerate capping
-///@todo: Create generic config manager
 
 #include "IvyApp.h"
 #include "DxTexture.h"
@@ -23,26 +22,19 @@
 
 #include <vector>
 
-struct DxAppCreateInfo
-{
-    UINT screenWidth;
-    UINT screenHeight;
-    FLOAT nearZ;
-    FLOAT farZ;
-};
 
 class DxApp :
     public IvyApp
 {
 public:
-    static DxApp* Create(DxAppCreateInfo* pAppInfo);
+    static DxApp* Create();
 
     virtual void Destroy();
 
     virtual void ReceiveEvent(const Event* pEvent);
 
 protected:
-    DxApp(DxAppCreateInfo* pAppInfo);
+    DxApp();
     virtual ~DxApp();
 
     virtual bool Init();

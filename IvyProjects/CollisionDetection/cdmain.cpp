@@ -4,15 +4,7 @@
 
 int main()
 {
-    CDAppCreateInfo appCreateInfo;
-    memset(&appCreateInfo, 0, sizeof(DxAppCreateInfo));
-
-    appCreateInfo.screenWidth = 800;
-    appCreateInfo.screenHeight = 800;
-    appCreateInfo.nearZ = 1.0f;
-    appCreateInfo.farZ = 20.0f;
-
-    CDApp* app = CDApp::Create(&appCreateInfo);
+    CDApp* app = CDApp::Create();
 
     if (app != NULL)
     {

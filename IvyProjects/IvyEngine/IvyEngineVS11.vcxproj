@@ -156,6 +156,7 @@
   <ItemGroup>
     <ClCompile Include="core\IvyApp.cpp" />
     <ClCompile Include="core\IvyCamera.cpp" />
+    <ClCompile Include="core\IvyConfig.cpp" />
     <ClCompile Include="core\IvyImporter.cpp" />
     <ClCompile Include="core\IvyInput.cpp" />
     <ClCompile Include="core\IvyLight.cpp" />
@@ -172,7 +173,6 @@
     <ClCompile Include="dx\DxShader.cpp" />
     <ClCompile Include="dx\DxTexture.cpp" />
     <ClCompile Include="dx\SystemEventDispatcher.cpp" />
-    <ClCompile Include="gl\GLApp.cpp" />
     <ClCompile Include="gl\GLMesh.cpp" />
     <ClCompile Include="gl\GLShader.cpp" />
     <ClCompile Include="gl\GLTexture.cpp" />
@@ -180,6 +180,7 @@
   <ItemGroup>
     <ClInclude Include="core\IvyApp.h" />
     <ClInclude Include="core\IvyCamera.h" />
+    <ClInclude Include="core\IvyConfig.h" />
     <ClInclude Include="core\IvyEvents.h" />
     <ClInclude Include="core\IvyImporter.h" />
     <ClInclude Include="core\IvyInput.h" />
@@ -204,7 +205,6 @@
     <ClInclude Include="dx\DxTypes.h" />
     <ClInclude Include="dx\DxUtils.h" />
     <ClInclude Include="dx\SystemEventDispatcher.h" />
-    <ClInclude Include="gl\GLApp.h" />
     <ClInclude Include="gl\GLMesh.h" />
     <ClInclude Include="gl\GLShader.h" />
     <ClInclude Include="gl\GLTexture.h" />

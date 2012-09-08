@@ -31,9 +31,6 @@
     <ClInclude Include="dx\DxUtils.h">
       <Filter>dx</Filter>
     </ClInclude>
-    <ClInclude Include="gl\GLApp.h">
-      <Filter>gl</Filter>
-    </ClInclude>
     <ClInclude Include="gl\GLShader.h">
       <Filter>gl</Filter>
     </ClInclude>
@@ -97,6 +94,9 @@
     <ClInclude Include="core\IvyWindow.h">
       <Filter>core</Filter>
     </ClInclude>
+    <ClInclude Include="core\IvyConfig.h">
+      <Filter>core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dx\DxApp.cpp">
@@ -116,9 +116,6 @@
     </ClCompile>
     <ClCompile Include="dx\DxTexture.cpp">
       <Filter>dx</Filter>
-    </ClCompile>
-    <ClCompile Include="gl\GLApp.cpp">
-      <Filter>gl</Filter>
     </ClCompile>
     <ClCompile Include="gl\GLShader.cpp">
       <Filter>gl</Filter>
@@ -163,6 +160,9 @@
       <Filter>core</Filter>
     </ClCompile>
     <ClCompile Include="core\IvyWindow.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\IvyConfig.cpp">
       <Filter>core</Filter>
     </ClCompile>
   </ItemGroup>

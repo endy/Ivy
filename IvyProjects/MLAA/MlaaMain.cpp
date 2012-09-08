@@ -12,19 +12,13 @@ TODO:
 #include "IvyInput.h"
 #include "MlaaApp.h"
 
-int main()
+int main(unsigned int argc, const char** argv)
 {
+    IvyApp::Configure(argc, argv);
+
     input();
-    
-    MlaaAppCreateInfo appCreateInfo;
-    memset(&appCreateInfo, 0, sizeof(MlaaAppCreateInfo));
 
-    appCreateInfo.screenWidth = 900;
-    appCreateInfo.screenHeight = 600;
-    appCreateInfo.nearZ = 1.0f;
-    appCreateInfo.farZ = 20.0f;
-
-    MlaaApp* app = MlaaApp::Create(&appCreateInfo);
+    MlaaApp* app = MlaaApp::Create();
 
     if (app != NULL)
     {

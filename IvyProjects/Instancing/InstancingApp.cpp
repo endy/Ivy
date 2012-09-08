@@ -20,10 +20,9 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// InstancingApp::Create
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-InstancingApp* InstancingApp::Create(
-    InstancingAppCreateInfo* pAppInfo)
+InstancingApp* InstancingApp::Create()
 {
-    InstancingApp* pApp = new InstancingApp(pAppInfo);
+    InstancingApp* pApp = new InstancingApp();
 
     pApp->Init();
 
@@ -33,10 +32,9 @@ InstancingApp* InstancingApp::Create(
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// InstancingApp::InstancingApp
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-InstancingApp::InstancingApp(
-    InstancingAppCreateInfo* pAppInfo)
+InstancingApp::InstancingApp()
     :
-    DxApp(pAppInfo),
+    DxApp(),
     m_pPosTexTriVS(NULL),
     m_pPosTexNormVS(NULL)
 {

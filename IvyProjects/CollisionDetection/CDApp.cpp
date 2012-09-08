@@ -4,9 +4,9 @@
 #include "DxShader.h"
 #include "DxTexture.h"
 
-CDApp::CDApp(CDAppCreateInfo* pAppInfo)
+CDApp::CDApp()
 	:
-	DxApp(pAppInfo)
+	DxApp()
 {
 
 }
@@ -16,9 +16,9 @@ CDApp::~CDApp()
 
 }
 
-CDApp* CDApp::Create(CDAppCreateInfo* pAppInfo)
+CDApp* CDApp::Create()
 {
-	CDApp* pApp = new CDApp(pAppInfo);
+	CDApp* pApp = new CDApp();
 
 	if (pApp->Init() == false)
 	{

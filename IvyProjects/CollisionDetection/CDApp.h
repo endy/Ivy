@@ -4,22 +4,17 @@
 
 #include "DxApp.h"
 
-struct CDAppCreateInfo : public DxAppCreateInfo
-{
-
-};
-
 class CDApp : public DxApp
 {
 public:
-    static CDApp* Create(CDAppCreateInfo* pAppInfo);
+    static CDApp* Create();
 
     virtual void Destroy();
 
     virtual void Run();
 
 protected:
-	CDApp(CDAppCreateInfo* pAppInfo);
+	CDApp();
 	virtual ~CDApp();
 
 	bool Init();

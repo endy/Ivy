@@ -13,9 +13,9 @@
 #include "DxMesh.h"
 #include "DxTexture.h"
 
-RTApp::RTApp(RTAppCreateInfo* pAppInfo)
+RTApp::RTApp()
     :
-    DxApp(pAppInfo)
+    DxApp()
 {
 
 }
@@ -25,9 +25,9 @@ RTApp::~RTApp()
 
 }
 
-RTApp* RTApp::Create(RTAppCreateInfo* pAppInfo)
+RTApp* RTApp::Create()
 {
-    RTApp* pApp = new RTApp(pAppInfo);
+    RTApp* pApp = new RTApp();
 
     if (pApp->Init() == false)
     {

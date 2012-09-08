@@ -93,7 +93,8 @@ inline void IvyTrackedFree (void* in, const char* file, unsigned int line)
 #define IvyArrayDelete(ptr) IvyPrint("IvyArrayDelete", __FILE__, __LINE__); delete [](ptr)
 
 #else
-#define IvyAlloc(size) malloc(size)
+#define IvyRawAlloc(size) malloc(size)
+#define IvyTypeAlloc(datatype, count) reinterpret_cast<datatype*>(malloc(count*sizeof(datatype)))
 #define IvyFree(ptr) free(ptr)
 #define IvyNew(datatype) new (datatype)
 #define IvyArrayNew(datatype, count) (new datatype[count])

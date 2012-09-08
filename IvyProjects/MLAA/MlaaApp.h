@@ -5,16 +5,10 @@
 
 #include "DxApp.h"
 
-struct MlaaAppCreateInfo : public DxAppCreateInfo
-{
-
-};
-
-
 class MlaaApp : public DxApp
 {
 public:
-    static MlaaApp* Create(MlaaAppCreateInfo* pAppInfo);
+    static MlaaApp* Create();
 
     virtual void Destroy();
 
@@ -23,7 +17,7 @@ public:
     virtual void ReceiveEvent(const Event* pEvent);
 
 protected:
-    MlaaApp(MlaaAppCreateInfo* pAppInfo);
+    MlaaApp();
     virtual ~MlaaApp();
 
     //virtual bool Init();

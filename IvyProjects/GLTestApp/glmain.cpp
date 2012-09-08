@@ -13,7 +13,7 @@
 
 int main(unsigned int argc, const char** argv)
 {
-    const char* configString = IvyConfigBuildString(argc, argv);
+    IvyApp::Configure(argc, argv);
 
     GLTestApp* app = GLTestApp::Create();
 

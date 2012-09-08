@@ -14,16 +14,10 @@
 
 class DxShader;
 
-struct InstancingAppCreateInfo : public DxAppCreateInfo
-{
-
-};
-
-
 class InstancingApp : public DxApp
 {
 public:
-    static InstancingApp* Create(InstancingAppCreateInfo* pAppInfo);
+    static InstancingApp* Create();
 
     virtual void Destroy();
 
@@ -32,7 +26,7 @@ public:
     virtual void ReceiveEvent(const Event* pEvent);
 
 protected:
-    InstancingApp(InstancingAppCreateInfo* pAppInfo);
+    InstancingApp();
     virtual ~InstancingApp();
 
     virtual bool Init();

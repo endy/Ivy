@@ -5,15 +5,7 @@
 
 int main()
 {
-    RTAppCreateInfo appCreateInfo;
-    memset(&appCreateInfo, 0, sizeof(RTAppCreateInfo));
-
-    appCreateInfo.screenWidth = 512;
-    appCreateInfo.screenHeight = 512;
-    appCreateInfo.nearZ = 0.0f;
-    appCreateInfo.farZ = 1.0f;
-
-    RTApp* app = RTApp::Create(&appCreateInfo);
+    RTApp* app = RTApp::Create();
 
     if (app != NULL)
     {

@@ -43,7 +43,7 @@ struct IvyConfigItem
     bool                required;
 };
 
-const char* IvyConfigBuildString(unsigned int argc, const char** argv);
+char* IvyConfigBuildString(unsigned int argc, const char** argv);
 
 bool IvyConfigParseConfigString(const char* configString, IvyConfigItem* pItemList);
 

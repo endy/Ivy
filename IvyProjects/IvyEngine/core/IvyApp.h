@@ -25,6 +25,7 @@ class IvyApp :
     public IEventReceiver
 {
 public:
+    static bool Configure(unsigned int argc, const char** argv);
 
     virtual void Destroy();
 

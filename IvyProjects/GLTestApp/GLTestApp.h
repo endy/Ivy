@@ -13,7 +13,6 @@
 #include "IvyApp.h"
 #include "IvyGL.h"
 
-
 class GLTestApp : public IvyApp
 {
 public:

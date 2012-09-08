@@ -9,14 +9,14 @@
 #include "DxMesh.h"
 #include "IvyUtils.h"
 
-MlaaApp* MlaaApp::Create(MlaaAppCreateInfo* pAppInfo)
+MlaaApp* MlaaApp::Create()
 {
-    return new MlaaApp(pAppInfo);
+    return new MlaaApp();
 }
 
-MlaaApp::MlaaApp(MlaaAppCreateInfo* pAppInfo)
+MlaaApp::MlaaApp()
     :
-    DxApp(pAppInfo),
+    DxApp(),
     m_linearZoomFilter(false)
 {
     m_passDisplayed = MlaaPassPrePass;

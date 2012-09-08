@@ -16,10 +16,9 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// DxApp::DxApp
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-DxApp::DxApp(
-    DxAppCreateInfo* pAppInfo)
+DxApp::DxApp()
     :
-    m_pDevice(NULL),
+m_pDevice(NULL),
     m_pContext(NULL),
     m_pSwapChain(NULL),
     m_pDevice10_1(NULL),
@@ -50,10 +49,9 @@ DxApp::~DxApp()
 /**************************************************************************************************
 DxApp::Create
 **************************************************************************************************/
-DxApp* DxApp::Create(
-    DxAppCreateInfo* pAppInfo)
+DxApp* DxApp::Create()
 {
-    DxApp* pApp = new DxApp(pAppInfo);
+    DxApp* pApp = new DxApp();
 
     if (pApp->Init() == false)
     {

@@ -6,21 +6,16 @@
 
 class DxTexture;
 
-struct RTAppCreateInfo : public DxAppCreateInfo
-{
-
-};
-
 class RTApp : public DxApp
 {
 public:
-    static RTApp* Create(RTAppCreateInfo* pAppInfo);
+    static RTApp* Create();
     virtual void Destroy();
 
     virtual void Run();
 
 protected:
-    RTApp(RTAppCreateInfo* pAppInfo);
+    RTApp();
     virtual ~RTApp();
 
     bool Init();

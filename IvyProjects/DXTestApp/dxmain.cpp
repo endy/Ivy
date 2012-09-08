@@ -11,19 +11,13 @@
 #include "IvyInput.h"
 #include "DxTestApp.h"
 
-int main()
+int main(unsigned int argc, const char** argv)
 {
+    IvyApp::Configure(argc, argv);
+
     input();
-    
-    DxTestAppCreateInfo appCreateInfo;
-    memset(&appCreateInfo, 0, sizeof(DxTestAppCreateInfo));
 
-    appCreateInfo.screenWidth = 800;
-    appCreateInfo.screenHeight = 450;
-    appCreateInfo.nearZ = 1.0f;
-    appCreateInfo.farZ = 20.0f;
-
-    DxTestApp* app = DxTestApp::Create(&appCreateInfo);
+    DxTestApp* app = DxTestApp::Create();
 
     if (app != NULL)
     {
