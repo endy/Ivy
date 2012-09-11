@@ -151,7 +151,7 @@ void ImportFstream(
     perfheader = perf.pop();    // header
 
     numVertices = vertices;
-    VertexPTN* pVerts = IvyTypeAlloc(VertexPTN, numVertices);
+    VertexPTN* pVerts = IVY_TYPE_ALLOC(VertexPTN, numVertices);
     memset(pVerts, 0, sizeof(pVerts));
 
     perf.push(); // verts
@@ -196,7 +196,7 @@ void ImportFstream(
     perfverts = perf.pop();
 
     numIndices = faces*3;
-    UINT* pIB = IvyTypeAlloc(UINT, numIndices);
+    UINT* pIB = IVY_TYPE_ALLOC(UINT, numIndices);
 
     perf.push(); // faces
 
@@ -330,7 +330,7 @@ void ImportCString(
     perfheader = perf.pop(); 	// header
 
     numVertices = vertices;
-    VertexPTN* pVerts = IvyTypeAlloc(VertexPTN, numVertices);
+    VertexPTN* pVerts = IVY_TYPE_ALLOC(VertexPTN, numVertices);
     memset(pVerts, 0, sizeof(pVerts)*vertices);
 
     perf.push(); // verts
@@ -356,7 +356,7 @@ void ImportCString(
     perfverts = perf.pop();
 
     numIndices = faces*3;
-    UINT* pIB = IvyTypeAlloc(UINT, numIndices);
+    UINT* pIB = IVY_TYPE_ALLOC(UINT, numIndices);
 
     perf.push(); // faces
 

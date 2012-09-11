@@ -92,7 +92,7 @@ bool IvyApp::Configure(unsigned int argc, const char** argv)
 
     bool success = IvyConfigParseConfigString(pConfigString, IvyAppConfig);
 
-    IvyFree(pConfigString);
+    IVY_FREE(pConfigString);
 
     return success;
 }

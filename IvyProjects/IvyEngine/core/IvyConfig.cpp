@@ -195,8 +195,8 @@ bool IvyConfigParseConfigString(
 {
     // Parse argument string
     bool argError = false;
-    char* nameTokenBuffer = IvyTypeAlloc(char, 1024);
-    char* valueTokenBuffer = IvyTypeAlloc(char, 1024);
+    char* nameTokenBuffer = IVY_TYPE_ALLOC(char, 1024);
+    char* valueTokenBuffer = IVY_TYPE_ALLOC(char, 1024);
 
     unsigned int startPos = 0;
     unsigned int endPos = 0;
@@ -268,8 +268,8 @@ bool IvyConfigParseConfigString(
         std::cout << "ERROR ERROR ERROR" << std::endl;
     }
 
-    IvyFree(nameTokenBuffer);
-    IvyFree(valueTokenBuffer);
+    IVY_FREE(nameTokenBuffer);
+    IVY_FREE(valueTokenBuffer);
 
     return !argError;
 }

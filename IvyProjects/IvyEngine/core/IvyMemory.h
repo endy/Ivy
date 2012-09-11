@@ -79,27 +79,27 @@ inline void IvyTrackedFree (void* in, const char* file, unsigned int line)
     IvyMemoryMgr::Free(in);
 }
 
-#define TrackMemory 1
+#define IVY_TRACK_MEMORY 1
 
-#if TrackMemory
+#if IVY_TRACK_MEMORY
 
-#define IvyRawAlloc(size) IvyTrackedAlloc((size), (__FILE__), (__LINE__))
-#define IvyTypeAlloc(datatype, count) reinterpret_cast<datatype*>(IvyTrackedAlloc(sizeof(datatype)*count, (__FILE__), (__LINE__)))
-#define IvyFree(ptr) IvyTrackedFree((ptr), (__FILE__), (__LINE__))
+#define IVY_RAW_ALLOC(size) IvyTrackedAlloc((size), (__FILE__), (__LINE__))
+#define IVY_TYPE_ALLOC(datatype, count) reinterpret_cast<datatype*>(IvyTrackedAlloc(sizeof(datatype)*count, (__FILE__), (__LINE__)))
+#define IVY_FREE(ptr) IvyTrackedFree((ptr), (__FILE__), (__LINE__))
 
-#define IvyNew(datatype) new datatype; IvyPrint("IvyNew", __FILE__, __LINE__)
-#define IvyArrayNew(datatype, count) (new datatype[count]); IvyPrint("IvyArrayNew", __FILE__, __LINE__)
-#define IvyDelete(ptr) IvyPrint("IvyDelete", __FILE__, __LINE__); delete (ptr)
-#define IvyArrayDelete(ptr) IvyPrint("IvyArrayDelete", __FILE__, __LINE__); delete [](ptr)
+#define IVY_NEW(datatype) new datatype; IvyPrint("IvyNew", __FILE__, __LINE__)
+#define IVY_ARRAY_NEW(datatype, count) (new datatype[count]); IvyPrint("IvyArrayNew", __FILE__, __LINE__)
+#define IVY_DELETE(ptr) IvyPrint("IvyDelete", __FILE__, __LINE__); delete (ptr)
+#define IVY_ARRAY_DELETE(ptr) IvyPrint("IvyArrayDelete", __FILE__, __LINE__); delete [](ptr)
 
 #else
-#define IvyRawAlloc(size) malloc(size)
-#define IvyTypeAlloc(datatype, count) reinterpret_cast<datatype*>(malloc(count*sizeof(datatype)))
-#define IvyFree(ptr) free(ptr)
-#define IvyNew(datatype) new (datatype)
-#define IvyArrayNew(datatype, count) (new datatype[count])
-#define IvyDelete(ptr) delete (ptr)
-#define IvyArrayDelete(ptr) delete [] (ptr)
+#define IVY_RAW_ALLOC(size) malloc(size)
+#define IVY_TYPE_ALLOC(datatype, count) reinterpret_cast<datatype*>(malloc(count*sizeof(datatype)))
+#define IVY_FREE(ptr) free(ptr)
+#define IVY_NEW(datatype) new (datatype)
+#define IVY_ARRAY_NEW(datatype, count) (new datatype[count])
+#define IVY_DELETE(ptr) delete (ptr)
+#define IVY_ARRAY_DELETE(ptr) delete [] (ptr)
 #endif
 
 
