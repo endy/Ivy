@@ -10,6 +10,7 @@
     <ClCompile Include="glmain.cpp" />
     <ClCompile Include="GLTestApp.cpp" />
     <ClCompile Include="Particles.cpp" />
+    <ClCompile Include="Lighting.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GLTestApp.h" />
@@ -31,6 +32,18 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="..\Content\shaders\particles.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\Content\shaders\lighting.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\Content\shaders\lighting.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\Content\shaders\point.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\Content\shaders\point.vert">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

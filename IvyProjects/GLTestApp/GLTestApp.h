@@ -44,6 +44,8 @@ private:
     void DrawTestGLES2();
 
     void ParticlesTest();
+    void LightingTest();
+
     void ReceiveEventParticles(const Event* pEvent);
 
     BOOL m_useEgl;

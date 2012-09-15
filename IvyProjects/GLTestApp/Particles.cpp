@@ -1,3 +1,11 @@
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///
+///     Ivy Engine - Generic OpenGL Test App
+///
+///     Copyright 2010-2012, Brandon Light
+///     All rights reserved.
+///
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 #include "GLTestApp.h"
@@ -183,7 +191,7 @@ void GLTestApp::ParticlesTest()
 
 #if !(IVY_GL_ES)
     glEnable(GL_PROGRAM_POINT_SIZE);
-#endif !(IVY_GL_ES)
+#endif // !(IVY_GL_ES)
 
     GLubyte* pIndicies = new GLubyte[width*height];
 
@@ -194,6 +202,8 @@ void GLTestApp::ParticlesTest()
 
     while (!quit)
     {
+        BeginFrame();
+
         m_pWindow->ProcessMsg(&quit);
         error = glGetError();
         //glClearColor(0.4f, 1.0f, 0.4f, 1.0f);
@@ -205,6 +215,8 @@ void GLTestApp::ParticlesTest()
 
         glDrawArrays(GL_POINTS, 0, width * height);
         IvySwapBuffers();
+
+        EndFrame();
     }
 
     pTexture->Destroy();

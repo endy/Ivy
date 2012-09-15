@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="glmain.cpp" />
     <ClCompile Include="GLTestApp.cpp" />
+    <ClCompile Include="Lighting.cpp" />
     <ClCompile Include="Particles.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -31,8 +32,12 @@
     <None Include="..\Content\shaders\gl2.vert" />
     <None Include="..\Content\shaders\gl4.frag" />
     <None Include="..\Content\shaders\gl4.vert" />
+    <None Include="..\Content\shaders\lighting.frag" />
+    <None Include="..\Content\shaders\lighting.vert" />
     <None Include="..\Content\shaders\particles.frag" />
     <None Include="..\Content\shaders\particles.vert" />
+    <None Include="..\Content\shaders\point.frag" />
+    <None Include="..\Content\shaders\point.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{12B83B2D-30F1-403C-91A2-A68B65869AD8}</ProjectGuid>

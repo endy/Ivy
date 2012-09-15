@@ -10,7 +10,7 @@
 #ifndef _IVYGL_H_
 #define _IVYGL_H_
 
-#define IVY_GL_ES 1
+#define IVY_GL_ES 0
 
 #if IVY_GL_ES
 
@@ -29,6 +29,11 @@
 
 #pragma comment(lib, "OpenGL32.lib")
 
+#endif // IVY_GL_ES
+
+
+#if IVY_GL_ES
+static const GLubyte* gluErrorString(GLint error) { return (const GLubyte*)"gluErrorString not defined for OpenGL ES"; }
 #endif // IVY_GL_ES
 
 #endif _// _IVYGL_H_

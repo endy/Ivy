@@ -127,7 +127,8 @@ void GLTestApp::Run()
     //DrawTestGL4();
     //DrawTestGLES2();
 
-    ParticlesTest();
+    //ParticlesTest();
+    LightingTest();
 }
 
 void GLTestApp::ReceiveEvent(
@@ -298,6 +299,7 @@ void GLTestApp::InitGLES2()
         return;
     }
 
+
     if (!eglInitialize(m_eglDisplay, &majorVersion, &minorVersion))
     {
         // unable to init display
@@ -376,6 +378,9 @@ void GLTestApp::InitGLES2()
     m_eglContext = eglCreateContext(m_eglDisplay, pConfigs[0], EGL_NO_CONTEXT, NULL); // &contextAttribs[0]);
 
     eglMakeCurrent(m_eglDisplay, m_eglSurface, m_eglSurface, m_eglContext);
+
+    // Dont syncronize with the display by default
+    eglSwapInterval(m_eglDisplay, 0);
 
     delete [] pConfigs;
     pConfigs = NULL;
