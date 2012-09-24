@@ -64,6 +64,20 @@ protected:
 
     IvyCamera* m_pCamera;
 
+    /// Direct3D Member Data
+
+    /// OpenGL Member Data
+    // Win32 handles
+    HDC m_hDC;
+    HGLRC m_hGLRC;
+
+#if IVY_GL_ES
+    // EGL & GLES
+    EGLDisplay m_eglDisplay;
+    EGLSurface m_eglSurface;
+    EGLContext m_eglContext;
+#endif // IVY_GL_ES
+
 private:
     IvyApp(const IvyApp& copy);               // Disallow copy constructor
     IvyApp& operator=(const IvyApp& copy);    // Disallow assignment operator
@@ -79,6 +93,7 @@ private:
     static bool UseD3D;
 
     static IvyConfigItem IvyAppConfig[];
+
 };
 
 #endif // _IVYAPP_H_

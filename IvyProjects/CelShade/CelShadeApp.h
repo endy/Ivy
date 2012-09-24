@@ -13,7 +13,6 @@
 #include "DxApp.h"
 
 class DxShader;
-struct ID2D1SolidColorBrush;
 
 class CelShadeApp : public DxApp
 {
@@ -32,17 +31,15 @@ protected:
 
     virtual bool Init();
 
-    void HandleKeyboardInput(const Event* pEvent);
+    void CelShadeGL();
+    void CelShadeD3D();
 
-    void Draw2D();
+    void HandleKeyboardInput(const Event* pEvent);
 
 private:
     DxShader* m_pPosTexTriVS;
     DxShader* m_pPosTexNormVS;
     DxShader* m_pCelShadePS;
-
-    ID2D1SolidColorBrush* m_pLightSlateGrayBrush;
-    ID2D1SolidColorBrush* m_pCornflowerBlueBrush;
 };
 
 #endif // _CELSHADEAPP_H_

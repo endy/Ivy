@@ -50,17 +50,6 @@ private:
 
     BOOL m_useEgl;
 
-    // Win32 handles
-    HDC m_hDC;
-    HGLRC m_hGLRC;
-
-#if IVY_GL_ES
-    // EGL & GLES
-    EGLDisplay m_eglDisplay;
-    EGLSurface m_eglSurface;
-    EGLContext m_eglContext;
-#endif // IVY_GL_ES
-
 };
 
 #endif // _GLTESTAPP_H_

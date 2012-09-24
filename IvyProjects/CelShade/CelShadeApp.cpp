@@ -2,7 +2,7 @@
 ///
 ///     Ivy Engine - Cel Shading Demo
 ///
-///     Copyright 2010-2011, Brandon Light
+///     Copyright 2010-2012, Brandon Light
 ///     All rights reserved.
 ///
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,11 @@
 #include "IvyUtils.h"
 
 #include "DxUI.h"
+
+#include "IvyGL.h"
+
+///@TODO: remove global setting asap
+const bool CelShadeAppUseGL = TRUE;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// CelShadeApp::Create
@@ -58,19 +63,7 @@ CelShadeApp::~CelShadeApp()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void CelShadeApp::Destroy()
 {
-    /*
-    if (m_pLightSlateGrayBrush)
-    {
-        m_pLightSlateGrayBrush->Release();
-    }
-    
-    if (m_pCornflowerBlueBrush)
-    {
-        m_pCornflowerBlueBrush->Release();
-    }
-    */
-
-    delete this;
+    DxApp::Destroy();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -80,45 +73,133 @@ bool CelShadeApp::Init()
 {
     bool success = DxApp::Init();
 
-    DxShader* pVertexShader = DxShader::CreateFromSource(m_pDevice, "IvyVsPosTex", IvyVsPosTex,PosTexVertexDesc, PosTexElements);
-
-    /*
-    if (m_pRenderTarget)
+    if (CelShadeAppUseGL)
     {
-        RECT rc;
-        GetClientRect(m_pWindow->GetHwnd(), &rc);
+#if !(IVY_GL_ES)
+        IVY_PRINT("GLTestApp OpenGL 2.0 Path");
 
-        D2D1_SIZE_U size = D2D1::SizeU(
-            rc.right - rc.left,
-            rc.bottom - rc.top
-            );
+        static PIXELFORMATDESCRIPTOR pfd =              // pfd Tells Windows How We Want Things To Be
+        {
+            sizeof(PIXELFORMATDESCRIPTOR),              // Size Of This Pixel Format Descriptor
+            1,                                          // Version Number
+            PFD_DRAW_TO_WINDOW |                        // Format Must Support Window
+            PFD_SUPPORT_OPENGL |                        // Format Must Support OpenGL
+            PFD_DOUBLEBUFFER,                           // Must Support Double Buffering
+            PFD_TYPE_RGBA,                              // Request An RGBA Format
+            32,                                         // Select Our Color Depth
+            0, 0, 0, 0, 0, 0,                           // Color Bits Ignored
+            0,											// No Alpha Buffer
+            0,											// Shift Bit Ignored
+            0,											// No Accumulation Buffer
+            0, 0, 0, 0,									// Accumulation Bits Ignored
+            32,											// 16Bit Z-Buffer (Depth Buffer)  
+            8,											// No Stencil Buffer
+            0,											// No Auxiliary Buffer
+            PFD_MAIN_PLANE,								// Main Drawing Layer
+            0,											// Reserved
+            0, 0, 0										// Layer Masks Ignored
+        };
 
-        // Create a gray brush.
-        m_pRenderTarget->CreateSolidColorBrush(
-            D2D1::ColorF(D2D1::ColorF::LightSlateGray),
-            &m_pLightSlateGrayBrush
-            );
+        m_hDC = GetDC(m_pWindow->GetHwnd());
 
-        // Create a blue brush.
-        m_pRenderTarget->CreateSolidColorBrush(
-            D2D1::ColorF(D2D1::ColorF::CornflowerBlue),
-            &m_pCornflowerBlueBrush
-            );
+
+        int PixelFormat = ChoosePixelFormat(m_hDC,&pfd);
+        BOOL setPixFmt = SetPixelFormat(m_hDC, PixelFormat, &pfd);
+
+        m_hGLRC = wglCreateContext(m_hDC);
+        wglMakeCurrent(m_hDC, m_hGLRC);
+
+        if( glewInit() != GLEW_OK)
+        {
+            exit(1);
+        }
+
+        //  Error Setup
+
+
+        //  glDebugMessageCallbackAMD((GLDEBUGPROCAMD)DebugCallbackAMD, NULL);
+
+        //  glDebugMessageEnableAMD(0, 0, 0, NULL, TRUE);
+        //glDebugMessageInsertAMDattribute  vec2 in_Position;                    
+        //attribute  vec3 in_Color;                       
+        ////////////glGetDebugMessageLogAMD
+
+        const GLubyte* pString = glGetString(GL_VERSION);
+
+        GLint majorVersion, minorVersion;
+        glGetIntegerv(GL_MAJOR_VERSION, &majorVersion);
+        glGetIntegerv(GL_MINOR_VERSION, &minorVersion);
+
+        const GLubyte* pExtension = glGetString(GL_EXTENSIONS);
+        IvyLog(reinterpret_cast<const char*>(pExtension));
+#endif // !(IVY_GL_ES)
     }
-    */
+    else
+    {
+        DxShader* pVertexShader = DxShader::CreateFromSource(m_pDevice, "IvyVsPosTex", IvyVsPosTex,PosTexVertexDesc, PosTexElements);
 
-    // Setup Camera
-    m_pCamera->Position().x = 0;
-    m_pCamera->Position().y = -3;
-    m_pCamera->Position().z = 4;
+        // Setup Camera
+        m_pCamera->Position().x = 0;
+        m_pCamera->Position().y = -3;
+        m_pCamera->Position().z = 4;
+    }
 
     return success;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// CelShadeApp::Run
+///
+/// @brief
+///     Run the demo
+/// @return
+///     N/A
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void CelShadeApp::Run()
+{
+    if (CelShadeAppUseGL)
+    {
+        CelShadeGL();
+    }
+    else
+    {
+        CelShadeD3D();
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/// CelShadeApp::CelShadeGL
+///
+/// @brief
+///     Render a cel-shading demo using OpenGL
+/// @return
+///     N/A
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void CelShadeApp::CelShadeGL()
+{
+    m_pWindow->Show();
+
+    BOOL quit = false;
+    while (!quit)
+    {
+        m_pWindow->ProcessMsg(&quit);
+
+        glClearColor(0.4f, 1.0f, 0.4f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        SwapBuffers(m_hDC);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/// CelShadeApp::CelShadeD3D
+///
+/// @brief
+///     Render a cel-shading demo using Direct3D
+/// @return
+///     N/A
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void CelShadeApp::CelShadeD3D()
 {
     D3DX11_IMAGE_LOAD_INFO imageLoadInfo;
     memset( &imageLoadInfo, 0, sizeof(D3DX11_IMAGE_LOAD_INFO) );
