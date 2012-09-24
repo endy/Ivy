@@ -18,6 +18,8 @@
 #include "DxBuffer.h"
 #include "IvyUtils.h"
 
+#include "DxUI.h"
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// CelShadeApp::Create
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -56,6 +58,7 @@ CelShadeApp::~CelShadeApp()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void CelShadeApp::Destroy()
 {
+    /*
     if (m_pLightSlateGrayBrush)
     {
         m_pLightSlateGrayBrush->Release();
@@ -65,6 +68,7 @@ void CelShadeApp::Destroy()
     {
         m_pCornflowerBlueBrush->Release();
     }
+    */
 
     delete this;
 }
@@ -78,6 +82,7 @@ bool CelShadeApp::Init()
 
     DxShader* pVertexShader = DxShader::CreateFromSource(m_pDevice, "IvyVsPosTex", IvyVsPosTex,PosTexVertexDesc, PosTexElements);
 
+    /*
     if (m_pRenderTarget)
     {
         RECT rc;
@@ -100,6 +105,7 @@ bool CelShadeApp::Init()
             &m_pCornflowerBlueBrush
             );
     }
+    */
 
     // Setup Camera
     m_pCamera->Position().x = 0;
@@ -119,9 +125,6 @@ void CelShadeApp::Run()
     imageLoadInfo.BindFlags = D3D11_BIND_SHADER_RESOURCE;
     imageLoadInfo.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 
-    ID3D11ShaderResourceView *pColorTexSRV = NULL;
-    HRESULT imageHr = D3DX11CreateShaderResourceViewFromFile(m_pDevice, "halo.jpg", &imageLoadInfo, NULL, &pColorTexSRV, NULL );
-
     DxTextureCreateInfo shadeTexInfo;
     memset(&shadeTexInfo, 0, sizeof(DxTextureCreateInfo));
     shadeTexInfo.flags.RenderTarget = TRUE;
@@ -139,36 +142,6 @@ void CelShadeApp::Run()
     edgeTexInfo.width = m_screenWidth;
     edgeTexInfo.height = m_screenHeight;
     DxTexture* pEdgeTex = DxTexture::Create(m_pDevice, &edgeTexInfo);
-
-
-    ID3D11ShaderResourceView* pUI_SRV = NULL;
-
-    D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-    srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-    srvDesc.Texture2D.MipLevels = 1;
-    srvDesc.Texture2D.MostDetailedMip = 0;
-    srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-
-    m_pDevice->CreateShaderResourceView(m_pUIoverlay, &srvDesc, &pUI_SRV);
-
-    D3D11_BLEND_DESC uiBlendDesc;
-    memset(&uiBlendDesc, 0, sizeof(D3D11_BLEND_DESC));
-
-    uiBlendDesc.AlphaToCoverageEnable = FALSE;
-    uiBlendDesc.IndependentBlendEnable = FALSE;
-    uiBlendDesc.RenderTarget[0].BlendEnable = TRUE;
-
-    uiBlendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
-    uiBlendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-    uiBlendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-    uiBlendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
-    uiBlendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
-    uiBlendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-
-    uiBlendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-
-    ID3D11BlendState* pUIBlendState = NULL;
-    m_pDevice->CreateBlendState(&uiBlendDesc, &pUIBlendState);
 
     // Samplers  /////////////////////////////////////////////////////////////////////////////
 
@@ -192,8 +165,8 @@ void CelShadeApp::Run()
     UINT numVertices = 0, numIndices = 0;
     VertexPTN* pVB = NULL;
     UINT* pIB = NULL;
-    ImportPly("../Content/dragon_vrip_res3.ply", numVertices, &pVB, numIndices, &pIB);
-    //ImportPly("../Content/bun_zipper_res4.ply", numVertices, &pVB, numIndices, &pIB);
+    ImportPly("Content/dragon_vrip_res3.ply", numVertices, &pVB, numIndices, &pIB);
+    //ImportPly("Content/bun_zipper_res4.ply", numVertices, &pVB, numIndices, &pIB);
     DxMeshCreateInfo meshCreateInfo = {0};
     meshCreateInfo.indexCount = numIndices;
     meshCreateInfo.pIndexArray = pIB;
@@ -236,15 +209,15 @@ void CelShadeApp::Run()
 
     // Shaders ////////////////////////////////////////////////////////////////////////////////////
 
-    m_pPosTexTriVS = DxShader::CreateFromFile(m_pDevice, "PosTexTri", "CelShade.hlsl", PosTexVertexDesc, PosTexElements);
-    m_pPosTexNormVS = DxShader::CreateFromFile(m_pDevice, "PosTexNorm", "CelShade.hlsl", PosTexNormVertexDesc, PosTexNormElements);
+    m_pPosTexTriVS = DxShader::CreateFromFile(m_pDevice, "PosTexTri", "Content/shaders/CelShade.hlsl", PosTexVertexDesc, PosTexElements);
+    m_pPosTexNormVS = DxShader::CreateFromFile(m_pDevice, "PosTexNorm", "Content/shaders/CelShade.hlsl", PosTexNormVertexDesc, PosTexNormElements);
 
-    m_pCelShadePS = DxShader::CreateFromFile(m_pDevice, "CelShade", "CelShade.hlsl");
-    DxShader* pDetectEdges = DxShader::CreateFromFile(m_pDevice, "DetectEdges", "CelShade.hlsl");
-    DxShader* pApplyTexPS = DxShader::CreateFromFile(m_pDevice, "ApplyTex", "CelShade.hlsl");
+    m_pCelShadePS = DxShader::CreateFromFile(m_pDevice, "CelShade", "Content/shaders/CelShade.hlsl");
+    DxShader* pDetectEdges = DxShader::CreateFromFile(m_pDevice, "DetectEdges", "Content/shaders/CelShade.hlsl");
+    DxShader* pApplyTexPS = DxShader::CreateFromFile(m_pDevice, "ApplyTex", "Content/shaders/CelShade.hlsl");
 
-    DxShader* pCubeVS = DxShader::CreateFromFile(m_pDevice, "PosTex", "CelShade.hlsl", PosTexVertexDesc, PosTexElements);
-    DxShader* pCubePS = DxShader::CreateFromFile(m_pDevice, "CubePS", "CelShade.hlsl");
+    DxShader* pCubeVS = DxShader::CreateFromFile(m_pDevice, "PosTex", "Content/shaders/CelShade.hlsl", PosTexVertexDesc, PosTexElements);
+    DxShader* pCubePS = DxShader::CreateFromFile(m_pDevice, "CubePS", "Content/shaders/CelShade.hlsl");
 
 
     ////////////////////////////////////////////////////////////////////////////////////////
@@ -361,45 +334,15 @@ void CelShadeApp::Run()
 
         ///// Draw UI ////////////////////////////////////////////////////////////////////////////////
 
-        Draw2D();
+        ///@TODO Consider moving the following UI drawing to Draw2D()
+        m_pUI->Begin();
+        // Draw UI stuff
+        m_pUI->RenderRect();
+        m_pUI->RenderText();
+        m_pUI->End();
 
-        UINT acquireKey = 1;
-        UINT releaseKey = 0;
-        UINT timeout = 5;
-
-        HRESULT hr = m_pUIKeyedMutex_D3D->AcquireSync(acquireKey, timeout);
-
-        FLOAT blendFactors[4];
-        UINT sampleMask = 0xFFFFFFFF;
-
-        ID3D11BlendState* pBackupBlendState = NULL;
-        m_pContext->OMGetBlendState(&pBackupBlendState, blendFactors, &sampleMask);
-
-        if (hr == WAIT_OBJECT_0)
-        {
-            m_pContext->OMSetRenderTargets(1, &m_pRenderTargetView, NULL);
-
-            pCameraData = reinterpret_cast<CameraBufferData*>(pCameraBuffer->Map(m_pContext));
-            pCameraData->worldMatrix = XMMatrixRotationX(-3.14f/2.0f) * XMMatrixScaling(2, 2, 1);
-            pCameraData->viewMatrix = XMMatrixTranslation(0, 0, 2.0f) * m_pCamera->W2C();
-            pCameraData->projectionMatrix = m_pCamera->C2S();
-
-            pCameraBuffer->Unmap(m_pContext);
-
-            m_pPosTexTriVS->Bind(m_pContext);
-
-            m_pContext->PSSetShaderResources(0, 1, &pUI_SRV);
-            pApplyTexPS->Bind(m_pContext);
-
-            m_pContext->OMSetBlendState(pUIBlendState, blendFactors, sampleMask);
-
-            pPlaneMesh->Bind(m_pContext);
-            pPlaneMesh->Draw(m_pContext);
-        }
-
-        hr = m_pUIKeyedMutex_D3D->ReleaseSync(releaseKey);
-
-        m_pContext->OMSetBlendState(pBackupBlendState, blendFactors, sampleMask);
+        /// Blend UI onto final image
+        DrawUI();
 
         m_pSwapChain->Present(0,0);
 
@@ -410,7 +353,6 @@ void CelShadeApp::Run()
     }
 
     // Shader Resource Views
-    pColorTexSRV->Release();
 
     pCameraBuffer->Destroy();
 
@@ -487,62 +429,6 @@ void CelShadeApp::HandleKeyboardInput(
         default:
             break;
         }
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/// CelShadeApp::Draw2D
-///////////////////////////////////////////////////////////////////////////////////////////////////
-void CelShadeApp::Draw2D()
-{
-    UINT acquireKey = 0;
-    UINT releaseKey = 1;
-    UINT timeout = 5;
-
-    if (m_pRenderTarget)
-    {
-        HRESULT hr = m_pUIKeyedMutex_D2D->AcquireSync(acquireKey, timeout);
-
-        if (hr == WAIT_OBJECT_0)
-        {
-            
-            m_pRenderTarget->BeginDraw();
-            D2D1_COLOR_F clearColor = {0};
-            m_pRenderTarget->Clear(clearColor);
-            m_pRenderTarget->SetTransform(D2D1::Matrix3x2F::Identity());
-
-            D2D1_RECT_F rect;
-            rect.left = 0.0f;
-            rect.top = 0.0f;
-            rect.right = 20.0f;
-            rect.bottom = 20.0f;
-
-           m_pRenderTarget->DrawRectangle(&rect, m_pCornflowerBlueBrush, 3.0f);
-
-            D2D1_RECT_F layoutRect = D2D1::RectF(0.f, 0.f, 300.f, 100.f);
-
-            wchar_t stringBuffer[1024];
-            memset(stringBuffer, 0, 1024*sizeof(wchar_t));
-            swprintf(stringBuffer,
-                    1024,
-                    L"Camera Pos (%f, %f, %f)",
-                    m_pCamera->Position().x,
-                    m_pCamera->Position().y,
-                    m_pCamera->Position().z);
-
-            m_pRenderTarget->DrawText(
-                stringBuffer,
-                wcslen(stringBuffer),
-                m_pITextFormat,
-                layoutRect, 
-                m_pITextBrush);
-
-            m_pRenderTarget->EndDraw();
-            m_pRenderTarget->Flush();
-            
-        }
-
-        m_pUIKeyedMutex_D2D->ReleaseSync(releaseKey);
     }
 }
 

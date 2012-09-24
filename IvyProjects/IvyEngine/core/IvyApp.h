@@ -15,10 +15,10 @@
 #include "SystemEventDispatcher.h"
 #include "IvyInput.h"
 #include "IvyPerf.h"
+#include "IvyConfig.h"
 
 class IvyWindow;
 class IvyCamera;
-struct IvyConfigItem;
 
 class IvyApp : 
     public IvyObject,
@@ -26,6 +26,8 @@ class IvyApp :
 {
 public:
     static bool Configure(unsigned int argc, const char** argv);
+
+    static IvyConfigItemValue* QueryConfig(const char* pName);
 
     virtual void Destroy();
 

@@ -18,15 +18,14 @@
 #include "DxMesh.h"
 #include "IvyUtils.h"
 
+#include "DxUI.h"
 
 #include "IvyImporter.h"
 #include "DxLight.h"
 
 DxTestApp::DxTestApp()
     :
-    DxApp(),
-    m_pLightSlateGrayBrush(NULL),
-    m_pCornflowerBlueBrush(NULL)
+    DxApp()
 {
 
 }
@@ -59,47 +58,12 @@ DxTestApp* DxTestApp::Create()
 
 void DxTestApp::Destroy()
 {
-    if (m_pLightSlateGrayBrush)
-    {
-        m_pLightSlateGrayBrush->Release();
-        m_pLightSlateGrayBrush = NULL;
-    }
-
-    if (m_pCornflowerBlueBrush)
-    {
-        m_pCornflowerBlueBrush->Release();
-        m_pCornflowerBlueBrush = NULL;
-    }
-
     DxApp::Destroy();
 }
 
 bool DxTestApp::Init()
 {
     bool success = DxApp::Init();
-
-    if (m_pRenderTarget)
-    {
-        RECT rc;
-        GetClientRect(m_pWindow->GetHwnd(), &rc);
-
-        D2D1_SIZE_U size = D2D1::SizeU(
-            rc.right - rc.left,
-            rc.bottom - rc.top
-            );
-
-        // Create a gray brush.
-        m_pRenderTarget->CreateSolidColorBrush(
-            D2D1::ColorF(D2D1::ColorF::LightSlateGray),
-            &m_pLightSlateGrayBrush
-            );
-
-        // Create a blue brush.
-        m_pRenderTarget->CreateSolidColorBrush(
-            D2D1::ColorF(D2D1::ColorF::CornflowerBlue),
-            &m_pCornflowerBlueBrush
-            );
-    }
 
     return success;
 }
@@ -454,47 +418,11 @@ void DxTestApp::Run()
 
 
         // Draw UI
-
-        Draw2D();
-
-        UINT aquireKey = 1;
-        UINT releaseKey = 0;
-        UINT timeout = 5;
-
-        HRESULT hr = m_pUIKeyedMutex_D3D->AcquireSync(aquireKey, timeout);
-         
-
-        FLOAT blendFactors[4];
-        UINT sampleMask = 0xFFFFFFFF;
-
-        ID3D11BlendState* pBackupBlendState = NULL;
-        m_pContext->OMGetBlendState(&pBackupBlendState, blendFactors, &sampleMask);
-
-        if (hr == WAIT_OBJECT_0)
-        {
-            
-            CameraBufferData* pMatrixCB = reinterpret_cast<CameraBufferData*>(pCameraBuffer->Map(m_pContext));
-            pMatrixCB->worldMatrix      = XMMatrixRotationX(-3.14f/2.0f) * XMMatrixScaling(2, 2, 1); //XMMatrixIdentity();
-            pMatrixCB->viewMatrix       = XMMatrixTranslation(0, 0, 2.0f) * m_pCamera->W2C(); 
-            pMatrixCB->projectionMatrix = m_pCamera->C2S(); 
-            
-            pCameraBuffer->Unmap(m_pContext);
-
-            m_pContext->OMSetRenderTargets( 1, &m_pRenderTargetView, NULL);
-
-            m_pContext->OMSetBlendState(pBlendState, blendFactors, sampleMask);
-
-            pPosTexVS->Bind(m_pContext);
-
-            m_pContext->PSSetShaderResources(0, 1, &pUI_SRV);
-            pApplyTexPS->Bind(m_pContext);
-
-            pPlaneMesh->Bind(m_pContext);
-            pPlaneMesh->Draw(m_pContext);
-        }
-
-        m_pUIKeyedMutex_D3D->ReleaseSync(releaseKey);
-        m_pContext->OMSetBlendState(pBackupBlendState, blendFactors, sampleMask);
+        m_pUI->Begin();
+        m_pUI->RenderRect();
+        m_pUI->RenderText();
+        m_pUI->End();
+        DrawUI();
 
         m_pSwapChain->Present(0,0);
 
@@ -575,45 +503,4 @@ void DxTestApp::Run()
 
     m_pContext->ClearState();
     m_pContext->Flush(); 
-}
-
-void DxTestApp::Draw2D()
-{
-    UINT aquireKey = 0;
-    UINT releaseKey = 1;
-    UINT timeout = 5;
-
-    if (m_pRenderTarget)
-    {
-        HRESULT hr = m_pUIKeyedMutex_D2D->AcquireSync(aquireKey, timeout);
-
-        if (hr == WAIT_OBJECT_0)
-        {
-
-            m_pRenderTarget->BeginDraw();
-
-            m_pRenderTarget->SetTransform(D2D1::Matrix3x2F::Identity());
-
-            D2D1_RECT_F rect;
-            rect.left = 0.0f;
-            rect.top = 0.0f;
-            rect.right = 20.0f;
-            rect.bottom = 20.0f;
-
-           // m_pRenderTarget->DrawRectangle(&rect, m_pCornflowerBlueBrush, 3.0f);
-
-            D2D1_RECT_F layoutRect = D2D1::RectF(0.f, 0.f, 100.f, 100.f);
-
-            m_pRenderTarget->DrawText(
-                L"Hello World",
-                wcslen(L"Hello World"),
-                m_pITextFormat,
-                layoutRect, 
-                m_pITextBrush);
-
-            m_pRenderTarget->EndDraw();
-        }
-
-        m_pUIKeyedMutex_D2D->ReleaseSync(releaseKey);
-    }
 }

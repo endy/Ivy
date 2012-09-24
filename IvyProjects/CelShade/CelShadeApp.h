@@ -13,6 +13,7 @@
 #include "DxApp.h"
 
 class DxShader;
+struct ID2D1SolidColorBrush;
 
 class CelShadeApp : public DxApp
 {

@@ -166,6 +166,7 @@
     <ClCompile Include="dx\DxMesh.cpp" />
     <ClCompile Include="dx\DxShader.cpp" />
     <ClCompile Include="dx\DxTexture.cpp" />
+    <ClCompile Include="dx\DxUI.cpp" />
     <ClCompile Include="dx\SystemEventDispatcher.cpp" />
     <ClCompile Include="gl\GLMesh.cpp" />
     <ClCompile Include="gl\GLShader.cpp" />
@@ -198,6 +199,7 @@
     <ClInclude Include="dx\DxText.h" />
     <ClInclude Include="dx\DxTexture.h" />
     <ClInclude Include="dx\DxTypes.h" />
+    <ClInclude Include="dx\DxUI.h" />
     <ClInclude Include="dx\DxUtils.h" />
     <ClInclude Include="dx\SystemEventDispatcher.h" />
     <ClInclude Include="gl\GLMesh.h" />

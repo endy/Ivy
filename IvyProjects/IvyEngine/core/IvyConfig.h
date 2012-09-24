@@ -23,22 +23,23 @@ enum IvyConfigItemType
     IvyString,
 };
 
+typedef union _IvyConfigItemValue
+{
+    void*           pvValue;
+    unsigned int*   puValue;
+    int*            piValue;
+    float*          pfValue;
+    bool*           pbValue;
+    const char*     pcValue;
+    const char**    ppStrValue;
+} IvyConfigItemValue;
+
 struct IvyConfigItem
 {
     const char*         name;
     const char*         desc;
     IvyConfigItemType   type;
-
-    union
-    {
-        void*           pvValue;
-        unsigned int*   puValue;
-        int*            piValue;
-        float*          pfValue;
-        bool*           pbValue;
-        const char*     pcValue;
-        const char**    ppStrValue;
-    } value;
+    IvyConfigItemValue  value;
 
     bool                required;
 };

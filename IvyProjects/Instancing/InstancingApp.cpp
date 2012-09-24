@@ -54,17 +54,7 @@ InstancingApp::~InstancingApp()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void InstancingApp::Destroy()
 {
-    if (m_pLightSlateGrayBrush)
-    {
-        m_pLightSlateGrayBrush->Release();
-    }
-    
-    if (m_pCornflowerBlueBrush)
-    {
-        m_pCornflowerBlueBrush->Release();
-    }
-
-    delete this;
+    DxApp::Destroy();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -75,29 +65,6 @@ bool InstancingApp::Init()
     bool success = DxApp::Init();
 
     DxShader* pVertexShader = DxShader::CreateFromSource(m_pDevice, "IvyVsPosTex", IvyVsPosTex,PosTexVertexDesc, PosTexElements);
-
-    if (m_pRenderTarget)
-    {
-        RECT rc;
-        GetClientRect(m_pWindow->GetHwnd(), &rc);
-
-        D2D1_SIZE_U size = D2D1::SizeU(
-            rc.right - rc.left,
-            rc.bottom - rc.top
-            );
-
-        // Create a gray brush.
-        m_pRenderTarget->CreateSolidColorBrush(
-            D2D1::ColorF(D2D1::ColorF::LightSlateGray),
-            &m_pLightSlateGrayBrush
-            );
-
-        // Create a blue brush.
-        m_pRenderTarget->CreateSolidColorBrush(
-            D2D1::ColorF(D2D1::ColorF::CornflowerBlue),
-            &m_pCornflowerBlueBrush
-            );
-    }
 
     // Setup Camera
     m_pCamera->Position().x = 0;
@@ -163,7 +130,7 @@ void InstancingApp::Run()
     UINT numVertices = 0, numIndices = 0;
     VertexPTN* pVB = NULL;
     UINT* pIB = NULL;
-    ImportPly("../Content/dragon_vrip_res3.ply", numVertices, &pVB, numIndices, &pIB);
+    ImportPly("Content/dragon_vrip_res3.ply", numVertices, &pVB, numIndices, &pIB);
     //ImportPly("../Content/bun_zipper_res4.ply", numVertices, &pVB, numIndices, &pIB);
     DxMeshCreateInfo meshCreateInfo = {0};
     meshCreateInfo.indexCount = numIndices;
@@ -207,13 +174,13 @@ void InstancingApp::Run()
 
     // Shaders ////////////////////////////////////////////////////////////////////////////////////
 
-    m_pPosTexTriVS = DxShader::CreateFromFile(m_pDevice, "PosTexTri", "Instancing.hlsl", PosTexVertexDesc, PosTexElements);
-    m_pPosTexNormVS = DxShader::CreateFromFile(m_pDevice, "PosTexNorm", "Instancing.hlsl", PosTexNormVertexDesc, PosTexNormElements);
+    m_pPosTexTriVS = DxShader::CreateFromFile(m_pDevice, "PosTexTri", "Content/shaders/Instancing.hlsl", PosTexVertexDesc, PosTexElements);
+    m_pPosTexNormVS = DxShader::CreateFromFile(m_pDevice, "PosTexNorm", "Content/shaders/Instancing.hlsl", PosTexNormVertexDesc, PosTexNormElements);
 
-    DxShader* pApplyTexPS = DxShader::CreateFromFile(m_pDevice, "ApplyTex", "Instancing.hlsl");
+    DxShader* pApplyTexPS = DxShader::CreateFromFile(m_pDevice, "ApplyTex", "Content/shaders/Instancing.hlsl");
 
-    DxShader* pCubeVS = DxShader::CreateFromFile(m_pDevice, "PosTex", "Instancing.hlsl", PosTexVertexDesc, PosTexElements);
-    DxShader* pCubePS = DxShader::CreateFromFile(m_pDevice, "CubePS", "Instancing.hlsl");
+    DxShader* pCubeVS = DxShader::CreateFromFile(m_pDevice, "PosTex", "Content/shaders/Instancing.hlsl", PosTexVertexDesc, PosTexElements);
+    DxShader* pCubePS = DxShader::CreateFromFile(m_pDevice, "CubePS", "Content/shaders/Instancing.hlsl");
     ////////////////////////////////////////////////////////////////////////////////////////
 
     m_pContext->ClearState();
@@ -325,47 +292,8 @@ void InstancingApp::Run()
         pCubeMesh->Bind(m_pContext);
         pCubeMesh->Draw(m_pContext);
 
-        ///// Draw UI ////////////////////////////////////////////////////////////////////////////////
+        ///@TODO Draw UI
 
-        Draw2D();
-
-        UINT acquireKey = 1;
-        UINT releaseKey = 0;
-        UINT timeout = 5;
-
-        HRESULT hr = m_pUIKeyedMutex_D3D->AcquireSync(acquireKey, timeout);
-
-        FLOAT blendFactors[4];
-        UINT sampleMask = 0xFFFFFFFF;
-
-        ID3D11BlendState* pBackupBlendState = NULL;
-        m_pContext->OMGetBlendState(&pBackupBlendState, blendFactors, &sampleMask);
-
-        if (hr == WAIT_OBJECT_0)
-        {
-            m_pContext->OMSetRenderTargets(1, &m_pRenderTargetView, NULL);
-
-            pCameraData = reinterpret_cast<CameraBufferData*>(pCameraBuffer->Map(m_pContext));
-            pCameraData->worldMatrix = XMMatrixRotationX(-3.14f/2.0f) * XMMatrixScaling(2, 2, 1);
-            pCameraData->viewMatrix = XMMatrixTranslation(0, 0, 2.0f) * m_pCamera->W2C();
-            pCameraData->projectionMatrix = m_pCamera->C2S();
-
-            pCameraBuffer->Unmap(m_pContext);
-
-            m_pPosTexTriVS->Bind(m_pContext);
-
-            m_pContext->PSSetShaderResources(0, 1, &pUI_SRV);
-            pApplyTexPS->Bind(m_pContext);
-
-            m_pContext->OMSetBlendState(pUIBlendState, blendFactors, sampleMask);
-
-            pPlaneMesh->Bind(m_pContext);
-            pPlaneMesh->Draw(m_pContext);
-        }
-
-        hr = m_pUIKeyedMutex_D3D->ReleaseSync(releaseKey);
-
-        m_pContext->OMSetBlendState(pBackupBlendState, blendFactors, sampleMask);
 
         m_pSwapChain->Present(0,0);
 
@@ -446,62 +374,6 @@ void InstancingApp::HandleKeyboardInput(
             default:
                 break;
         }
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/// InstancingApp::Draw2D
-///////////////////////////////////////////////////////////////////////////////////////////////////
-void InstancingApp::Draw2D()
-{
-    UINT acquireKey = 0;
-    UINT releaseKey = 1;
-    UINT timeout = 5;
-
-    if (m_pRenderTarget)
-    {
-        HRESULT hr = m_pUIKeyedMutex_D2D->AcquireSync(acquireKey, timeout);
-
-        if (hr == WAIT_OBJECT_0)
-        {
-            
-            m_pRenderTarget->BeginDraw();
-            D2D1_COLOR_F clearColor = {0};
-            m_pRenderTarget->Clear(clearColor);
-            m_pRenderTarget->SetTransform(D2D1::Matrix3x2F::Identity());
-
-            D2D1_RECT_F rect;
-            rect.left = 0.0f;
-            rect.top = 0.0f;
-            rect.right = 20.0f;
-            rect.bottom = 20.0f;
-
-           m_pRenderTarget->DrawRectangle(&rect, m_pCornflowerBlueBrush, 3.0f);
-
-            D2D1_RECT_F layoutRect = D2D1::RectF(0.f, 0.f, 300.f, 100.f);
-
-            wchar_t stringBuffer[1024];
-            memset(stringBuffer, 0, 1024*sizeof(wchar_t));
-            swprintf(stringBuffer,
-                    1024,
-                    L"Camera Pos (%f, %f, %f)",
-                    m_pCamera->Position().x,
-                    m_pCamera->Position().y,
-                    m_pCamera->Position().z);
-
-            m_pRenderTarget->DrawText(
-                stringBuffer,
-                wcslen(stringBuffer),
-                m_pITextFormat,
-                layoutRect, 
-                m_pITextBrush);
-
-            m_pRenderTarget->EndDraw();
-            m_pRenderTarget->Flush();
-            
-        }
-
-        m_pUIKeyedMutex_D2D->ReleaseSync(releaseKey);
     }
 }
 

@@ -33,14 +33,9 @@ protected:
 
     void HandleKeyboardInput(const Event* pEvent);
 
-    void Draw2D();
-
 private:
     DxShader* m_pPosTexTriVS;
     DxShader* m_pPosTexNormVS;
-
-    ID2D1SolidColorBrush* m_pLightSlateGrayBrush;
-    ID2D1SolidColorBrush* m_pCornflowerBlueBrush;
 };
 
 #endif // _CELSHADEAPP_H_

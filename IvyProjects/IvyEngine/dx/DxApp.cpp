@@ -9,31 +9,34 @@
 
 #include "DxApp.h"
 #include "DxUtils.h"
+#include "DxUI.h"
 
 #include "IvyWindow.h"
 #include "IvyCamera.h"
+
+#include "DxMesh.h"
+#include "DxShader.h"
+#include "DxBuffer.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// DxApp::DxApp
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 DxApp::DxApp()
     :
-m_pDevice(NULL),
+    m_pDevice(NULL),
     m_pContext(NULL),
     m_pSwapChain(NULL),
-    m_pDevice10_1(NULL),
-    m_pD2DOverlay(NULL),
-    m_hSharedD2DOverlay(0),
-    m_pUIKeyedMutex_D2D(NULL),
-    m_pUIKeyedMutex_D3D(NULL),
-    m_pUIoverlay(NULL),
     m_pRenderTargetView(NULL),
     m_pDepthStencilBuffer(NULL),
-    m_pDirect2dFactory(NULL),
-    m_pRenderTarget(NULL),
-    m_pITextBrush(NULL),
-    m_pITextFormat(NULL),
-    m_pIDWriteFactory(NULL)
+    m_pUI(NULL),
+    m_pUIVS(NULL),
+    m_pUIPS(NULL),
+    m_pUICameraBuffer(NULL),
+    m_pUIQuadMesh(NULL),
+    m_pUIBlendState(NULL),
+    m_pUIoverlay(NULL),
+    pUI_SRV(NULL),
+    m_pUIKeyedMutex_D3D(NULL)
 {
     memset(&m_viewport, 0, sizeof(D3D11_VIEWPORT));
 }
@@ -62,36 +65,17 @@ DxApp* DxApp::Create()
     return pApp;
 }
 
-/**************************************************************************************************
-DxApp::Destroy
-**************************************************************************************************/
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/// DxApp::Destroy
+///
+/// @brief
+///     Destroys DxApp object after cleaning up its resources
+/// @return
+///     N/A
+///////////////////////////////////////////////////////////////////////////////////////////////////
 void DxApp::Destroy()
 {
-    if (m_pRenderTarget)
-    {
-        m_pRenderTarget->Release();
-        m_pRenderTarget = NULL;
-    }
-
-    if (m_pDirect2dFactory)
-    {
-        m_pDirect2dFactory->Release();
-        m_pDirect2dFactory = NULL;
-    }
-
-    ///@todo Shared surface destruction -- is this correct?
-    if (m_pD2DOverlay != NULL)
-    {
-        m_pD2DOverlay->Release();
-        m_pD2DOverlay = NULL;
-    }
-
-    if (m_pDevice10_1)
-    {
-        m_pDevice10_1->Release();
-        m_pDevice10_1 = NULL;
-    }
-
     if (m_pCamera != NULL)
     {
         delete m_pCamera;
@@ -124,6 +108,16 @@ void DxApp::Destroy()
     {
         m_pSwapChain->Release();
     }
+
+    /*
+    m_pUI(NULL),
+    m_pUIVS(NULL),
+    m_pUIPS(NULL),
+    m_pUICameraBuffer(NULL),
+    m_pUIQuadMesh(NULL),
+    m_pUIBlendState(NULL),
+    pUI_SRV(NULL)
+    */
 
     delete this;
 }
@@ -260,118 +254,6 @@ bool DxApp::Init()
 
     if (success)
     {
-        IDXGIFactory1* pDxgiFactory = NULL;
-        hr = CreateDXGIFactory1(__uuidof(IDXGIFactory1), (void**)&pDxgiFactory);
-
-        IDXGIAdapter1* pAdapter = NULL;
-        pDxgiFactory->EnumAdapters1(0, &pAdapter);
-
-        // Init D3D10.1 device for D2D interop
-        if (DxFAIL(D3D10CreateDevice1(pAdapter,
-            D3D10_DRIVER_TYPE_HARDWARE,
-            NULL,
-            D3D10_CREATE_DEVICE_BGRA_SUPPORT   |
-            D3D10_CREATE_DEVICE_SINGLETHREADED,    // Remove once MT is added
-            D3D10_FEATURE_LEVEL_10_1,
-            D3D10_1_SDK_VERSION,
-            &m_pDevice10_1)))
-        {
-            success = false;
-        }
-        else
-        {
-            // Create Sync Shared Surface using Direct3D10.1 Device 1.
-            D3D10_TEXTURE2D_DESC desc;
-            ZeroMemory( &desc, sizeof(desc) );
-            desc.Width = m_screenWidth;
-            desc.Height = m_screenHeight;
-            desc.MipLevels = 1;
-            desc.ArraySize = 1;
-            // must match swapchain format in order to CopySubresourceRegion.
-            desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-            desc.SampleDesc.Count = 1;
-            desc.Usage = D3D10_USAGE_DEFAULT;
-            // creates 2D texture as a Synchronized Shared Surface.
-            desc.MiscFlags = D3D10_RESOURCE_MISC_SHARED_KEYEDMUTEX;
-            desc.BindFlags = D3D10_BIND_RENDER_TARGET | D3D10_BIND_SHADER_RESOURCE;
-
-            HRESULT hr = m_pDevice10_1->CreateTexture2D( &desc, NULL, &m_pD2DOverlay);
-
-            // QI IDXGIResource interface to synchronized shared surface.
-            IDXGIResource* pDXGIResource = NULL;
-            m_pD2DOverlay->QueryInterface(__uuidof(IDXGIResource), (LPVOID*) &pDXGIResource);
-
-            // obtain handle to IDXGIResource object.
-            pDXGIResource->GetSharedHandle(&m_hSharedD2DOverlay);
-            pDXGIResource->Release();
-
-            if (m_hSharedD2DOverlay == 0)
-            {
-                success = false;
-            }
-            else if (DxFAIL(m_pD2DOverlay->QueryInterface(__uuidof(IDXGIKeyedMutex),
-                (LPVOID*)&m_pUIKeyedMutex_D2D)))
-            {
-                success = false;
-            }
-
-        }
-
-    }
-
-    if (success)
-    {
-        // get surface for D3D11
-        // Obtain handle to Sync Shared Surface created by Direct3D10.1 Device 1.
-        hr = m_pDevice->OpenSharedResource(m_hSharedD2DOverlay,
-            __uuidof(ID3D11Texture2D),
-            (LPVOID*) &m_pUIoverlay);
-
-        if (DxFAIL(hr))
-        {
-            success = false;
-        }
-
-        if (DxFAIL(m_pUIoverlay->QueryInterface(__uuidof(IDXGIKeyedMutex),
-            (LPVOID*) &m_pUIKeyedMutex_D3D)))
-        {
-            success = false;
-        }
-    }
-
-
-    if (success)
-    {
-        // Direct2D
-
-        D2D1_FACTORY_OPTIONS factoryOptions;
-        factoryOptions.debugLevel = D2D1_DEBUG_LEVEL_INFORMATION;
-
-        HRESULT hr = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, factoryOptions, &m_pDirect2dFactory);
-
-        FLOAT dpiX;
-        FLOAT dpiY;
-        m_pDirect2dFactory->GetDesktopDpi(&dpiX, &dpiY);
-
-        D2D1_RENDER_TARGET_PROPERTIES props = D2D1::RenderTargetProperties(
-            D2D1_RENDER_TARGET_TYPE_DEFAULT,
-            D2D1::PixelFormat(DXGI_FORMAT_UNKNOWN, D2D1_ALPHA_MODE_PREMULTIPLIED),
-            dpiX,
-            dpiY);
-
-        IDXGISurface* pSurface = NULL;
-        m_pD2DOverlay->QueryInterface(__uuidof(IDXGISurface), (void**)&pSurface);
-
-        // Create a render-target view
-        hr = m_pDirect2dFactory->CreateDxgiSurfaceRenderTarget(
-            pSurface,
-            &props,
-            &m_pRenderTarget);
-
-    }
-
-    if (success)
-    {
         DxTextureCreateInfo depthStencilCreateInfo;
         memset(&depthStencilCreateInfo, 0, sizeof(DxTextureCreateInfo));
         depthStencilCreateInfo.flags.DepthStencil = TRUE;
@@ -391,25 +273,65 @@ bool DxApp::Init()
     m_viewport.TopLeftX = 0;
     m_viewport.TopLeftY = 0;
 
-    // DWrite
+    // Create UI
+    ///@TODO Move UI creation up into IvyApp once the creation of IvyUI exists
+    m_pUI = DxUI::Create();
 
-    DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED,
-        __uuidof(IDWriteFactory),
-        reinterpret_cast<IUnknown**>(&m_pIDWriteFactory));
+    m_pUIVS = DxShader::CreateFromFile(m_pDevice, "PosTexTri", "Content/shaders/DxUI.hlsl", PosTexVertexDesc, PosTexElements);
+    m_pUIPS = DxShader::CreateFromFile(m_pDevice, "ApplyTex", "Content/shaders/DxUI.hlsl");
 
-    m_pIDWriteFactory->CreateTextFormat(
-        L"Arial", 
-        NULL,
-        DWRITE_FONT_WEIGHT_NORMAL, 
-        DWRITE_FONT_STYLE_NORMAL, 
-        DWRITE_FONT_STRETCH_NORMAL, 
-        10.0f * 96.0f/72.0f, 
-        L"en-US", 
-        &m_pITextFormat);
+    CameraBufferData cameraData;
+    memset(&cameraData, 0, sizeof(CameraBufferData));
 
-    m_pRenderTarget->CreateSolidColorBrush(
-        D2D1:: ColorF(D2D1::ColorF::Red),
-        &m_pITextBrush);
+    DxBufferCreateInfo cameraBufferCreateInfo = {0};
+    cameraBufferCreateInfo.flags.cpuWriteable = TRUE;
+    cameraBufferCreateInfo.elemSizeBytes = sizeof(CameraBufferData);
+    cameraBufferCreateInfo.pInitialData = &cameraData;
+    m_pUICameraBuffer = DxBuffer::Create(m_pDevice, &cameraBufferCreateInfo);
+
+    Plane p;
+    DxMeshCreateInfo planeMeshInfo;
+    memset(&planeMeshInfo, 0, sizeof(planeMeshInfo));
+    planeMeshInfo.pVertexArray = p.GetVB();
+    planeMeshInfo.vertexCount = p.NumVertices();
+    planeMeshInfo.vertexElementSize = sizeof(VertexPTN);
+
+    m_pUIQuadMesh = DxMesh::Create(m_pDevice, &planeMeshInfo);
+
+    m_pUIoverlay = m_pUI->CreateSharedTextureOverlay(m_pDevice);
+
+    if (DxFAIL(m_pUIoverlay->QueryInterface(__uuidof(IDXGIKeyedMutex),
+        (LPVOID*) &m_pUIKeyedMutex_D3D)))
+    {
+        success = false;
+    }
+
+    D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+    srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    srvDesc.Texture2D.MipLevels = 1;
+    srvDesc.Texture2D.MostDetailedMip = 0;
+    srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+
+    m_pDevice->CreateShaderResourceView(m_pUIoverlay, &srvDesc, &pUI_SRV);
+
+    D3D11_BLEND_DESC uiBlendDesc;
+    memset(&uiBlendDesc, 0, sizeof(D3D11_BLEND_DESC));
+
+    uiBlendDesc.AlphaToCoverageEnable = FALSE;
+    uiBlendDesc.IndependentBlendEnable = FALSE;
+    uiBlendDesc.RenderTarget[0].BlendEnable = TRUE;
+
+    uiBlendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+    uiBlendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+    uiBlendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+    uiBlendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+    uiBlendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+    uiBlendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+
+    uiBlendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+    ID3D11BlendState* pUIBlendState = NULL;
+    m_pDevice->CreateBlendState(&uiBlendDesc, &m_pUIBlendState);
 
     return success;
 }
@@ -493,3 +415,53 @@ void DxApp::UpdateSwapChain()
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/// DxApp::DrawUI
+///
+/// @brief
+///     
+/// @return
+///     N/A
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void DxApp::DrawUI()
+{
+    UINT acquireKey = 1;
+    UINT releaseKey = 0;
+    UINT timeout = 5;
+
+    HRESULT hr = m_pUIKeyedMutex_D3D->AcquireSync(acquireKey, timeout);
+
+    FLOAT blendFactors[4];
+    UINT sampleMask = 0xFFFFFFFF;
+
+    ID3D11BlendState* pLastBlendState = NULL;
+    m_pContext->OMGetBlendState(&pLastBlendState, blendFactors, &sampleMask);
+
+    if (hr == WAIT_OBJECT_0)
+    {
+        m_pContext->OMSetRenderTargets(1, &m_pRenderTargetView, NULL);
+
+        CameraBufferData* pCameraData = reinterpret_cast<CameraBufferData*>(m_pUICameraBuffer->Map(m_pContext));
+        pCameraData->worldMatrix = XMMatrixRotationX(-3.14f/2.0f) * XMMatrixScaling(2, 2, 1);
+        pCameraData->viewMatrix = XMMatrixTranslation(0, 0, 2.0f) * m_pCamera->W2C();
+        pCameraData->projectionMatrix = m_pCamera->C2S();
+
+        m_pUICameraBuffer->Unmap(m_pContext);
+
+        m_pUIVS->Bind(m_pContext);
+        m_pUICameraBuffer->BindVS(m_pContext, 0);
+
+        m_pContext->PSSetShaderResources(0, 1, &pUI_SRV);
+        m_pUIPS->Bind(m_pContext);
+
+        m_pContext->OMSetBlendState(m_pUIBlendState, blendFactors, sampleMask);
+
+        m_pUIQuadMesh->Bind(m_pContext);
+        m_pUIQuadMesh->Draw(m_pContext);
+    }
+
+    hr = m_pUIKeyedMutex_D3D->ReleaseSync(releaseKey);
+
+    m_pContext->OMSetBlendState(pLastBlendState, blendFactors, sampleMask);
+
+}

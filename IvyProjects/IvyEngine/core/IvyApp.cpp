@@ -11,8 +11,6 @@
 #include "IvyWindow.h"
 #include "IvyCamera.h"
 
-#include "IvyConfig.h"
-
 const UINT IvyApp::BufferCount = 1;
 
 unsigned int IvyApp::ScreenWidth  = 512;
@@ -95,6 +93,33 @@ bool IvyApp::Configure(unsigned int argc, const char** argv)
     IVY_FREE(pConfigString);
 
     return success;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/// IvyApp::QueryConfig
+///
+/// @brief
+///     
+/// @return
+///     Pointer to the IvyConfigItem that has the given name
+///////////////////////////////////////////////////////////////////////////////////////////////////
+ IvyConfigItemValue* IvyApp::QueryConfig(
+     const char* pName) ///< Name of config item
+{
+    IvyConfigItemValue* pItemValue = NULL;
+
+    unsigned int idx = 0;
+    while (IvyAppConfig[idx].name != NULL)
+    {
+        if (stricmp(IvyAppConfig[idx].name, pName) == 0)
+        {
+            pItemValue = &IvyAppConfig[idx].value;
+            break;
+        }
+        idx++;
+    }
+
+    return pItemValue;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

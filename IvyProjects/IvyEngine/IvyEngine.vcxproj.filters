@@ -78,6 +78,9 @@
     <ClCompile Include="core\IvyConfig.cpp">
       <Filter>core</Filter>
     </ClCompile>
+    <ClCompile Include="dx\DxUI.cpp">
+      <Filter>dx</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dx\DxLight.h">
@@ -175,6 +178,9 @@
     </ClInclude>
     <ClInclude Include="core\IvyConfig.h">
       <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="dx\DxUI.h">
+      <Filter>dx</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

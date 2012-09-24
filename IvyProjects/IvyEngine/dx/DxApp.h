@@ -16,12 +16,14 @@
 #include "IvyApp.h"
 #include "DxTexture.h"
 
-#include <D3DX11.h>
-#include <D2D1.h>
-#include <DWrite.h>
-
 #include <vector>
 
+class DxUI;
+class DxShader;
+class DxBuffer;
+class DxMesh;
+struct D3D11BlendState;
+struct ID3D11ShaderResourceView;
 
 class DxApp :
     public IvyApp
@@ -41,22 +43,12 @@ protected:
 
     void UpdateSwapChain();
 
+    void DrawUI();
+
     // D3D
     ID3D11Device* m_pDevice;
     ID3D11DeviceContext* m_pContext;
     IDXGISwapChain* m_pSwapChain;
-
-
-    // D2D Shared Surface
-    ID3D10Device1* m_pDevice10_1;
-    ID3D10Texture2D* m_pD2DOverlay;
-
-    HANDLE m_hSharedD2DOverlay;
-
-    IDXGIKeyedMutex* m_pUIKeyedMutex_D2D;
-    IDXGIKeyedMutex* m_pUIKeyedMutex_D3D;
-    ID3D11Texture2D* m_pUIoverlay;
-
 
     ///@todo Refactor into a group
     ID3D11RenderTargetView* m_pRenderTargetView;
@@ -65,19 +57,22 @@ protected:
     ///@todo Create better mapping between viewport & camera
     D3D11_VIEWPORT m_viewport;
 
-    // D2D
-    ID2D1Factory* m_pDirect2dFactory;
-    ID2D1RenderTarget* m_pRenderTarget;
+    // UI Objects
+    DxUI* m_pUI;    ///< DxUI for the user interface overlay
 
-    ID2D1SolidColorBrush* m_pITextBrush;
-
-    // DWrite
-    IDWriteTextFormat* m_pITextFormat;
-    IDWriteFactory* m_pIDWriteFactory;
+    DxShader* m_pUIVS;
+    DxShader* m_pUIPS;
+    DxBuffer* m_pUICameraBuffer;
+    DxMesh* m_pUIQuadMesh;
+    ID3D11BlendState* m_pUIBlendState;
+    ID3D11Texture2D* m_pUIoverlay;
+    ID3D11ShaderResourceView* pUI_SRV;
+    IDXGIKeyedMutex* m_pUIKeyedMutex_D3D;
 
 private:
     DxApp(const DxApp& copy);               // Disallow copy constructor
     DxApp& operator=(const DxApp& copy);    // Disallow assignment operator
+
 };
 
 #endif // _DXAPP_H_
