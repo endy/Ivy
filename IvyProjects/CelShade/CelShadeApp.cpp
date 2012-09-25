@@ -8,6 +8,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "CelShadeApp.h"
+#include "IvyDX.h"
 #include "IvyWindow.h"
 #include "IvyCamera.h"
 
@@ -23,7 +24,7 @@
 #include "IvyGL.h"
 
 ///@TODO: remove global setting asap
-const bool CelShadeAppUseGL = TRUE;
+const bool CelShadeAppUseGL = FALSE;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// CelShadeApp::Create
@@ -42,7 +43,7 @@ CelShadeApp* CelShadeApp::Create()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 CelShadeApp::CelShadeApp()
     :
-    DxApp(),
+    IvyApp(),
     m_pPosTexTriVS(NULL),
     m_pPosTexNormVS(NULL),
     m_pCelShadePS(NULL)
@@ -63,7 +64,7 @@ CelShadeApp::~CelShadeApp()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void CelShadeApp::Destroy()
 {
-    DxApp::Destroy();
+    IvyApp::Destroy();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -71,7 +72,7 @@ void CelShadeApp::Destroy()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 bool CelShadeApp::Init()
 {
-    bool success = DxApp::Init();
+    bool success = IvyApp::Init();
 
     if (CelShadeAppUseGL)
     {
@@ -136,7 +137,9 @@ bool CelShadeApp::Init()
     }
     else
     {
-        DxShader* pVertexShader = DxShader::CreateFromSource(m_pDevice, "IvyVsPosTex", IvyVsPosTex,PosTexVertexDesc, PosTexElements);
+        InitDX();
+
+        DxShader* pVertexShader = DxShader::CreateFromSource(m_pDxData->pD3D11Device, "IvyVsPosTex", IvyVsPosTex,PosTexVertexDesc, PosTexElements);
 
         // Setup Camera
         m_pCamera->Position().x = 0;
@@ -201,6 +204,9 @@ void CelShadeApp::CelShadeGL()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void CelShadeApp::CelShadeD3D()
 {
+    ID3D11DeviceContext* pContext = m_pDxData->pD3D11Context;
+    ID3D11Device* pDevice = m_pDxData->pD3D11Device;
+
     D3DX11_IMAGE_LOAD_INFO imageLoadInfo;
     memset( &imageLoadInfo, 0, sizeof(D3DX11_IMAGE_LOAD_INFO) );
     imageLoadInfo.BindFlags = D3D11_BIND_SHADER_RESOURCE;
@@ -213,7 +219,7 @@ void CelShadeApp::CelShadeD3D()
     shadeTexInfo.format = DXGI_FORMAT_R8G8B8A8_UNORM;
     shadeTexInfo.width = m_screenWidth;
     shadeTexInfo.height = m_screenHeight;
-    DxTexture* pShadeTex = DxTexture::Create(m_pDevice, &shadeTexInfo);
+    DxTexture* pShadeTex = DxTexture::Create(pDevice, &shadeTexInfo);
 
     DxTextureCreateInfo edgeTexInfo;
     memset(&edgeTexInfo, 0, sizeof(DxTextureCreateInfo));
@@ -222,7 +228,7 @@ void CelShadeApp::CelShadeD3D()
     edgeTexInfo.format = DXGI_FORMAT_R8G8B8A8_UNORM;
     edgeTexInfo.width = m_screenWidth;
     edgeTexInfo.height = m_screenHeight;
-    DxTexture* pEdgeTex = DxTexture::Create(m_pDevice, &edgeTexInfo);
+    DxTexture* pEdgeTex = DxTexture::Create(pDevice, &edgeTexInfo);
 
     // Samplers  /////////////////////////////////////////////////////////////////////////////
 
@@ -240,7 +246,7 @@ void CelShadeApp::CelShadeD3D()
     pointSamplerDesc.MaxAnisotropy = 16;
 
     ID3D11SamplerState* pPointSampler = NULL;
-    m_pDevice->CreateSamplerState(&pointSamplerDesc, &pPointSampler);
+    pDevice->CreateSamplerState(&pointSamplerDesc, &pPointSampler);
 
     //
     UINT numVertices = 0, numIndices = 0;
@@ -255,7 +261,7 @@ void CelShadeApp::CelShadeD3D()
     meshCreateInfo.pVertexArray = pVB;
     meshCreateInfo.vertexCount = numVertices;
     meshCreateInfo.vertexElementSize = sizeof(VertexPTN);
-    DxMesh* pMesh = DxMesh::Create(m_pDevice, &meshCreateInfo);
+    DxMesh* pMesh = DxMesh::Create(pDevice, &meshCreateInfo);
 
     Plane p;
     DxMeshCreateInfo planeMeshInfo;
@@ -264,7 +270,7 @@ void CelShadeApp::CelShadeD3D()
     planeMeshInfo.vertexCount = p.NumVertices();
     planeMeshInfo.vertexElementSize = sizeof(VertexPTN);
 
-    DxMesh* pPlaneMesh = DxMesh::Create(m_pDevice, &planeMeshInfo);
+    DxMesh* pPlaneMesh = DxMesh::Create(pDevice, &planeMeshInfo);
 
     Cube c;
     DxMeshCreateInfo cubeMeshInfo;
@@ -273,7 +279,7 @@ void CelShadeApp::CelShadeD3D()
     cubeMeshInfo.vertexCount = c.NumVertices();
     cubeMeshInfo.vertexElementSize = sizeof(VertexPT);
 
-    DxMesh* pCubeMesh = DxMesh::Create(m_pDevice, &cubeMeshInfo);
+    DxMesh* pCubeMesh = DxMesh::Create(pDevice, &cubeMeshInfo);
 
     D3D11_SUBRESOURCE_DATA cbInitData;
     memset(&cbInitData, 0, sizeof(D3D11_SUBRESOURCE_DATA));	
@@ -286,24 +292,24 @@ void CelShadeApp::CelShadeD3D()
     cameraBufferCreateInfo.flags.cpuWriteable = TRUE;
     cameraBufferCreateInfo.elemSizeBytes = sizeof(CameraBufferData);
     cameraBufferCreateInfo.pInitialData = &cameraData;
-    DxBuffer* pCameraBuffer = DxBuffer::Create(m_pDevice, &cameraBufferCreateInfo);
+    DxBuffer* pCameraBuffer = DxBuffer::Create(pDevice, &cameraBufferCreateInfo);
 
     // Shaders ////////////////////////////////////////////////////////////////////////////////////
 
-    m_pPosTexTriVS = DxShader::CreateFromFile(m_pDevice, "PosTexTri", "Content/shaders/CelShade.hlsl", PosTexVertexDesc, PosTexElements);
-    m_pPosTexNormVS = DxShader::CreateFromFile(m_pDevice, "PosTexNorm", "Content/shaders/CelShade.hlsl", PosTexNormVertexDesc, PosTexNormElements);
+    m_pPosTexTriVS = DxShader::CreateFromFile(pDevice, "PosTexTri", "Content/shaders/CelShade.hlsl", PosTexVertexDesc, PosTexElements);
+    m_pPosTexNormVS = DxShader::CreateFromFile(pDevice, "PosTexNorm", "Content/shaders/CelShade.hlsl", PosTexNormVertexDesc, PosTexNormElements);
 
-    m_pCelShadePS = DxShader::CreateFromFile(m_pDevice, "CelShade", "Content/shaders/CelShade.hlsl");
-    DxShader* pDetectEdges = DxShader::CreateFromFile(m_pDevice, "DetectEdges", "Content/shaders/CelShade.hlsl");
-    DxShader* pApplyTexPS = DxShader::CreateFromFile(m_pDevice, "ApplyTex", "Content/shaders/CelShade.hlsl");
+    m_pCelShadePS = DxShader::CreateFromFile(pDevice, "CelShade", "Content/shaders/CelShade.hlsl");
+    DxShader* pDetectEdges = DxShader::CreateFromFile(pDevice, "DetectEdges", "Content/shaders/CelShade.hlsl");
+    DxShader* pApplyTexPS = DxShader::CreateFromFile(pDevice, "ApplyTex", "Content/shaders/CelShade.hlsl");
 
-    DxShader* pCubeVS = DxShader::CreateFromFile(m_pDevice, "PosTex", "Content/shaders/CelShade.hlsl", PosTexVertexDesc, PosTexElements);
-    DxShader* pCubePS = DxShader::CreateFromFile(m_pDevice, "CubePS", "Content/shaders/CelShade.hlsl");
+    DxShader* pCubeVS = DxShader::CreateFromFile(pDevice, "PosTex", "Content/shaders/CelShade.hlsl", PosTexVertexDesc, PosTexElements);
+    DxShader* pCubePS = DxShader::CreateFromFile(pDevice, "CubePS", "Content/shaders/CelShade.hlsl");
 
 
     ////////////////////////////////////////////////////////////////////////////////////////
 
-    m_pContext->ClearState();
+    pContext->ClearState();
 
     // SET RENDER STATE
 
@@ -326,9 +332,9 @@ void CelShadeApp::CelShadeD3D()
     shadeDesc.AntialiasedLineEnable = false;
 
     ID3D11RasterizerState* pShadeRS = NULL;
-    m_pDevice->CreateRasterizerState(&shadeDesc, &pShadeRS);
+    pDevice->CreateRasterizerState(&shadeDesc, &pShadeRS);
 
-    m_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
     m_pWindow->Show();
 
@@ -345,19 +351,19 @@ void CelShadeApp::CelShadeD3D()
         input();
 
         // new frame, clear state
-        m_pContext->ClearState();
+        pContext->ClearState();
 
-        m_pContext->RSSetViewports(1, &m_viewport);
-        m_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        pContext->RSSetViewports(1, &m_pDxData->viewport);
+        pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-        m_pContext->RSSetState(pShadeRS);
-        m_pContext->PSSetSamplers(0, 1, &pPointSampler);
+        pContext->RSSetState(pShadeRS);
+        pContext->PSSetSamplers(0, 1, &pPointSampler);
 
-        m_pContext->OMSetRenderTargets(1,
-                                       &m_pRenderTargetView,
-                                       m_pDepthStencilBuffer->GetDepthStencilView());
-        m_pContext->ClearRenderTargetView(m_pRenderTargetView, clearColor);
-        m_pContext->ClearDepthStencilView(m_pDepthStencilBuffer->GetDepthStencilView(),
+        pContext->OMSetRenderTargets(1,
+                                       &m_pDxData->m_pRenderTargetView,
+                                       m_pDxData->m_pDepthStencilBuffer->GetDepthStencilView());
+        pContext->ClearRenderTargetView(m_pDxData->m_pRenderTargetView, clearColor);
+        pContext->ClearDepthStencilView(m_pDxData->m_pDepthStencilBuffer->GetDepthStencilView(),
                                           D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
                                           1.0,
                                           0);
@@ -370,7 +376,7 @@ void CelShadeApp::CelShadeD3D()
         FLOAT viewRotationZ = (GetMousePos().y - (m_screenHeight / 2.0f)) /(m_screenHeight / 2.0f);
         viewRotationZ *= (3.14159f / 4.0f);
 
-        pCameraData = reinterpret_cast<CameraBufferData*>(pCameraBuffer->Map(m_pContext));
+        pCameraData = reinterpret_cast<CameraBufferData*>(pCameraBuffer->Map(pContext));
         pCameraData->worldMatrix = XMMatrixScaling(25, 25, 25) * XMMatrixRotationY(yRotationAngle) *
                                    XMMatrixTranslation(m_pCamera->Position().x,
                                                        m_pCamera->Position().y,
@@ -379,15 +385,15 @@ void CelShadeApp::CelShadeD3D()
         pCameraData->viewMatrix = m_pCamera->W2C();
         pCameraData->projectionMatrix = m_pCamera->C2S();
 
-        pCameraBuffer->Unmap(m_pContext);
+        pCameraBuffer->Unmap(pContext);
 
-        pCameraBuffer->BindVS(m_pContext, 0);
+        pCameraBuffer->BindVS(pContext, 0);
 
-        pMesh->Bind(m_pContext);
+        pMesh->Bind(pContext);
 
-        m_pPosTexNormVS->Bind(m_pContext);
-        m_pCelShadePS->Bind(m_pContext);
-        pMesh->Draw(m_pContext);
+        m_pPosTexNormVS->Bind(pContext);
+        m_pCelShadePS->Bind(pContext);
+        pMesh->Draw(pContext);
 
         ///// Detect Edges ///////////////////////////////////////////////////////////////////////////
 
@@ -395,7 +401,7 @@ void CelShadeApp::CelShadeD3D()
         ///// Draw Light Position ////////////////////////////////////////////////////////////////////
 
         //yRotationAngle = 0;
-        pCameraData = reinterpret_cast<CameraBufferData*>(pCameraBuffer->Map(m_pContext));
+        pCameraData = reinterpret_cast<CameraBufferData*>(pCameraBuffer->Map(pContext));
         pCameraData->worldMatrix = XMMatrixScaling(1, 1, 1);
                                  //  XMMatrixRotationY(yRotationAngle);
                                   // XMMatrixTranslation(-10, 10, 10);
@@ -403,15 +409,15 @@ void CelShadeApp::CelShadeD3D()
         pCameraData->viewMatrix = XMMatrixTranslation(0, 0, 10) * m_pCamera->W2C();
         pCameraData->projectionMatrix = m_pCamera->C2S();
 
-        pCameraBuffer->Unmap(m_pContext);
-        pCameraBuffer->BindVS(m_pContext, 0);
+        pCameraBuffer->Unmap(pContext);
+        pCameraBuffer->BindVS(pContext, 0);
 
-        pCubeVS->Bind(m_pContext);
+        pCubeVS->Bind(pContext);
 
-        pCubePS->Bind(m_pContext);
+        pCubePS->Bind(pContext);
 
-        pCubeMesh->Bind(m_pContext);
-        pCubeMesh->Draw(m_pContext);
+        pCubeMesh->Bind(pContext);
+        pCubeMesh->Draw(pContext);
 
         ///// Draw UI ////////////////////////////////////////////////////////////////////////////////
 
@@ -425,7 +431,7 @@ void CelShadeApp::CelShadeD3D()
         /// Blend UI onto final image
         DrawUI();
 
-        m_pSwapChain->Present(0,0);
+        m_pDxData->pDXGISwapChain->Present(0,0);
 
         EndFrame();
 
@@ -459,8 +465,8 @@ void CelShadeApp::CelShadeD3D()
     // Rasterizer State
     pShadeRS->Release();
 
-    m_pContext->ClearState();
-    m_pContext->Flush(); 
+    m_pDxData->pD3D11Context->ClearState();
+    m_pDxData->pD3D11Context->Flush(); 
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -475,7 +481,7 @@ void CelShadeApp::ReceiveEvent(
     }
     else
     {
-        DxApp::ReceiveEvent(pEvent);
+        IvyApp::ReceiveEvent(pEvent);
     }
 }
 

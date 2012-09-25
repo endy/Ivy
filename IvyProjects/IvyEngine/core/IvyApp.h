@@ -20,6 +20,10 @@
 class IvyWindow;
 class IvyCamera;
 
+struct IvyAppDxData;
+class DxUI;
+struct IvyDxUIData;
+
 class IvyApp : 
     public IvyObject,
     public IEventReceiver
@@ -42,14 +46,26 @@ protected:
     virtual ~IvyApp();
 
     virtual bool Init();
+    bool InitDX();
+    bool InitGL();
 
-    void UpdateSwapChain();
+    bool DeinitDX();
+    bool DeinitGL();
+
     void UpdateMousePosition();
 
     void BeginFrame();
     void EndFrame();
 
+    // dx functions
+    void UpdateSwapChain();
+    void DrawUI();
+
     IvyWindow* m_pWindow;
+
+    ///@TODO Refactor into IvyUI
+    DxUI* m_pUI;    ///< DxUI for the user interface overlay
+    IvyDxUIData* m_pUIData;
 
     Point2 m_mousePos;
 
@@ -64,7 +80,8 @@ protected:
 
     IvyCamera* m_pCamera;
 
-    /// Direct3D Member Data
+    /// D3D Data
+    IvyAppDxData* m_pDxData;
 
     /// OpenGL Member Data
     // Win32 handles
@@ -89,8 +106,6 @@ private:
     // Configuration
     static unsigned int ScreenWidth;
     static unsigned int ScreenHeight;
-    static bool UseGL;
-    static bool UseD3D;
 
     static IvyConfigItem IvyAppConfig[];
 

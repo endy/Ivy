@@ -10,11 +10,11 @@
 #ifndef _INSTANCINGAPP_H_
 #define _INSTANCINGAPP_H_
 
-#include "DxApp.h"
+#include "IvyApp.h"
 
 class DxShader;
 
-class InstancingApp : public DxApp
+class InstancingApp : public IvyApp
 {
 public:
     static InstancingApp* Create();

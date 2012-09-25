@@ -1,6 +1,7 @@
 
 
 #include "MlaaApp.h"
+#include "IvyDX.h"
 #include "IvyWindow.h"
 #include "IvyCamera.h"
 #include "DxShader.h"
@@ -16,7 +17,7 @@ MlaaApp* MlaaApp::Create()
 
 MlaaApp::MlaaApp()
     :
-    DxApp(),
+    IvyApp(),
     m_linearZoomFilter(false)
 {
     m_passDisplayed = MlaaPassPrePass;
@@ -35,7 +36,12 @@ void MlaaApp::Destroy()
 
 void MlaaApp::Run()
 {
-    bool success = DxApp::Init();
+    bool success = IvyApp::Init();
+
+    InitDX();
+
+    ID3D11DeviceContext* pContext = m_pDxData->pD3D11Context;
+    ID3D11Device* pDevice = m_pDxData->pD3D11Device;
 
     // Texture2D <float4> colorTex : register(t0);
 
@@ -45,7 +51,7 @@ void MlaaApp::Run()
     imageLoadInfo.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 
     ID3D11ShaderResourceView *pColorTexSRV = NULL;
-    D3DX11CreateShaderResourceViewFromFile(m_pDevice, "content/bc3.dds", &imageLoadInfo, NULL, &pColorTexSRV, NULL );
+    D3DX11CreateShaderResourceViewFromFile(pDevice, "content/bc3.dds", &imageLoadInfo, NULL, &pColorTexSRV, NULL );
 
     UINT colorTexWidth = 1680;
     UINT colorTexHeight = 1050;
@@ -61,7 +67,7 @@ void MlaaApp::Run()
     edgesTexInfo.width = colorTexWidth;
     edgesTexInfo.height = colorTexHeight;
     
-    DxTexture* pEdgesTex = DxTexture::Create(m_pDevice, &edgesTexInfo);
+    DxTexture* pEdgesTex = DxTexture::Create(pDevice, &edgesTexInfo);
 
     // Texture2D <float4> areaTex : register(t2);
 
@@ -79,10 +85,10 @@ void MlaaApp::Run()
     areaTexInfo.width = PatternWidth * (MaxDistance+1);
     areaTexInfo.height = PatternHeight * (MaxDistance+1);
     
-    DxTexture* pAreaTex = DxTexture::Create(m_pDevice, &areaTexInfo);
+    DxTexture* pAreaTex = DxTexture::Create(pDevice, &areaTexInfo);
     
     
-    BYTE* pAreaElement = static_cast<BYTE*>(pAreaTex->Lock(m_pContext));
+    BYTE* pAreaElement = static_cast<BYTE*>(pAreaTex->Lock(pContext));
 
     for (UINT ey = 0; ey < PatternHeight; ey++)
     {
@@ -125,7 +131,7 @@ void MlaaApp::Run()
         }
     }
 
-    pAreaTex->Unlock(m_pContext);
+    pAreaTex->Unlock(pContext);
 
     // Texture2D <float4> blendTex : register(t3);
 
@@ -138,7 +144,7 @@ void MlaaApp::Run()
     blendTexInfo.width = colorTexWidth;
     blendTexInfo.height = colorTexHeight;
     
-    DxTexture* pBlendTex = DxTexture::Create(m_pDevice, &blendTexInfo);
+    DxTexture* pBlendTex = DxTexture::Create(pDevice, &blendTexInfo);
 
     //
 
@@ -151,7 +157,7 @@ void MlaaApp::Run()
     finalImageInfo.width = colorTexWidth;
     finalImageInfo.height = colorTexHeight;
     
-    DxTexture* pFinalImage = DxTexture::Create(m_pDevice, &finalImageInfo);
+    DxTexture* pFinalImage = DxTexture::Create(pDevice, &finalImageInfo);
 
 
     // Samplers  /////////////////////////////////////////////////////////////////////////////
@@ -170,7 +176,7 @@ void MlaaApp::Run()
     pointSamplerDesc.MaxAnisotropy = 16;
 
     ID3D11SamplerState* pPointSampler = NULL;
-    m_pDevice->CreateSamplerState(&pointSamplerDesc, &pPointSampler);
+    pDevice->CreateSamplerState(&pointSamplerDesc, &pPointSampler);
 
     // SamplerState LinearSampler : register(s1);
 
@@ -186,7 +192,7 @@ void MlaaApp::Run()
     linearSamplerDesc.MaxAnisotropy = 16;
 
     ID3D11SamplerState* pLinearSampler = NULL;
-    m_pDevice->CreateSamplerState(&linearSamplerDesc, &pLinearSampler);
+    pDevice->CreateSamplerState(&linearSamplerDesc, &pLinearSampler);
 
     // Constant Buffers ///////////////////////////////////////////////////////////////////////////
 
@@ -212,25 +218,25 @@ void MlaaApp::Run()
     cbInitData.pSysMem = &zoomInfo;
 
     ID3D11Buffer* pZoomInfoBuffer = NULL;
-    m_pDevice->CreateBuffer(&cbZoomInfoDesc, &cbInitData, &pZoomInfoBuffer);
+    pDevice->CreateBuffer(&cbZoomInfoDesc, &cbInitData, &pZoomInfoBuffer);
 
     // Shaders ////////////////////////////////////////////////////////////////////////////////////
 
-    DxShader* pPosTexTriVS = DxShader::CreateFromFile(m_pDevice, "PosTexTri", "MlaaShaders.hlsl", PosTexVertexDesc, PosTexElements);
-    DxShader* pGradientPS = DxShader::CreateFromFile(m_pDevice, "Gradient", "MlaaShaders.hlsl");
+    DxShader* pPosTexTriVS = DxShader::CreateFromFile(pDevice, "PosTexTri", "MlaaShaders.hlsl", PosTexVertexDesc, PosTexElements);
+    DxShader* pGradientPS = DxShader::CreateFromFile(pDevice, "Gradient", "MlaaShaders.hlsl");
 
-    DxShader* pApplyTexPS = DxShader::CreateFromFile(m_pDevice, "ApplyTexture", "MlaaShaders.hlsl");
+    DxShader* pApplyTexPS = DxShader::CreateFromFile(pDevice, "ApplyTexture", "MlaaShaders.hlsl");
 
-    DxShader* pEdgeDetectPS = DxShader::CreateFromFile(m_pDevice, "ColorEdgeDetectionPS", "MlaaShaders.hlsl");
-    DxShader* pBlendWeightsPS = DxShader::CreateFromFile(m_pDevice, "BlendingWeightCalculationPS", "MlaaShaders.hlsl");
-    DxShader* pBlendEdgesPS = DxShader::CreateFromFile(m_pDevice, "NeighborhoodBlendingPS", "MlaaShaders.hlsl");
+    DxShader* pEdgeDetectPS = DxShader::CreateFromFile(pDevice, "ColorEdgeDetectionPS", "MlaaShaders.hlsl");
+    DxShader* pBlendWeightsPS = DxShader::CreateFromFile(pDevice, "BlendingWeightCalculationPS", "MlaaShaders.hlsl");
+    DxShader* pBlendEdgesPS = DxShader::CreateFromFile(pDevice, "NeighborhoodBlendingPS", "MlaaShaders.hlsl");
 
-    DxShader* pZoomVS = DxShader::CreateFromFile(m_pDevice, "ZoomVS", "MlaaShaders.hlsl", PosTexVertexDesc, PosTexElements);
-    DxShader* pZoomPS = DxShader::CreateFromFile(m_pDevice, "ZoomPS", "MlaaShaders.hlsl");
+    DxShader* pZoomVS = DxShader::CreateFromFile(pDevice, "ZoomVS", "MlaaShaders.hlsl", PosTexVertexDesc, PosTexElements);
+    DxShader* pZoomPS = DxShader::CreateFromFile(pDevice, "ZoomPS", "MlaaShaders.hlsl");
 
     ////////////////////////////////////////////////////////////////////////////////////////
 
-    m_pContext->ClearState();
+    pContext->ClearState();
 
     // SET RENDER STATE
 
@@ -255,10 +261,10 @@ void MlaaApp::Run()
     rsDesc.AntialiasedLineEnable = false;
 
     ID3D11RasterizerState* pRasterizerState = NULL;
-    m_pDevice->CreateRasterizerState(&rsDesc, &pRasterizerState);
+    pDevice->CreateRasterizerState(&rsDesc, &pRasterizerState);
 
-    m_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    m_pContext->RSSetState(pRasterizerState);
+    pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    pContext->RSSetState(pRasterizerState);
 
     m_pWindow->Show();
 
@@ -272,26 +278,26 @@ void MlaaApp::Run()
         input();
 
         // new frame, clear state
-        m_pContext->ClearState();
+        pContext->ClearState();
 
-        m_pContext->RSSetViewports(1, &m_viewport);
-        m_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        pContext->RSSetViewports(1, &m_pDxData->viewport);
+        pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-        m_pContext->RSSetState(pRasterizerState);
+        pContext->RSSetState(pRasterizerState);
 
-        m_pContext->PSSetSamplers(0, 1, &pPointSampler);
-        m_pContext->PSSetSamplers(1, 1, &pLinearSampler);
+        pContext->PSSetSamplers(0, 1, &pPointSampler);
+        pContext->PSSetSamplers(1, 1, &pLinearSampler);
 
-        m_pContext->ClearRenderTargetView(m_pRenderTargetView, clearColor);
+        pContext->ClearRenderTargetView(m_pDxData->m_pRenderTargetView, clearColor);
 
-        m_pContext->OMSetRenderTargets( 1, &m_pRenderTargetView, NULL);
+        pContext->OMSetRenderTargets( 1, &m_pDxData->m_pRenderTargetView, NULL);
 
-        pPosTexTriVS->Bind(m_pContext);
+        pPosTexTriVS->Bind(pContext);
 
-        m_pContext->PSSetShaderResources(0, 1, &pColorTexSRV);
-        pApplyTexPS->Bind(m_pContext);
+        pContext->PSSetShaderResources(0, 1, &pColorTexSRV);
+        pApplyTexPS->Bind(pContext);
 
-        //m_pContext->DrawInstanced(6, 1, 0, 0);
+        //pContext->DrawInstanced(6, 1, 0, 0);
          
 
         D3D11_VIEWPORT edgeViewport;
@@ -299,85 +305,85 @@ void MlaaApp::Run()
         edgeViewport.Width = static_cast<FLOAT>(colorTexWidth);
         edgeViewport.Height = static_cast<FLOAT>(colorTexHeight);
         edgeViewport.MaxDepth =1.0f;
-        m_pContext->RSSetViewports(1, &edgeViewport);
+        pContext->RSSetViewports(1, &edgeViewport);
 
         // Step 1 - Edge Detection
         {
             
 
             ID3D11RenderTargetView* pEdgesRTV = pEdgesTex->GetRenderTargetView();
-            m_pContext->ClearRenderTargetView(pEdgesRTV, clearColor);
-            m_pContext->OMSetRenderTargets(1, &pEdgesRTV, NULL);
+            pContext->ClearRenderTargetView(pEdgesRTV, clearColor);
+            pContext->OMSetRenderTargets(1, &pEdgesRTV, NULL);
 
-            pEdgeDetectPS->Bind(m_pContext);
+            pEdgeDetectPS->Bind(pContext);
 
-            m_pContext->DrawInstanced(6, 1, 0, 0);
+            pContext->DrawInstanced(6, 1, 0, 0);
         }
 
         // Step 2 - Blending Weights
         {
             ID3D11RenderTargetView* pBlendRTV = pBlendTex->GetRenderTargetView();
        
-            m_pContext->OMSetRenderTargets(1, &pBlendRTV, NULL);
-            m_pContext->ClearRenderTargetView(pBlendRTV, clearColor);
+            pContext->OMSetRenderTargets(1, &pBlendRTV, NULL);
+            pContext->ClearRenderTargetView(pBlendRTV, clearColor);
 
             ID3D11ShaderResourceView* const pEdgesSRV = pEdgesTex->GetShaderResourceView();
-            m_pContext->PSSetShaderResources(1, 1, &pEdgesSRV);
+            pContext->PSSetShaderResources(1, 1, &pEdgesSRV);
 
             ID3D11ShaderResourceView* const pAreaSRV = pAreaTex->GetShaderResourceView();
-            m_pContext->PSSetShaderResources(2, 1, &pAreaSRV);
+            pContext->PSSetShaderResources(2, 1, &pAreaSRV);
 
-            pBlendWeightsPS->Bind(m_pContext);
+            pBlendWeightsPS->Bind(pContext);
 
-            m_pContext->DrawInstanced(6, 1, 0, 0);
+            pContext->DrawInstanced(6, 1, 0, 0);
         }
 
         // Step 3 - Blending Image
         {
             ID3D11RenderTargetView* pFinalImageRTV = pFinalImage->GetRenderTargetView();
-            m_pContext->OMSetRenderTargets(1, &pFinalImageRTV, NULL);
+            pContext->OMSetRenderTargets(1, &pFinalImageRTV, NULL);
 
             ID3D11ShaderResourceView* const pBlendSRV = pBlendTex->GetShaderResourceView();
-            m_pContext->PSSetShaderResources(3, 1, &pBlendSRV);
+            pContext->PSSetShaderResources(3, 1, &pBlendSRV);
 
-            pBlendEdgesPS->Bind(m_pContext);
-            //pApplyTexPS->SetShader(m_pContext);
-            m_pContext->DrawInstanced(6, 1, 0, 0);
+            pBlendEdgesPS->Bind(pContext);
+            //pApplyTexPS->SetShader(pContext);
+            pContext->DrawInstanced(6, 1, 0, 0);
         }
 
         // Display Result
         {
-            m_pContext->RSSetViewports(1, &m_viewport);
-            m_pContext->OMSetRenderTargets(1, &m_pRenderTargetView, NULL);
+            pContext->RSSetViewports(1, &m_pDxData->viewport);
+            pContext->OMSetRenderTargets(1, &m_pDxData->m_pRenderTargetView, NULL);
 
             if (m_passDisplayed == MlaaPassPrePass)
             {
-                m_pContext->PSSetShaderResources(0, 1, &pColorTexSRV);
+                pContext->PSSetShaderResources(0, 1, &pColorTexSRV);
             }
             else if(m_passDisplayed == MlaaPassEdgeDetect)
             {
                 ID3D11ShaderResourceView* const pEdgesSRV = pEdgesTex->GetShaderResourceView();
-                m_pContext->PSSetShaderResources(0, 1, &pEdgesSRV);
+                pContext->PSSetShaderResources(0, 1, &pEdgesSRV);
             }
             else if(m_passDisplayed == MlaaPassBlendWeightCalc)
             {
                 ID3D11ShaderResourceView* const pBlendSRV = pBlendTex->GetShaderResourceView();
-                m_pContext->PSSetShaderResources(0, 1, &pBlendSRV);
+                pContext->PSSetShaderResources(0, 1, &pBlendSRV);
             }
             else if(m_passDisplayed == MlaaPassBlendEdge)
             {
                 ID3D11ShaderResourceView* const pFinalImageSRV = pFinalImage->GetShaderResourceView();
-                m_pContext->PSSetShaderResources(0, 1, &pFinalImageSRV);
+                pContext->PSSetShaderResources(0, 1, &pFinalImageSRV);
             }
             else if(m_passDisplayed == MlaaAreaTex)
             {
                 ID3D11ShaderResourceView* const pAreaSRV = pAreaTex->GetShaderResourceView();
-                m_pContext->PSSetShaderResources(0, 1, &pAreaSRV);
+                pContext->PSSetShaderResources(0, 1, &pAreaSRV);
             }
 
 
-            pApplyTexPS->Bind(m_pContext);
-            m_pContext->DrawInstanced(6, 1, 0, 0);
+            pApplyTexPS->Bind(pContext);
+            pContext->DrawInstanced(6, 1, 0, 0);
         }
 
         // Draw Zoom Region
@@ -389,29 +395,29 @@ void MlaaApp::Run()
         UINT zoomViewportWidth = 256;
         UINT zoomViewportHeight = 256;
 
-        if ((zoomViewportWidth*2 <= m_viewport.Width) && (zoomViewportHeight <= m_viewport.Height))
+        if ((zoomViewportWidth*2 <= m_pDxData->viewport.Width) && (zoomViewportHeight <= m_pDxData->viewport.Height))
         {
             memset(&zoomViewport, 0, sizeof(D3D11_VIEWPORT));
 
-            zoomViewport.TopLeftX = m_viewport.Width - zoomViewportWidth;
-            zoomViewport.TopLeftY = m_viewport.Height - zoomViewportHeight;
+            zoomViewport.TopLeftX = m_pDxData->viewport.Width - zoomViewportWidth;
+            zoomViewport.TopLeftY = m_pDxData->viewport.Height - zoomViewportHeight;
             zoomViewport.Width = static_cast<FLOAT>(zoomViewportHeight);
             zoomViewport.Height = static_cast<FLOAT>(zoomViewportHeight);
             zoomViewport.MaxDepth = 1.0f;
 
-            m_pContext->RSSetViewports(1, &zoomViewport);
+            pContext->RSSetViewports(1, &zoomViewport);
 
             D3D11_MAPPED_SUBRESOURCE mappedCB;
 
             ZoomInfo* pZoomInfo = NULL;
 
-            m_pContext->Map(pZoomInfoBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedCB);
+            pContext->Map(pZoomInfoBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedCB);
 
             pZoomInfo = reinterpret_cast<ZoomInfo*>(mappedCB.pData);
 
             Point2 zoomCenter = GetMousePos();
-            zoomCenter.x *= colorTexWidth / m_viewport.Width;
-            zoomCenter.y *= colorTexHeight / m_viewport.Height;
+            zoomCenter.x *= colorTexWidth / m_pDxData->viewport.Width;
+            zoomCenter.y *= colorTexHeight / m_pDxData->viewport.Height;
 
             UINT halfWidth = zoomRectWidth / 2;
             UINT halfHeight = zoomRectHeight / 2;
@@ -438,37 +444,37 @@ void MlaaApp::Run()
             pZoomInfo->zoomRect.z = (zoomCenter.x + halfWidth) / (float)colorTexWidth;
             pZoomInfo->zoomRect.w = (zoomCenter.y + halfHeight) / (float)colorTexHeight;
 
-            m_pContext->Unmap(pZoomInfoBuffer, 0);
+            pContext->Unmap(pZoomInfoBuffer, 0);
 
-            m_pContext->VSSetConstantBuffers(0, 1, &pZoomInfoBuffer);
-            m_pContext->PSSetConstantBuffers(0, 1, &pZoomInfoBuffer);
+            pContext->VSSetConstantBuffers(0, 1, &pZoomInfoBuffer);
+            pContext->PSSetConstantBuffers(0, 1, &pZoomInfoBuffer);
 
             if (m_passDisplayed == MlaaPassPrePass)
             {
-                m_pContext->PSSetShaderResources(0, 1, &pColorTexSRV);
+                pContext->PSSetShaderResources(0, 1, &pColorTexSRV);
             }
             else
             {
                 ID3D11ShaderResourceView* const pFinalImageSRV = pFinalImage->GetShaderResourceView();
-                m_pContext->PSSetShaderResources(0, 1, &pFinalImageSRV);
+                pContext->PSSetShaderResources(0, 1, &pFinalImageSRV);
             }
 
-            pZoomVS->Bind(m_pContext);
-            pZoomPS->Bind(m_pContext);
+            pZoomVS->Bind(pContext);
+            pZoomPS->Bind(pContext);
 
             if (m_linearZoomFilter)
             {
-                m_pContext->PSSetSamplers(0, 1, &pLinearSampler);
+                pContext->PSSetSamplers(0, 1, &pLinearSampler);
             }
             else
             {
-                m_pContext->PSSetSamplers(0, 1, &pPointSampler);
+                pContext->PSSetSamplers(0, 1, &pPointSampler);
             }
 
-            m_pContext->DrawInstanced(6, 1, 0, 0);
+            pContext->DrawInstanced(6, 1, 0, 0);
         }
 
-        m_pSwapChain->Present(0,0);
+        m_pDxData->pDXGISwapChain->Present(0,0);
 
         EndFrame();
 
@@ -496,8 +502,8 @@ void MlaaApp::Run()
     // Rasterizer State
     pRasterizerState->Release();
 
-    m_pContext->ClearState();
-    m_pContext->Flush(); 
+    pContext->ClearState();
+    pContext->Flush(); 
 }
 
 void MlaaApp::ReceiveEvent(const Event* pEvent)
@@ -511,7 +517,7 @@ void MlaaApp::ReceiveEvent(const Event* pEvent)
     }
     else
     {
-        DxApp::ReceiveEvent(pEvent);
+        IvyApp::ReceiveEvent(pEvent);
     }
 }
 

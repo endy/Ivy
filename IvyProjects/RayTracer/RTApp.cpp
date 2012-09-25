@@ -7,6 +7,7 @@
 #include "IvyUtils.h"
 
 #include "DxTypes.h"
+#include "IvyDX.h"
 #include "DxShader.h"
 #include "DxBuffer.h"
 #include "DxLight.h"
@@ -15,7 +16,7 @@
 
 RTApp::RTApp()
     :
-    DxApp()
+    IvyApp()
 {
 
 }
@@ -40,12 +41,14 @@ RTApp* RTApp::Create()
 
 void RTApp::Destroy()
 {
-    DxApp::Destroy();
+    IvyApp::DeinitDX();
+
+    IvyApp::Destroy();
 }
 
 bool RTApp::Init()
 {
-    return DxApp::Init();
+    return (IvyApp::Init() && InitDX());
 }
 
 void RTApp::Run()
@@ -53,17 +56,20 @@ void RTApp::Run()
     BOOL statusOK = TRUE;
     HRESULT hr;
 
+    ID3D11DeviceContext* pContext = m_pDxData->pD3D11Context;
+    ID3D11Device* pDevice = m_pDxData->pD3D11Device;
+
     // Resources ////////////////////////////////////////////////////////////////////////////////////
 
     ID3D11Texture2D* pBackBuffer = NULL;
 
     // Get a pointer to the back buffer
-    hr = m_pSwapChain->GetBuffer( 0, __uuidof( ID3D11Texture2D ), (LPVOID*)&pBackBuffer );
+    hr = m_pDxData->pDXGISwapChain->GetBuffer(0, __uuidof( ID3D11Texture2D ), (LPVOID*)&pBackBuffer);
 
     ID3D11RenderTargetView* pRenderTargetView = NULL;
 
     // Create a render-target view
-    m_pDevice->CreateRenderTargetView( pBackBuffer, NULL, &pRenderTargetView );
+    pDevice->CreateRenderTargetView(pBackBuffer, NULL, &pRenderTargetView);
 
     // Quad Mesh
     Plane p;
@@ -74,7 +80,7 @@ void RTApp::Run()
     planeMeshInfo.pVertexArray = p.GetVB();
     planeMeshInfo.vertexElementSize = sizeof(VertexPTN);
 
-    DxMesh* planeMesh = DxMesh::Create(m_pDevice, &planeMeshInfo);
+    DxMesh* planeMesh = DxMesh::Create(pDevice, &planeMeshInfo);
 
     D3D11_SUBRESOURCE_DATA cbInitData;
     memset(&cbInitData, 0, sizeof(D3D11_SUBRESOURCE_DATA));	
@@ -87,13 +93,13 @@ void RTApp::Run()
     cameraBufferCreateInfo.flags.cpuWriteable = TRUE;
     cameraBufferCreateInfo.elemSizeBytes = sizeof(CameraBufferData);
     cameraBufferCreateInfo.pInitialData = &cameraData;
-    DxBuffer* pCameraBuffer = DxBuffer::Create(m_pDevice, &cameraBufferCreateInfo);
+    DxBuffer* pCameraBuffer = DxBuffer::Create(pDevice, &cameraBufferCreateInfo);
 
     // Light
     DxLightCreateInfo lightInfo;
     memset(&lightInfo, 0, sizeof(DxLightCreateInfo));
-    lightInfo.pDevice = m_pDevice;
-    lightInfo.pContext = m_pContext;
+    lightInfo.pDevice = pDevice;
+    lightInfo.pContext = pContext;
     DxLight* pLight = DxLight::Create(&lightInfo);
 
     // Eye Vector Texture
@@ -106,7 +112,7 @@ void RTApp::Run()
     hwRtEyeTexInfo.width = m_screenWidth;
     hwRtEyeTexInfo.height = m_screenHeight;
 
-    DxTexture* pHwRtEyeTexture = DxTexture::Create(m_pDevice, &hwRtEyeTexInfo);
+    DxTexture* pHwRtEyeTexture = DxTexture::Create(pDevice, &hwRtEyeTexInfo);
 
     // SW RT Image Texture
     DxTextureCreateInfo swRtImageTexInfo;
@@ -118,7 +124,7 @@ void RTApp::Run()
     swRtImageTexInfo.width = m_screenWidth;
     swRtImageTexInfo.height = m_screenHeight;
 
-    DxTexture* pSwRtImage = DxTexture::Create(m_pDevice, &swRtImageTexInfo);
+    DxTexture* pSwRtImage = DxTexture::Create(pDevice, &swRtImageTexInfo);
 
     // Image Sampler
     D3D11_SAMPLER_DESC samplerDesc;
@@ -133,19 +139,19 @@ void RTApp::Run()
     samplerDesc.MaxAnisotropy = 16;
 
     ID3D11SamplerState* pSamplerState = NULL;
-    hr = m_pDevice->CreateSamplerState(&samplerDesc, &pSamplerState);
+    hr = pDevice->CreateSamplerState(&samplerDesc, &pSamplerState);
     
     // Shaders ////////////////////////////////////////////////////////////////////////////////////
 
-    DxShader* pVSShader = DxShader::CreateFromFile(m_pDevice, "RtVS", "rtshaders.txt",  PosTexVertexDesc, PosTexElements);
+    DxShader* pVSShader = DxShader::CreateFromFile(pDevice, "RtVS", "rtshaders.txt",  PosTexVertexDesc, PosTexElements);
     statusOK = (statusOK && pVSShader != NULL);
 
-    DxShader* pPSShader = DxShader::CreateFromFile(m_pDevice, "RtPS", "rtshaders.txt");
+    DxShader* pPSShader = DxShader::CreateFromFile(pDevice, "RtPS", "rtshaders.txt");
     statusOK = (statusOK && pPSShader != NULL);
 
     ////////////////////////////////////////////////////////////////////////////////////////
 
-    m_pContext->ClearState();
+    pContext->ClearState();
 
     // SET RENDER STATE
 
@@ -177,7 +183,7 @@ void RTApp::Run()
     rsDesc.AntialiasedLineEnable = false;
 
     ID3D11RasterizerState* pRasterizerState = NULL;
-    m_pDevice->CreateRasterizerState(&rsDesc, &pRasterizerState);
+    pDevice->CreateRasterizerState(&rsDesc, &pRasterizerState);
 
     m_pWindow->Show();
 
@@ -187,55 +193,55 @@ void RTApp::Run()
         m_pWindow->ProcessMsg(&quit);
 
         // New frame, clear state
-        m_pContext->ClearState();
+        pContext->ClearState();
 
         // Setup Raster State
-        m_pContext->RSSetViewports(1, &vp);
-        m_pContext->RSSetState(pRasterizerState);
+        pContext->RSSetViewports(1, &vp);
+        pContext->RSSetState(pRasterizerState);
 
         // Begin Draw Pass
         SetupHwRtEyeTexture(pHwRtEyeTexture);
         Render(pSwRtImage);
 
-        m_pContext->ClearRenderTargetView(pRenderTargetView, clearColor);
+        pContext->ClearRenderTargetView(pRenderTargetView, clearColor);
 
-        m_pContext->OMSetRenderTargets( 1, &pRenderTargetView, NULL );
+        pContext->OMSetRenderTargets( 1, &pRenderTargetView, NULL );
         
         // Setup Camera
         CameraBufferData* pCameraBufferData = NULL;
 
-        pCameraBufferData = static_cast<CameraBufferData*>(pCameraBuffer->Map(m_pContext));
+        pCameraBufferData = static_cast<CameraBufferData*>(pCameraBuffer->Map(pContext));
         pCameraBufferData->worldMatrix =  XMMatrixTranslation(0, 0, 0) * 
                                           XMMatrixRotationX(-3.14f/2.0f) *
                                           XMMatrixScaling(1, 1, 1) *
                                           XMMatrixTranslation(0, 0, 1);
         pCameraBufferData->viewMatrix       = m_pCamera->W2C();
         pCameraBufferData->projectionMatrix = m_pCamera->C2S();
-        pCameraBuffer->Unmap(m_pContext);
+        pCameraBuffer->Unmap(pContext);
 
         // Setup VS
-        pCameraBuffer->BindVS(m_pContext, 0);
-        pVSShader->Bind(m_pContext);
+        pCameraBuffer->BindVS(pContext, 0);
+        pVSShader->Bind(pContext);
 
         // Setup PS
         ID3D11Buffer* pLightBuffer = pLight->GetBuffer();
-        m_pContext->PSSetConstantBuffers(0, 1, &pLightBuffer);
+        pContext->PSSetConstantBuffers(0, 1, &pLightBuffer);
 
         ID3D11ShaderResourceView* pTexView = pHwRtEyeTexture->GetShaderResourceView();
-        m_pContext->PSSetShaderResources(0, 1, &pTexView);
+        pContext->PSSetShaderResources(0, 1, &pTexView);
 
-        m_pContext->PSSetSamplers(0, 1, &pSamplerState);
+        pContext->PSSetSamplers(0, 1, &pSamplerState);
 
-        pPSShader->Bind(m_pContext);
+        pPSShader->Bind(pContext);
 
         // Draw Quad
-        m_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-        planeMesh->Bind(m_pContext);
-        planeMesh->Draw(m_pContext);
+        planeMesh->Bind(pContext);
+        planeMesh->Draw(pContext);
 
         // Present
-        m_pSwapChain->Present(0,0);
+        m_pDxData->pDXGISwapChain->Present(0,0);
 
         //Sleep(100); 
     }
@@ -277,8 +283,8 @@ void RTApp::Run()
         pRasterizerState = NULL;
     }
 
-    m_pContext->ClearState();
-    m_pContext->Flush();
+    pContext->ClearState();
+    pContext->Flush();
 }
 
 // width, height, x, y, origin,
@@ -300,7 +306,7 @@ void RTApp::SetupHwRtEyeTexture(
 {
     /// Update Image!
     ///@ TODO: Take into account padding!
-    FLOAT* texData = reinterpret_cast<FLOAT*>(pImage->Lock(m_pContext));
+    FLOAT* texData = reinterpret_cast<FLOAT*>(pImage->Lock(m_pDxData->pD3D11Context));
     for (UINT x = 0; x < m_screenWidth; ++x)
     {
         for (UINT y = 0; y < m_screenHeight; ++y)
@@ -313,13 +319,13 @@ void RTApp::SetupHwRtEyeTexture(
             texData[index+3] = 1.0f;
         }
     }
-    pImage->Unlock(m_pContext);
+    pImage->Unlock(m_pDxData->pD3D11Context);
 }
 
 void RTApp::Render(
     DxTexture* pImage)
 {
-    FLOAT* texData = reinterpret_cast<FLOAT*>(pImage->Lock(m_pContext));
+    FLOAT* texData = reinterpret_cast<FLOAT*>(pImage->Lock(m_pDxData->pD3D11Context));
     for (UINT x = 0; x < m_screenWidth; ++x)
     {
         for (UINT y = 0; y < m_screenHeight; ++y)
@@ -333,6 +339,6 @@ void RTApp::Render(
             texData[index+3] = 1.0f;
         }
     }
-    pImage->Unlock(m_pContext);
+    pImage->Unlock(m_pDxData->pD3D11Context);
 }
 

@@ -72,13 +72,13 @@
     <ClCompile Include="core\IvyApp.cpp">
       <Filter>core</Filter>
     </ClCompile>
-    <ClCompile Include="dx\DxApp.cpp">
-      <Filter>dx</Filter>
-    </ClCompile>
     <ClCompile Include="core\IvyConfig.cpp">
       <Filter>core</Filter>
     </ClCompile>
     <ClCompile Include="dx\DxUI.cpp">
+      <Filter>dx</Filter>
+    </ClCompile>
+    <ClCompile Include="dx\IvyAppDX.cpp">
       <Filter>dx</Filter>
     </ClCompile>
   </ItemGroup>
@@ -173,13 +173,13 @@
     <ClInclude Include="core\IvyWindow.h">
       <Filter>core</Filter>
     </ClInclude>
-    <ClInclude Include="dx\DxApp.h">
-      <Filter>dx</Filter>
-    </ClInclude>
     <ClInclude Include="core\IvyConfig.h">
       <Filter>core</Filter>
     </ClInclude>
     <ClInclude Include="dx\DxUI.h">
+      <Filter>dx</Filter>
+    </ClInclude>
+    <ClInclude Include="dx\IvyDX.h">
       <Filter>dx</Filter>
     </ClInclude>
   </ItemGroup>

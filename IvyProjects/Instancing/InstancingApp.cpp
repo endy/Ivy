@@ -8,6 +8,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "InstancingApp.h"
+#include "IvyDX.h"
 #include "IvyWindow.h"
 #include "IvyCamera.h"
 #include "IvyImporter.h"
@@ -34,7 +35,7 @@ InstancingApp* InstancingApp::Create()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 InstancingApp::InstancingApp()
     :
-    DxApp(),
+    IvyApp(),
     m_pPosTexTriVS(NULL),
     m_pPosTexNormVS(NULL)
 {
@@ -54,7 +55,7 @@ InstancingApp::~InstancingApp()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void InstancingApp::Destroy()
 {
-    DxApp::Destroy();
+    IvyApp::Destroy();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -62,9 +63,11 @@ void InstancingApp::Destroy()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 bool InstancingApp::Init()
 {
-    bool success = DxApp::Init();
+    bool success = IvyApp::Init();
 
-    DxShader* pVertexShader = DxShader::CreateFromSource(m_pDevice, "IvyVsPosTex", IvyVsPosTex,PosTexVertexDesc, PosTexElements);
+    InitDX();
+
+    DxShader* pVertexShader = DxShader::CreateFromSource(m_pDxData->pD3D11Device, "IvyVsPosTex", IvyVsPosTex,PosTexVertexDesc, PosTexElements);
 
     // Setup Camera
     m_pCamera->Position().x = 0;
@@ -79,34 +82,8 @@ bool InstancingApp::Init()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void InstancingApp::Run()
 {
-    ID3D11ShaderResourceView* pUI_SRV = NULL;
-
-    D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-    srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-    srvDesc.Texture2D.MipLevels = 1;
-    srvDesc.Texture2D.MostDetailedMip = 0;
-    srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-
-    m_pDevice->CreateShaderResourceView(m_pUIoverlay, &srvDesc, &pUI_SRV);
-
-    D3D11_BLEND_DESC uiBlendDesc;
-    memset(&uiBlendDesc, 0, sizeof(D3D11_BLEND_DESC));
-
-    uiBlendDesc.AlphaToCoverageEnable = FALSE;
-    uiBlendDesc.IndependentBlendEnable = FALSE;
-    uiBlendDesc.RenderTarget[0].BlendEnable = TRUE;
-
-    uiBlendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
-    uiBlendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-    uiBlendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-    uiBlendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
-    uiBlendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
-    uiBlendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-
-    uiBlendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-
-    ID3D11BlendState* pUIBlendState = NULL;
-    m_pDevice->CreateBlendState(&uiBlendDesc, &pUIBlendState);
+    ID3D11DeviceContext* pContext = m_pDxData->pD3D11Context;
+    ID3D11Device* pDevice = m_pDxData->pD3D11Device;
 
     // Samplers  /////////////////////////////////////////////////////////////////////////////
 
@@ -124,7 +101,7 @@ void InstancingApp::Run()
     pointSamplerDesc.MaxAnisotropy = 16;
 
     ID3D11SamplerState* pPointSampler = NULL;
-    m_pDevice->CreateSamplerState(&pointSamplerDesc, &pPointSampler);
+    pDevice->CreateSamplerState(&pointSamplerDesc, &pPointSampler);
 
     //
     UINT numVertices = 0, numIndices = 0;
@@ -139,7 +116,7 @@ void InstancingApp::Run()
     meshCreateInfo.pVertexArray = pVB;
     meshCreateInfo.vertexCount = numVertices;
     meshCreateInfo.vertexElementSize = sizeof(VertexPTN);
-    DxMesh* pMesh = DxMesh::Create(m_pDevice, &meshCreateInfo);
+    DxMesh* pMesh = DxMesh::Create(pDevice, &meshCreateInfo);
 
     Plane p;
     DxMeshCreateInfo planeMeshInfo;
@@ -148,7 +125,7 @@ void InstancingApp::Run()
     planeMeshInfo.vertexCount = p.NumVertices();
     planeMeshInfo.vertexElementSize = sizeof(VertexPTN);
 
-    DxMesh* pPlaneMesh = DxMesh::Create(m_pDevice, &planeMeshInfo);
+    DxMesh* pPlaneMesh = DxMesh::Create(pDevice, &planeMeshInfo);
 
     Cube c;
     DxMeshCreateInfo cubeMeshInfo;
@@ -157,7 +134,7 @@ void InstancingApp::Run()
     cubeMeshInfo.vertexCount = c.NumVertices();
     cubeMeshInfo.vertexElementSize = sizeof(VertexPT);
 
-    DxMesh* pCubeMesh = DxMesh::Create(m_pDevice, &cubeMeshInfo);
+    DxMesh* pCubeMesh = DxMesh::Create(pDevice, &cubeMeshInfo);
 
     D3D11_SUBRESOURCE_DATA cbInitData;
     memset(&cbInitData, 0, sizeof(D3D11_SUBRESOURCE_DATA));	
@@ -170,20 +147,20 @@ void InstancingApp::Run()
     cameraBufferCreateInfo.flags.cpuWriteable = TRUE;
     cameraBufferCreateInfo.elemSizeBytes = sizeof(CameraBufferData);
     cameraBufferCreateInfo.pInitialData = &cameraData;
-    DxBuffer* pCameraBuffer = DxBuffer::Create(m_pDevice, &cameraBufferCreateInfo);
+    DxBuffer* pCameraBuffer = DxBuffer::Create(pDevice, &cameraBufferCreateInfo);
 
     // Shaders ////////////////////////////////////////////////////////////////////////////////////
 
-    m_pPosTexTriVS = DxShader::CreateFromFile(m_pDevice, "PosTexTri", "Content/shaders/Instancing.hlsl", PosTexVertexDesc, PosTexElements);
-    m_pPosTexNormVS = DxShader::CreateFromFile(m_pDevice, "PosTexNorm", "Content/shaders/Instancing.hlsl", PosTexNormVertexDesc, PosTexNormElements);
+    m_pPosTexTriVS = DxShader::CreateFromFile(pDevice, "PosTexTri", "Content/shaders/Instancing.hlsl", PosTexVertexDesc, PosTexElements);
+    m_pPosTexNormVS = DxShader::CreateFromFile(pDevice, "PosTexNorm", "Content/shaders/Instancing.hlsl", PosTexNormVertexDesc, PosTexNormElements);
 
-    DxShader* pApplyTexPS = DxShader::CreateFromFile(m_pDevice, "ApplyTex", "Content/shaders/Instancing.hlsl");
+    DxShader* pApplyTexPS = DxShader::CreateFromFile(pDevice, "ApplyTex", "Content/shaders/Instancing.hlsl");
 
-    DxShader* pCubeVS = DxShader::CreateFromFile(m_pDevice, "PosTex", "Content/shaders/Instancing.hlsl", PosTexVertexDesc, PosTexElements);
-    DxShader* pCubePS = DxShader::CreateFromFile(m_pDevice, "CubePS", "Content/shaders/Instancing.hlsl");
+    DxShader* pCubeVS = DxShader::CreateFromFile(pDevice, "PosTex", "Content/shaders/Instancing.hlsl", PosTexVertexDesc, PosTexElements);
+    DxShader* pCubePS = DxShader::CreateFromFile(pDevice, "CubePS", "Content/shaders/Instancing.hlsl");
     ////////////////////////////////////////////////////////////////////////////////////////
 
-    m_pContext->ClearState();
+    pContext->ClearState();
 
     // SET RENDER STATE
 
@@ -206,9 +183,9 @@ void InstancingApp::Run()
     shadeDesc.AntialiasedLineEnable = false;
 
     ID3D11RasterizerState* pShadeRS = NULL;
-    m_pDevice->CreateRasterizerState(&shadeDesc, &pShadeRS);
+    pDevice->CreateRasterizerState(&shadeDesc, &pShadeRS);
 
-    m_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
     m_pWindow->Show();
 
@@ -225,19 +202,19 @@ void InstancingApp::Run()
         input();
 
         // new frame, clear state
-        m_pContext->ClearState();
+        pContext->ClearState();
 
-        m_pContext->RSSetViewports(1, &m_viewport);
-        m_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        pContext->RSSetViewports(1, &m_pDxData->viewport);
+        pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-        m_pContext->RSSetState(pShadeRS);
-        m_pContext->PSSetSamplers(0, 1, &pPointSampler);
+        pContext->RSSetState(pShadeRS);
+        pContext->PSSetSamplers(0, 1, &pPointSampler);
 
-        m_pContext->OMSetRenderTargets(1,
-                                       &m_pRenderTargetView,
-                                       m_pDepthStencilBuffer->GetDepthStencilView());
-        m_pContext->ClearRenderTargetView(m_pRenderTargetView, clearColor);
-        m_pContext->ClearDepthStencilView(m_pDepthStencilBuffer->GetDepthStencilView(),
+        pContext->OMSetRenderTargets(1,
+                                       &m_pDxData->m_pRenderTargetView,
+                                       m_pDxData->m_pDepthStencilBuffer->GetDepthStencilView());
+        pContext->ClearRenderTargetView(m_pDxData->m_pRenderTargetView, clearColor);
+        pContext->ClearDepthStencilView(m_pDxData->m_pDepthStencilBuffer->GetDepthStencilView(),
                                           D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
                                           1.0,
                                           0);
@@ -250,7 +227,7 @@ void InstancingApp::Run()
         FLOAT viewRotationZ = (GetMousePos().y - (m_screenHeight / 2.0f)) /(m_screenHeight / 2.0f);
         viewRotationZ *= (3.14159f / 4.0f);
 
-        pCameraData = reinterpret_cast<CameraBufferData*>(pCameraBuffer->Map(m_pContext));
+        pCameraData = reinterpret_cast<CameraBufferData*>(pCameraBuffer->Map(pContext));
         pCameraData->worldMatrix = XMMatrixScaling(25, 25, 25) * XMMatrixRotationY(yRotationAngle) *
                                    XMMatrixTranslation(m_pCamera->Position().x,
                                                        m_pCamera->Position().y,
@@ -259,22 +236,22 @@ void InstancingApp::Run()
         pCameraData->viewMatrix = m_pCamera->W2C();
         pCameraData->projectionMatrix = m_pCamera->C2S();
 
-        pCameraBuffer->Unmap(m_pContext);
+        pCameraBuffer->Unmap(pContext);
 
-        pCameraBuffer->BindVS(m_pContext, 0);
+        pCameraBuffer->BindVS(pContext, 0);
 
-        pMesh->Bind(m_pContext);
+        pMesh->Bind(pContext);
 
-        m_pPosTexNormVS->Bind(m_pContext);
-        pCubePS->Bind(m_pContext);
+        m_pPosTexNormVS->Bind(pContext);
+        pCubePS->Bind(pContext);
 
-        pMesh->Draw(m_pContext);
+        pMesh->Draw(pContext);
 
 
         ///// Draw Light Position ////////////////////////////////////////////////////////////////////
 
         //yRotationAngle = 0;
-        pCameraData = reinterpret_cast<CameraBufferData*>(pCameraBuffer->Map(m_pContext));
+        pCameraData = reinterpret_cast<CameraBufferData*>(pCameraBuffer->Map(pContext));
         pCameraData->worldMatrix = XMMatrixScaling(1, 1, 1);
                                  //  XMMatrixRotationY(yRotationAngle);
                                   // XMMatrixTranslation(-10, 10, 10);
@@ -282,20 +259,20 @@ void InstancingApp::Run()
         pCameraData->viewMatrix = XMMatrixTranslation(0, 0, 10) * m_pCamera->W2C();
         pCameraData->projectionMatrix = m_pCamera->C2S();
 
-        pCameraBuffer->Unmap(m_pContext);
-        pCameraBuffer->BindVS(m_pContext, 0);
+        pCameraBuffer->Unmap(pContext);
+        pCameraBuffer->BindVS(pContext, 0);
 
         // Draw Cube
-        pCubeVS->Bind(m_pContext);
-        pCubePS->Bind(m_pContext);
+        pCubeVS->Bind(pContext);
+        pCubePS->Bind(pContext);
 
-        pCubeMesh->Bind(m_pContext);
-        pCubeMesh->Draw(m_pContext);
+        pCubeMesh->Bind(pContext);
+        pCubeMesh->Draw(pContext);
 
         ///@TODO Draw UI
 
 
-        m_pSwapChain->Present(0,0);
+        m_pDxData->pDXGISwapChain->Present(0,0);
 
         EndFrame();
 
@@ -325,8 +302,8 @@ void InstancingApp::Run()
     // Rasterizer State
     pShadeRS->Release();
 
-    m_pContext->ClearState();
-    m_pContext->Flush(); 
+    pContext->ClearState();
+    pContext->Flush(); 
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -341,7 +318,7 @@ void InstancingApp::ReceiveEvent(
     }
     else
     {
-        DxApp::ReceiveEvent(pEvent);
+        IvyApp::ReceiveEvent(pEvent);
     }
 }
 

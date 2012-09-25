@@ -10,9 +10,9 @@
 #ifndef _DXTESTAPP_H_
 #define _DXTESTAPP_H_
 
-#include "DxApp.h"
+#include "IvyApp.h"
 
-class DxTestApp : public DxApp
+class DxTestApp : public IvyApp
 {
 public:
     static DxTestApp* Create();
@@ -32,3 +32,4 @@ private:
 };
 
 #endif // _DXTESTAPP_H_
+

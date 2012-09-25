@@ -2,11 +2,11 @@
 #ifndef _RTTESTAPP_H_
 #define _RTTESTAPP_H_
 
-#include "DxApp.h"
+#include "IvyApp.h"
 
 class DxTexture;
 
-class RTApp : public DxApp
+class RTApp : public IvyApp
 {
 public:
     static RTApp* Create();

@@ -9,6 +9,7 @@
 
 
 #include "DxTestApp.h"
+#include "IvyDX.h"
 #include "IvyWindow.h"
 #include "IvyCamera.h"
 
@@ -25,7 +26,7 @@
 
 DxTestApp::DxTestApp()
     :
-    DxApp()
+    IvyApp()
 {
 
 }
@@ -58,12 +59,16 @@ DxTestApp* DxTestApp::Create()
 
 void DxTestApp::Destroy()
 {
-    DxApp::Destroy();
+    DeinitDX();
+
+    IvyApp::Destroy();
 }
 
 bool DxTestApp::Init()
 {
-    bool success = DxApp::Init();
+    bool success = IvyApp::Init();
+
+    InitDX();
 
     return success;
 }
@@ -71,6 +76,9 @@ bool DxTestApp::Init()
 void DxTestApp::Run()
 {
     IVY_PRINT("DxTestApp D3D11 Path");
+
+    ID3D11Device* pDevice = m_pDxData->pD3D11Device;
+    ID3D11DeviceContext* pContext = m_pDxData->pD3D11Context;
 
     HRESULT hr;
 
@@ -82,7 +90,7 @@ void DxTestApp::Run()
     kittenLoadInfo.Format = DXGI_FORMAT_BC1_UNORM;
 
     ID3D11ShaderResourceView *pKittenSRView = NULL;
-    D3DX11CreateShaderResourceViewFromFile(m_pDevice, "Content/kitten_rgb.dds", &kittenLoadInfo, NULL, &pKittenSRView, NULL );
+    D3DX11CreateShaderResourceViewFromFile(pDevice, "Content/kitten_rgb.dds", &kittenLoadInfo, NULL, &pKittenSRView, NULL );
 
 
     // Samplers  /////////////////////////////////////////////////////////////////////////////
@@ -99,7 +107,7 @@ void DxTestApp::Run()
     samplerDesc.MaxAnisotropy = 16;
 
     ID3D11SamplerState* pSamplerState = NULL;
-    hr = m_pDevice->CreateSamplerState(&samplerDesc, &pSamplerState);
+    hr = pDevice->CreateSamplerState(&samplerDesc, &pSamplerState);
 
     // Buffers   ///////////////////////////////////////////////////////////////////////////
 
@@ -111,13 +119,13 @@ void DxTestApp::Run()
     cameraBufferCreateInfo.flags.cpuWriteable = TRUE;
     cameraBufferCreateInfo.elemSizeBytes = sizeof(CameraBufferData);
     cameraBufferCreateInfo.pInitialData = &cameraData;
-    DxBuffer* pCameraBuffer = DxBuffer::Create(m_pDevice, &cameraBufferCreateInfo);
+    DxBuffer* pCameraBuffer = DxBuffer::Create(pDevice, &cameraBufferCreateInfo);
 
     // Light
     DxLightCreateInfo lightInfo;
     memset(&lightInfo, 0, sizeof(DxLightCreateInfo));
-    lightInfo.pDevice = m_pDevice;
-    lightInfo.pContext = m_pContext;
+    lightInfo.pDevice = pDevice;
+    lightInfo.pContext = pContext;
     DxLight* pLight = DxLight::Create(&lightInfo);
 
     // Material
@@ -136,16 +144,16 @@ void DxTestApp::Run()
     cbInitData.pSysMem = &myMaterial;
 
     ID3D11Buffer* pMaterialBuffer = NULL;
-    m_pDevice->CreateBuffer(&cbMaterialDesc, &cbInitData, &pMaterialBuffer);
+    pDevice->CreateBuffer(&cbMaterialDesc, &cbInitData, &pMaterialBuffer);
 
     // Shaders ////////////////////////////////////////////////////////////////////////////////////
 
-    DxShader* pPosTexVS = DxShader::CreateFromFile(m_pDevice, "PosTex", "DXTestApp/dxtestapp.hlsl", PosTexVertexDesc, PosTexElements);
-    DxShader* pApplyTexPS = DxShader::CreateFromFile(m_pDevice, "ApplyTexture", "DXTestApp/dxtestapp.hlsl");
-    DxShader* pVisDepthPS = DxShader::CreateFromFile(m_pDevice, "VisDepth", "DXTestApp/dxtestapp.hlsl");
+    DxShader* pPosTexVS = DxShader::CreateFromFile(pDevice, "PosTex", "DXTestApp/dxtestapp.hlsl", PosTexVertexDesc, PosTexElements);
+    DxShader* pApplyTexPS = DxShader::CreateFromFile(pDevice, "ApplyTexture", "DXTestApp/dxtestapp.hlsl");
+    DxShader* pVisDepthPS = DxShader::CreateFromFile(pDevice, "VisDepth", "DXTestApp/dxtestapp.hlsl");
 
-    DxShader* pPosTexNormVS = DxShader::CreateFromFile(m_pDevice, "PosTexNorm", "DXTestApp/dxtestapp.hlsl", PosTexNormVertexDesc, PosTexNormElements);
-    DxShader* pVisNormalPS = DxShader::CreateFromFile(m_pDevice, "VisNormal", "DXTestApp/dxtestapp.hlsl");
+    DxShader* pPosTexNormVS = DxShader::CreateFromFile(pDevice, "PosTexNorm", "DXTestApp/dxtestapp.hlsl", PosTexNormVertexDesc, PosTexNormElements);
+    DxShader* pVisNormalPS = DxShader::CreateFromFile(pDevice, "VisNormal", "DXTestApp/dxtestapp.hlsl");
 
     // Models /////////////////////////////////////////////////////////////////////////////////////
 
@@ -157,7 +165,7 @@ void DxTestApp::Run()
     cubeMeshInfo.vertexCount = c.NumVertices();
     cubeMeshInfo.vertexElementSize = sizeof(VertexPT);
 
-    DxMesh* pCubeMesh = DxMesh::Create(m_pDevice, &cubeMeshInfo);   
+    DxMesh* pCubeMesh = DxMesh::Create(pDevice, &cubeMeshInfo);   
 
     // Plane
     Plane p;
@@ -167,7 +175,7 @@ void DxTestApp::Run()
     planeMeshInfo.vertexCount = p.NumVertices();
     planeMeshInfo.vertexElementSize = sizeof(VertexPTN);
 
-    DxMesh* pPlaneMesh = DxMesh::Create(m_pDevice, &planeMeshInfo);
+    DxMesh* pPlaneMesh = DxMesh::Create(pDevice, &planeMeshInfo);
 
     // Bunny
     DxMeshCreateInfo meshCreateInfo;
@@ -183,11 +191,11 @@ void DxTestApp::Run()
     meshCreateInfo.vertexElementSize = sizeof(VertexPTN);
     meshCreateInfo.indexFormat = DXGI_FORMAT_R32_UINT;
 
-    DxMesh* pBunnyMesh = DxMesh::Create(m_pDevice, &meshCreateInfo);
+    DxMesh* pBunnyMesh = DxMesh::Create(pDevice, &meshCreateInfo);
 
     ////////////////////////////////////////////////////////////////////////////////////////
 
-    m_pContext->ClearState();
+    pContext->ClearState();
 
     // SET RENDER STATE
 
@@ -220,7 +228,7 @@ void DxTestApp::Run()
     dbDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_INCR;
 
     ID3D11DepthStencilState* pDbState = NULL;
-    hr = m_pDevice->CreateDepthStencilState(&dbDesc, &pDbState);
+    hr = pDevice->CreateDepthStencilState(&dbDesc, &pDbState);
 
     D3D11_RASTERIZER_DESC rsDesc;
     rsDesc.FillMode = D3D11_FILL_SOLID;
@@ -235,18 +243,18 @@ void DxTestApp::Run()
     rsDesc.AntialiasedLineEnable = false;
 
     ID3D11RasterizerState* pRasterizerState = NULL;
-    m_pDevice->CreateRasterizerState(&rsDesc, &pRasterizerState);
+    pDevice->CreateRasterizerState(&rsDesc, &pRasterizerState);
 
     // Set Depth Stencil State
     UINT StencilRef = 0x0;
-    m_pContext->OMSetDepthStencilState(pDbState, StencilRef);
+    pContext->OMSetDepthStencilState(pDbState, StencilRef);
 
-    m_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    m_pContext->RSSetState(pRasterizerState);
-    m_pContext->PSSetSamplers(0, 1, &pSamplerState);
+    pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    pContext->RSSetState(pRasterizerState);
+    pContext->PSSetSamplers(0, 1, &pSamplerState);
 
 
-    m_pContext->ClearDepthStencilView(m_pDepthStencilBuffer->GetDepthStencilView(), 
+    pContext->ClearDepthStencilView(m_pDxData->m_pDepthStencilBuffer->GetDepthStencilView(), 
         D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 
         depthClearValue, 
         stencilClearValue); 
@@ -261,7 +269,7 @@ void DxTestApp::Run()
     memset(&counterDesc, 0, sizeof(D3D11_COUNTER_DESC));
 
     ID3D11Counter* pCounter = NULL;
-    m_pDevice->CreateCounter(&counterDesc, &pCounter);
+    pDevice->CreateCounter(&counterDesc, &pCounter);
     //*/
 
     D3D11_QUERY_DESC queryDesc;
@@ -270,37 +278,7 @@ void DxTestApp::Run()
     queryDesc.Query = D3D11_QUERY_PIPELINE_STATISTICS;
 
     ID3D11Query* pQuery = NULL;
-    m_pDevice->CreateQuery(&queryDesc, &pQuery);
-
-
-    ID3D11ShaderResourceView* pUI_SRV = NULL;
-
-    D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-    srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-    srvDesc.Texture2D.MipLevels = 1;
-    srvDesc.Texture2D.MostDetailedMip = 0;
-    srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-
-    m_pDevice->CreateShaderResourceView(m_pUIoverlay, &srvDesc, &pUI_SRV);
-
-    D3D11_BLEND_DESC blendDesc;
-    memset(&blendDesc, 0, sizeof(D3D11_BLEND_DESC));
-
-    blendDesc.AlphaToCoverageEnable = FALSE;
-    blendDesc.IndependentBlendEnable = FALSE;
-    blendDesc.RenderTarget[0].BlendEnable = TRUE;
-
-    blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
-    blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-    blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-    blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
-    blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
-    blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-
-    blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-
-    ID3D11BlendState* pBlendState = NULL;
-    hr = m_pDevice->CreateBlendState(&blendDesc, &pBlendState);
+    pDevice->CreateQuery(&queryDesc, &pQuery);
 
     BOOL quit = false;
     while (!quit)
@@ -310,61 +288,61 @@ void DxTestApp::Run()
         BeginFrame();
 
         // new frame, clear state
-        m_pContext->ClearState();
+        pContext->ClearState();
 
-        m_pContext->RSSetViewports(1, &m_viewport);
-        m_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        pCameraBuffer->BindVS(m_pContext, 0);
+        pContext->RSSetViewports(1, &m_pDxData->viewport);
+        pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        pCameraBuffer->BindVS(pContext, 0);
 
         ID3D11Buffer* pLightBuffer = pLight->GetBuffer();
-        m_pContext->PSSetConstantBuffers(0, 1, &pLightBuffer);
+        pContext->PSSetConstantBuffers(0, 1, &pLightBuffer);
 
-        m_pContext->PSSetConstantBuffers(1, 1, &pMaterialBuffer);
-        m_pContext->RSSetState(pRasterizerState);
+        pContext->PSSetConstantBuffers(1, 1, &pMaterialBuffer);
+        pContext->RSSetState(pRasterizerState);
 
-        m_pContext->PSSetSamplers(0, 1, &pSamplerState);
+        pContext->PSSetSamplers(0, 1, &pSamplerState);
 
-        m_pContext->OMSetDepthStencilState(pDbState, StencilRef);
+        pContext->OMSetDepthStencilState(pDbState, StencilRef);
 
         // UPDATE RENDER STATE
-        m_pContext->ClearRenderTargetView(m_pRenderTargetView, clearColor);
-        m_pContext->ClearDepthStencilView(m_pDepthStencilBuffer->GetDepthStencilView(), 
+        pContext->ClearRenderTargetView(m_pDxData->m_pRenderTargetView, clearColor);
+        pContext->ClearDepthStencilView(m_pDxData->m_pDepthStencilBuffer->GetDepthStencilView(), 
             D3D11_CLEAR_DEPTH, 
             depthClearValue, 
             stencilClearValue);
 
         // UPDATE SCENE
 
-        //m_pContext->Begin(pQuery);
+        //pContext->Begin(pQuery);
 
         // DRAW CUBE /////////////////////////////   
 
         // update cube matrix
-        pCameraBufferData = reinterpret_cast<CameraBufferData*>(pCameraBuffer->Map(m_pContext));
+        pCameraBufferData = reinterpret_cast<CameraBufferData*>(pCameraBuffer->Map(pContext));
         pCameraBufferData->worldMatrix      = XMMatrixRotationX(-3.14f/2.0f) * XMMatrixScaling(2, 2, 1); //XMMatrixIdentity();
         pCameraBufferData->viewMatrix       = XMMatrixTranslation(0, 0, 3.0f) * m_pCamera->W2C(); 
         pCameraBufferData->projectionMatrix = m_pCamera->C2S(); 
-        pCameraBuffer->Unmap(m_pContext);
+        pCameraBuffer->Unmap(pContext);
 
-        pPosTexVS->Bind(m_pContext);
+        pPosTexVS->Bind(pContext);
 
         // Bind the view -- note: if either views are bound as resources, this generates warnings
         // calling set render target here after the previous set shader res' calls get rid of the warnings
 
-        m_pContext->OMSetRenderTargets( 1, &m_pRenderTargetView, m_pDepthStencilBuffer->GetDepthStencilView());
+        pContext->OMSetRenderTargets( 1, &m_pDxData->m_pRenderTargetView, m_pDxData->m_pDepthStencilBuffer->GetDepthStencilView());
 
-        m_pContext->PSSetShaderResources(0, 1, &pKittenSRView);
-        pApplyTexPS->Bind(m_pContext);
+        pContext->PSSetShaderResources(0, 1, &pKittenSRView);
+        pApplyTexPS->Bind(pContext);
 
-        pPlaneMesh->Bind(m_pContext);
-        //pPlaneMesh->Draw(m_pContext);
+        pPlaneMesh->Bind(pContext);
+        //pPlaneMesh->Draw(pContext);
 
-        pCubeMesh->Bind(m_pContext);
-        //pCubeMesh->Draw(m_pContext);
+        pCubeMesh->Bind(pContext);
+        //pCubeMesh->Draw(pContext);
 
         // DRAW BUNNY WITH CAMERA /////////////////////////////
 
-        pCameraBufferData = reinterpret_cast<CameraBufferData*>(pCameraBuffer->Map(m_pContext));
+        pCameraBufferData = reinterpret_cast<CameraBufferData*>(pCameraBuffer->Map(pContext));
         pCameraBufferData->worldMatrix = XMMatrixScaling(5, 5, 1); // * XMMatrixRotationY(rotation.x);
         
         // translate world +6 in Z to position camera -9 from world origin
@@ -373,45 +351,45 @@ void DxTestApp::Run()
         
         pCameraBufferData->projectionMatrix = m_pCamera->C2S();
         
-        pCameraBuffer->Unmap(m_pContext);
+        pCameraBuffer->Unmap(pContext);
 
-        pPosTexNormVS->Bind(m_pContext);
-        pVisNormalPS->Bind(m_pContext);
+        pPosTexNormVS->Bind(pContext);
+        pVisNormalPS->Bind(pContext);
 
-        pBunnyMesh->Bind(m_pContext);
-        pBunnyMesh->Draw(m_pContext);
+        pBunnyMesh->Bind(pContext);
+        pBunnyMesh->Draw(pContext);
 
         // VISUALIZE DEPTH/STENCIL /////////////////////////////  
         //*
-        m_pContext->OMSetRenderTargets( 1, &m_pRenderTargetView, NULL );
+        pContext->OMSetRenderTargets( 1, &m_pDxData->m_pRenderTargetView, NULL );
 
-        pCameraBufferData = reinterpret_cast<CameraBufferData*>(pCameraBuffer->Map(m_pContext));
+        pCameraBufferData = reinterpret_cast<CameraBufferData*>(pCameraBuffer->Map(pContext));
         pCameraBufferData->worldMatrix      = XMMatrixRotationX(-3.14f/2.0f) * XMMatrixScaling(2, 2, 1);
         pCameraBufferData->viewMatrix       = XMMatrixTranslation(0, 0, 4.0f) * m_pCamera->W2C(); 
         pCameraBufferData->projectionMatrix = m_pCamera->C2S();
-        pCameraBuffer->Unmap(m_pContext);
+        pCameraBuffer->Unmap(pContext);
 
 
-        pPosTexVS->Bind(m_pContext);
+        pPosTexVS->Bind(pContext);
 
-        ID3D11ShaderResourceView* pDepthView = m_pDepthStencilBuffer->GetDepthResourceView();
-        m_pContext->PSSetShaderResources(0, 1, &pDepthView);
-        ID3D11ShaderResourceView* pStencilView = m_pDepthStencilBuffer->GetStencilResourceView();
-        m_pContext->PSSetShaderResources(1, 1, &pStencilView);
+        ID3D11ShaderResourceView* pDepthView = m_pDxData->m_pDepthStencilBuffer->GetDepthResourceView();
+        pContext->PSSetShaderResources(0, 1, &pDepthView);
+        ID3D11ShaderResourceView* pStencilView = m_pDxData->m_pDepthStencilBuffer->GetStencilResourceView();
+        pContext->PSSetShaderResources(1, 1, &pStencilView);
 
-        pVisDepthPS->Bind(m_pContext);
+        pVisDepthPS->Bind(pContext);
 
-        pPlaneMesh->Bind(m_pContext);
-        //pPlaneMesh->Draw(m_pContext);
+        pPlaneMesh->Bind(pContext);
+        //pPlaneMesh->Draw(pContext);
         //*/
 
-        //m_pContext->End(pQuery);
+        //pContext->End(pQuery);
 
         // Perf Query
         D3D11_QUERY_DATA_PIPELINE_STATISTICS pipelineStats;
         memset(&pipelineStats, 0, sizeof(D3D11_QUERY_DATA_PIPELINE_STATISTICS));
 
-        //while (S_OK != m_pContext->GetData(pQuery, &pipelineStats, sizeof(D3D11_QUERY_DATA_PIPELINE_STATISTICS), 0))
+        //while (S_OK != pContext->GetData(pQuery, &pipelineStats, sizeof(D3D11_QUERY_DATA_PIPELINE_STATISTICS), 0))
         {
 
         }
@@ -424,7 +402,7 @@ void DxTestApp::Run()
         m_pUI->End();
         DrawUI();
 
-        m_pSwapChain->Present(0,0);
+        m_pDxData->pDXGISwapChain->Present(0,0);
 
         // cannot set clearstate here because we are not setting all correct state in render loop
         //pContext->ClearState();
@@ -501,6 +479,6 @@ void DxTestApp::Run()
         pQuery = NULL;
     }
 
-    m_pContext->ClearState();
-    m_pContext->Flush(); 
+    pContext->ClearState();
+    pContext->Flush(); 
 }

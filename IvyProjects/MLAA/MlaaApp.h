@@ -3,9 +3,9 @@
 #define _MLAAAPP_H_
 
 
-#include "DxApp.h"
+#include "IvyApp.h"
 
-class MlaaApp : public DxApp
+class MlaaApp : public IvyApp
 {
 public:
     static MlaaApp* Create();

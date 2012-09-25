@@ -15,15 +15,11 @@ const UINT IvyApp::BufferCount = 1;
 
 unsigned int IvyApp::ScreenWidth  = 512;
 unsigned int IvyApp::ScreenHeight = 512;
-bool IvyApp::UseGL                = true;
-bool IvyApp::UseD3D               = false;
 
 IvyConfigItem IvyApp::IvyAppConfig[] = 
 {
     { "uScreenWidth",   "Screen Width",                 IvyUint,    &ScreenWidth,   false },
     { "uScreenHeight",  "Screen Height",                IvyUint,    &ScreenHeight,  false },
-    { "bUseGL",         "Use OpenGL",                   IvyBool,    &UseGL,         false },
-    { "bUseD3D",        "Use Direct3D",                 IvyBool,    &UseD3D,        false },
 
     // Sentinel
     { NULL, NULL, IvyUnknown, NULL, false }
@@ -180,15 +176,16 @@ void IvyApp::ReceiveEvent(
 {
     switch (pEvent->GetType())
     {
-    case EventTypeWindowResize:
-        m_pWindow->Resize();
-        break;
-    case EventTypeMouseMove:
-        UpdateMousePosition();
-        break;
-    default:
-        // Do nothing
-        break;
+        case EventTypeWindowResize:
+            m_pWindow->Resize();
+            UpdateSwapChain();
+            break;
+        case EventTypeMouseMove:
+            UpdateMousePosition();
+            break;
+        default:
+            // Do nothing
+            break;
     }
 }
 

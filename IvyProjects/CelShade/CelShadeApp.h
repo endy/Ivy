@@ -2,7 +2,7 @@
 ///
 ///     Ivy Engine - Cel Shading Demo
 ///
-///     Copyright 2010-2011, Brandon Light
+///     Copyright 2010-2012, Brandon Light
 ///     All rights reserved.
 ///
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -10,11 +10,11 @@
 #ifndef _CELSHADEAPP_H_
 #define _CELSHADEAPP_H_
 
-#include "DxApp.h"
+#include "IvyApp.h"
 
 class DxShader;
 
-class CelShadeApp : public DxApp
+class CelShadeApp : public IvyApp
 {
 public:
     static CelShadeApp* Create();
