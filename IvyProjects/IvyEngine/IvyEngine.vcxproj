@@ -171,6 +171,7 @@
     <ClCompile Include="gl\GLMesh.cpp" />
     <ClCompile Include="gl\GLShader.cpp" />
     <ClCompile Include="gl\GLTexture.cpp" />
+    <ClCompile Include="gl\IvyAppGL.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core\IvyApp.h" />

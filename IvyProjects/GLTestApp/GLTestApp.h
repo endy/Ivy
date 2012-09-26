@@ -30,14 +30,8 @@ protected:
 
     virtual void ReceiveEvent(const Event* pEvent);
 
-    void IvySwapBuffers();
-
 private:
     GLTestApp(const GLTestApp& copy); // disallow copy constructor
-
-    void InitGL2();
-    void InitGL4();
-    void InitGLES2();
 
     void DrawTestGL2();
     void DrawTestGL4();

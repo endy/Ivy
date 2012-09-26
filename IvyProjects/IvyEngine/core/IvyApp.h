@@ -47,7 +47,12 @@ protected:
 
     virtual bool Init();
     bool InitDX();
-    bool InitGL();
+
+    bool InitGL2();
+    bool InitGL4();
+    bool InitGLES2();
+
+    void IvySwapBuffers();
 
     bool DeinitDX();
     bool DeinitGL();
