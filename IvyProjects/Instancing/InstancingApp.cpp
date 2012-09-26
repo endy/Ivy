@@ -211,10 +211,10 @@ void InstancingApp::Run()
         pContext->PSSetSamplers(0, 1, &pPointSampler);
 
         pContext->OMSetRenderTargets(1,
-                                       &m_pDxData->m_pRenderTargetView,
-                                       m_pDxData->m_pDepthStencilBuffer->GetDepthStencilView());
-        pContext->ClearRenderTargetView(m_pDxData->m_pRenderTargetView, clearColor);
-        pContext->ClearDepthStencilView(m_pDxData->m_pDepthStencilBuffer->GetDepthStencilView(),
+                                       &m_pDxData->pAppRenderTargetView,
+                                       m_pDxData->pAppDepthStencilTex->GetDepthStencilView());
+        pContext->ClearRenderTargetView(m_pDxData->pAppRenderTargetView, clearColor);
+        pContext->ClearDepthStencilView(m_pDxData->pAppDepthStencilTex->GetDepthStencilView(),
                                           D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
                                           1.0,
                                           0);

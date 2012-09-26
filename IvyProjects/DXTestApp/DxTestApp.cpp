@@ -254,7 +254,7 @@ void DxTestApp::Run()
     pContext->PSSetSamplers(0, 1, &pSamplerState);
 
 
-    pContext->ClearDepthStencilView(m_pDxData->m_pDepthStencilBuffer->GetDepthStencilView(), 
+    pContext->ClearDepthStencilView(m_pDxData->pAppDepthStencilTex->GetDepthStencilView(), 
         D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 
         depthClearValue, 
         stencilClearValue); 
@@ -305,8 +305,8 @@ void DxTestApp::Run()
         pContext->OMSetDepthStencilState(pDbState, StencilRef);
 
         // UPDATE RENDER STATE
-        pContext->ClearRenderTargetView(m_pDxData->m_pRenderTargetView, clearColor);
-        pContext->ClearDepthStencilView(m_pDxData->m_pDepthStencilBuffer->GetDepthStencilView(), 
+        pContext->ClearRenderTargetView(m_pDxData->pAppRenderTargetView, clearColor);
+        pContext->ClearDepthStencilView(m_pDxData->pAppDepthStencilTex->GetDepthStencilView(), 
             D3D11_CLEAR_DEPTH, 
             depthClearValue, 
             stencilClearValue);
@@ -329,7 +329,7 @@ void DxTestApp::Run()
         // Bind the view -- note: if either views are bound as resources, this generates warnings
         // calling set render target here after the previous set shader res' calls get rid of the warnings
 
-        pContext->OMSetRenderTargets( 1, &m_pDxData->m_pRenderTargetView, m_pDxData->m_pDepthStencilBuffer->GetDepthStencilView());
+        pContext->OMSetRenderTargets( 1, &m_pDxData->pAppRenderTargetView, m_pDxData->pAppDepthStencilTex->GetDepthStencilView());
 
         pContext->PSSetShaderResources(0, 1, &pKittenSRView);
         pApplyTexPS->Bind(pContext);
@@ -361,7 +361,7 @@ void DxTestApp::Run()
 
         // VISUALIZE DEPTH/STENCIL /////////////////////////////  
         //*
-        pContext->OMSetRenderTargets( 1, &m_pDxData->m_pRenderTargetView, NULL );
+        pContext->OMSetRenderTargets( 1, &m_pDxData->pAppRenderTargetView, NULL );
 
         pCameraBufferData = reinterpret_cast<CameraBufferData*>(pCameraBuffer->Map(pContext));
         pCameraBufferData->worldMatrix      = XMMatrixRotationX(-3.14f/2.0f) * XMMatrixScaling(2, 2, 1);
@@ -372,9 +372,9 @@ void DxTestApp::Run()
 
         pPosTexVS->Bind(pContext);
 
-        ID3D11ShaderResourceView* pDepthView = m_pDxData->m_pDepthStencilBuffer->GetDepthResourceView();
+        ID3D11ShaderResourceView* pDepthView = m_pDxData->pAppDepthStencilTex->GetDepthResourceView();
         pContext->PSSetShaderResources(0, 1, &pDepthView);
-        ID3D11ShaderResourceView* pStencilView = m_pDxData->m_pDepthStencilBuffer->GetStencilResourceView();
+        ID3D11ShaderResourceView* pStencilView = m_pDxData->pAppDepthStencilTex->GetStencilResourceView();
         pContext->PSSetShaderResources(1, 1, &pStencilView);
 
         pVisDepthPS->Bind(pContext);

@@ -27,11 +27,11 @@ struct IvyDxUIData
     // UI Objects
     DxShader* pUserInterfaceVS;
     DxShader* pUserInterfacePS;
-    DxBuffer* m_pUICameraBuffer;
+    DxBuffer* pUserInterfaceCameraBuf;
     DxMesh* pUserInterfaceQuad;
     ID3D11BlendState* pUserInterfaceBlendState;
-    ID3D11Texture2D* m_pUIoverlay;
-    ID3D11ShaderResourceView* pUI_SRV;
+    ID3D11Texture2D* pUserInterfaceOverlay;
+    ID3D11ShaderResourceView* pUserInterfaceSRV;
     IDXGIKeyedMutex* pUserInterfaceMutexD3D;
 };
 
@@ -105,7 +105,7 @@ bool IvyApp::InitDX()
             // Create a render-target view
             m_pDxData->pD3D11Device->CreateRenderTargetView(pBackBuffer,
                 NULL,
-                &m_pDxData->m_pRenderTargetView );
+                &m_pDxData->pAppRenderTargetView );
             pBackBuffer->Release();
         }
     }
@@ -123,7 +123,7 @@ bool IvyApp::InitDX()
         depthStencilCreateInfo.width = m_screenWidth;
         depthStencilCreateInfo.height = m_screenHeight;
 
-        m_pDxData->m_pDepthStencilBuffer = DxTexture::Create(m_pDxData->pD3D11Device, &depthStencilCreateInfo);
+        m_pDxData->pAppDepthStencilTex = DxTexture::Create(m_pDxData->pD3D11Device, &depthStencilCreateInfo);
     }
 
     // Setup viewport
@@ -149,7 +149,7 @@ bool IvyApp::InitDX()
     cameraBufferCreateInfo.flags.cpuWriteable = TRUE;
     cameraBufferCreateInfo.elemSizeBytes = sizeof(CameraBufferData);
     cameraBufferCreateInfo.pInitialData = &cameraData;
-    m_pUIData->m_pUICameraBuffer = DxBuffer::Create(m_pDxData->pD3D11Device, &cameraBufferCreateInfo);
+    m_pUIData->pUserInterfaceCameraBuf = DxBuffer::Create(m_pDxData->pD3D11Device, &cameraBufferCreateInfo);
 
     Plane p;
     DxMeshCreateInfo planeMeshInfo;
@@ -160,9 +160,9 @@ bool IvyApp::InitDX()
 
     m_pUIData->pUserInterfaceQuad = DxMesh::Create(m_pDxData->pD3D11Device, &planeMeshInfo);
 
-    m_pUIData->m_pUIoverlay = m_pUI->CreateSharedTextureOverlay(m_pDxData->pD3D11Device);
+    m_pUIData->pUserInterfaceOverlay = m_pUI->CreateSharedTextureOverlay(m_pDxData->pD3D11Device);
 
-    if (DxFAIL(m_pUIData->m_pUIoverlay->QueryInterface(__uuidof(IDXGIKeyedMutex),
+    if (DxFAIL(m_pUIData->pUserInterfaceOverlay->QueryInterface(__uuidof(IDXGIKeyedMutex),
         (LPVOID*) &m_pUIData->pUserInterfaceMutexD3D)))
     {
         success = false;
@@ -174,7 +174,7 @@ bool IvyApp::InitDX()
     srvDesc.Texture2D.MostDetailedMip = 0;
     srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 
-    m_pDxData->pD3D11Device->CreateShaderResourceView(m_pUIData->m_pUIoverlay, &srvDesc, &m_pUIData->pUI_SRV);
+    m_pDxData->pD3D11Device->CreateShaderResourceView(m_pUIData->pUserInterfaceOverlay, &srvDesc, &m_pUIData->pUserInterfaceSRV);
 
     D3D11_BLEND_DESC uiBlendDesc;
     memset(&uiBlendDesc, 0, sizeof(D3D11_BLEND_DESC));
@@ -209,15 +209,15 @@ bool IvyApp::InitDX()
 bool IvyApp::DeinitDX()
 {
     ///@todo Add 'Safe Release' calls or some such to release these components
-    if (m_pDxData->m_pRenderTargetView != NULL)
+    if (m_pDxData->pAppRenderTargetView != NULL)
     {
-        m_pDxData->m_pRenderTargetView->Release();
+        m_pDxData->pAppRenderTargetView->Release();
     }
 
-    if (m_pDxData->m_pDepthStencilBuffer != NULL)
+    if (m_pDxData->pAppDepthStencilTex != NULL)
     {
-        m_pDxData->m_pDepthStencilBuffer->Destroy();
-        m_pDxData->m_pDepthStencilBuffer = NULL;
+        m_pDxData->pAppDepthStencilTex->Destroy();
+        m_pDxData->pAppDepthStencilTex = NULL;
     }
 
     if (m_pDxData->pD3D11Context != NULL)
@@ -239,7 +239,7 @@ bool IvyApp::DeinitDX()
     m_pUI(NULL),
     m_pUIVS(NULL),
     m_pUIPS(NULL),
-    m_pUICameraBuffer(NULL),
+    pUserInterfaceCameraBuf(NULL),
     m_pUIQuadMesh(NULL),
     m_pUIBlendState(NULL),
     pUI_SRV(NULL)
@@ -277,7 +277,7 @@ void IvyApp::UpdateSwapChain()
     m_pDxData->pD3D11Context->OMSetRenderTargets(0, 0, 0);
 
     // Release all outstanding references to the swap chain's buffers.
-    m_pDxData->m_pRenderTargetView->Release();
+    m_pDxData->pAppRenderTargetView->Release();
 
     HRESULT hr;
     hr = m_pDxData->pDXGISwapChain->ResizeBuffers(BufferCount,
@@ -297,14 +297,14 @@ void IvyApp::UpdateSwapChain()
 
     hr = m_pDxData->pD3D11Device->CreateRenderTargetView(pBackBuffer,
         NULL,
-        &m_pDxData->m_pRenderTargetView);
+        &m_pDxData->pAppRenderTargetView);
     // Perform error handling here!
     pBackBuffer->Release();
 
-    if (m_pDxData->m_pDepthStencilBuffer != NULL)
+    if (m_pDxData->pAppDepthStencilTex != NULL)
     {
-        m_pDxData->m_pDepthStencilBuffer->Destroy();
-        m_pDxData->m_pDepthStencilBuffer = NULL;
+        m_pDxData->pAppDepthStencilTex->Destroy();
+        m_pDxData->pAppDepthStencilTex = NULL;
 
         DxTextureCreateInfo depthStencilCreateInfo;
         memset(&depthStencilCreateInfo, 0, sizeof(DxTextureCreateInfo));
@@ -314,7 +314,7 @@ void IvyApp::UpdateSwapChain()
         depthStencilCreateInfo.width = width;
         depthStencilCreateInfo.height = height;
 
-        m_pDxData->m_pDepthStencilBuffer = DxTexture::Create(m_pDxData->pD3D11Device, &depthStencilCreateInfo);
+        m_pDxData->pAppDepthStencilTex = DxTexture::Create(m_pDxData->pD3D11Device, &depthStencilCreateInfo);
     }
 }
 
@@ -345,19 +345,19 @@ void IvyApp::DrawUI()
 
     if (hr == WAIT_OBJECT_0)
     {
-        pContext->OMSetRenderTargets(1, &m_pDxData->m_pRenderTargetView, NULL);
+        pContext->OMSetRenderTargets(1, &m_pDxData->pAppRenderTargetView, NULL);
 
-        CameraBufferData* pCameraData = reinterpret_cast<CameraBufferData*>(m_pUIData->m_pUICameraBuffer->Map(m_pDxData->pD3D11Context));
+        CameraBufferData* pCameraData = reinterpret_cast<CameraBufferData*>(m_pUIData->pUserInterfaceCameraBuf->Map(m_pDxData->pD3D11Context));
         pCameraData->worldMatrix = XMMatrixRotationX(-3.14f/2.0f) * XMMatrixScaling(2, 2, 1);
         pCameraData->viewMatrix = XMMatrixTranslation(0, 0, 2.0f) * m_pCamera->W2C();
         pCameraData->projectionMatrix = m_pCamera->C2S();
 
-        m_pUIData->m_pUICameraBuffer->Unmap(pContext);
+        m_pUIData->pUserInterfaceCameraBuf->Unmap(pContext);
 
         m_pUIData->pUserInterfaceVS->Bind(pContext);
-        m_pUIData->m_pUICameraBuffer->BindVS(pContext, 0);
+        m_pUIData->pUserInterfaceCameraBuf->BindVS(pContext, 0);
 
-        m_pDxData->pD3D11Context->PSSetShaderResources(0, 1, &m_pUIData->pUI_SRV);
+        m_pDxData->pD3D11Context->PSSetShaderResources(0, 1, &m_pUIData->pUserInterfaceSRV);
         m_pUIData->pUserInterfacePS->Bind(pContext);
 
         m_pDxData->pD3D11Context->OMSetBlendState(m_pUIData->pUserInterfaceBlendState, blendFactors, sampleMask);

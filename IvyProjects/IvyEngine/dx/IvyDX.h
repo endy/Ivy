@@ -25,8 +25,8 @@ struct IvyAppDxData
     IDXGISwapChain* pDXGISwapChain;
 
     ///@todo Refactor into a group
-    ID3D11RenderTargetView* m_pRenderTargetView;
-    DxTexture* m_pDepthStencilBuffer;
+    ID3D11RenderTargetView* pAppRenderTargetView;
+    DxTexture* pAppDepthStencilTex;
 
     ///@TODO Create better mapping between viewport & camera
     D3D11_VIEWPORT viewport;

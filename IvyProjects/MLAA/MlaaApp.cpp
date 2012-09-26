@@ -288,9 +288,9 @@ void MlaaApp::Run()
         pContext->PSSetSamplers(0, 1, &pPointSampler);
         pContext->PSSetSamplers(1, 1, &pLinearSampler);
 
-        pContext->ClearRenderTargetView(m_pDxData->m_pRenderTargetView, clearColor);
+        pContext->ClearRenderTargetView(m_pDxData->pAppRenderTargetView, clearColor);
 
-        pContext->OMSetRenderTargets( 1, &m_pDxData->m_pRenderTargetView, NULL);
+        pContext->OMSetRenderTargets( 1, &m_pDxData->pAppRenderTargetView, NULL);
 
         pPosTexTriVS->Bind(pContext);
 
@@ -354,7 +354,7 @@ void MlaaApp::Run()
         // Display Result
         {
             pContext->RSSetViewports(1, &m_pDxData->viewport);
-            pContext->OMSetRenderTargets(1, &m_pDxData->m_pRenderTargetView, NULL);
+            pContext->OMSetRenderTargets(1, &m_pDxData->pAppRenderTargetView, NULL);
 
             if (m_passDisplayed == MlaaPassPrePass)
             {
