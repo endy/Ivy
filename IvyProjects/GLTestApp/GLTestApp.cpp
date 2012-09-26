@@ -290,7 +290,7 @@ void GLTestApp::DrawTestGL2()
     pTexture->Bind(0, textureAttribLoc);
     pFirefleaTex->Bind(1, textureAttribLoc);
 
-    ///@ todo Migrate settings into texture object?  Or have separate sampler that is attached to texture?
+    ///@todo Migrate settings into texture object?  Or have separate sampler that is attached to texture?
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 

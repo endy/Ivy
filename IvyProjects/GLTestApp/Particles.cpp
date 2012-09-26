@@ -34,7 +34,7 @@ struct Particles
 };
 
 
-///@TODO get rid of these globals
+///@todo get rid of these globals
 Particles* pParticles = NULL;
 int width = 100, height = 100;
 
@@ -179,7 +179,7 @@ void GLTestApp::ParticlesTest()
    // pTexture->Bind(0, textureAttribLoc);
     pFirefleaTex->Bind(1, textureAttribLoc);
     error = glGetError();
-    ///@ todo Migrate settings into texture object?  Or have separate sampler that is attached to texture?
+    ///@todo Migrate settings into texture object?  Or have separate sampler that is attached to texture?
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
@@ -225,8 +225,16 @@ void GLTestApp::ParticlesTest()
     pVSShader->Destroy();
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/// IvyApp::ReceiveEventParticles
+///
+/// @brief
+///     
+/// @return
+///     N/A
+///////////////////////////////////////////////////////////////////////////////////////////////////
 void GLTestApp::ReceiveEventParticles(
-    const Event* pEvent)
+    const Event* pEvent)    ///< Pointer to Event
 {
     if (pEvent->GetType() == EventTypeKeyDown)
     {

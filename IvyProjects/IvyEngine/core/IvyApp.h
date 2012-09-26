@@ -24,7 +24,10 @@ struct IvyAppDxData;
 class DxUI;
 struct IvyDxUIData;
 
-class IvyApp : 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/// IvyApp Class
+///////////////////////////////////////////////////////////////////////////////////////////////////
+class IvyApp :
     public IvyObject,
     public IEventReceiver
 {
@@ -68,7 +71,7 @@ protected:
 
     IvyWindow* m_pWindow;
 
-    ///@TODO Refactor into IvyUI
+    ///@todo Refactor into IvyUI
     DxUI* m_pUI;    ///< DxUI for the user interface overlay
     IvyDxUIData* m_pUIData;
 

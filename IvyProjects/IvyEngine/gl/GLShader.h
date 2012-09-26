@@ -10,7 +10,7 @@
 #ifndef _GLSHADER_H_
 #define _GLSHADER_H_
 
-/// @todo Add Reload shader utility function
+///@todo Add Reload shader utility function
 
 /*
 use cases for reloading:

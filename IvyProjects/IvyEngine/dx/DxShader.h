@@ -7,7 +7,7 @@
 ///
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-/// @todo Add Reload shader utility function
+///@todo Add Reload shader utility function
 
 #ifndef _DXSHADER_H_
 #define _DXSHADER_H_
@@ -17,7 +17,7 @@
 #include <D3D11.h>
 #include <string>
 
-///@TODO Remove generic shader decls and shader source to a separate header
+///@todo Remove generic shader decls and shader source to a separate header
 
 static const D3D11_INPUT_ELEMENT_DESC PosVertexDesc[] =
 {

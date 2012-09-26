@@ -205,7 +205,7 @@ char* GetValue(
     char* retPtr = NULL;
     *endPos = 0;
 
-    ///@TODO if string, verify first and last quote
+    ///@todo if string, verify first and last quote
 
     // Skip past '=' and inner whitespace
     while ((argString[startPos] == ' ') || (argString[startPos] == '='))

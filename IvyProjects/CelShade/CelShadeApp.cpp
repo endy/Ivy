@@ -23,7 +23,7 @@
 
 #include "IvyGL.h"
 
-///@TODO: remove global setting asap
+///@todo: remove global setting asap
 const bool CelShadeAppUseGL = FALSE;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -421,7 +421,7 @@ void CelShadeApp::CelShadeD3D()
 
         ///// Draw UI ////////////////////////////////////////////////////////////////////////////////
 
-        ///@TODO Consider moving the following UI drawing to Draw2D()
+        ///@todo Consider moving the following UI drawing to Draw2D()
         m_pUI->Begin();
         // Draw UI stuff
         m_pUI->RenderRect();

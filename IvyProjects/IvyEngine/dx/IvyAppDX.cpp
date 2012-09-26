@@ -135,7 +135,7 @@ bool IvyApp::InitDX()
     m_pDxData->viewport.TopLeftY = 0;
 
     // Create UI
-    ///@TODO Move UI creation up into IvyApp once the creation of IvyUI exists
+    ///@todo Move UI creation up into IvyApp once the creation of IvyUI exists
     m_pUI = DxUI::Create();
     m_pUIData = new IvyDxUIData();
 

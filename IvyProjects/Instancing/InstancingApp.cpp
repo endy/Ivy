@@ -269,7 +269,7 @@ void InstancingApp::Run()
         pCubeMesh->Bind(pContext);
         pCubeMesh->Draw(pContext);
 
-        ///@TODO Draw UI
+        ///@todo Draw UI
 
 
         m_pDxData->pDXGISwapChain->Present(0,0);

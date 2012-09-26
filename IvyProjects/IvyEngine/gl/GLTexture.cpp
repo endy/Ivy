@@ -12,7 +12,7 @@
 
 #include <corona.h>
 
-///@ todo Add a compile-time assert to check this table matches IvyTextureType enums
+///@todo Add a compile-time assert to check this table matches IvyTextureType enums
 const GLenum IvyToGLTexTypeTable[] =
 {
 #if IVY_GL_ES

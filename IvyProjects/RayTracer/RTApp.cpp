@@ -305,7 +305,7 @@ void RTApp::SetupHwRtEyeTexture(
     DxTexture* pImage)
 {
     /// Update Image!
-    ///@ TODO: Take into account padding!
+    ///@todo: Take into account padding!
     FLOAT* texData = reinterpret_cast<FLOAT*>(pImage->Lock(m_pDxData->pD3D11Context));
     for (UINT x = 0; x < m_screenWidth; ++x)
     {
