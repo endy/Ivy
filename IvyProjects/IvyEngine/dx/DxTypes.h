@@ -13,7 +13,6 @@
 #include "IvyTypes.h"
 
 #include <Windows.h>
-#include <xnamath.h>
 
 
 

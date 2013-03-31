@@ -14,15 +14,25 @@
 #include "IvyObject.h"
 
 ///@todo Replace xnamath matrix class with own implementation, at least for 'core' Camera class
-#ifdef _WIN32
+#if XNA_MATH
 #include <xnamath.h>
-#endif // _WIN32
+#else
+#include "IvyMath.h"
+#endif // XNA_MATH
+
 
 struct CameraBufferData
 {
+#if XNA_MATH
     XMMATRIX worldMatrix;
     XMMATRIX viewMatrix;
     XMMATRIX projectionMatrix;
+#else
+	// Ivy Math
+	Matrix4x4 worldMatrix;
+	Matrix4x4 viewMatrix;
+	Matrix4x4 projectionMatrix;
+#endif // XNA_MATH
 };
 
 struct IvyCameraInfo
@@ -46,8 +56,13 @@ public:
     void UpdateViewport(Rect viewport);
 
     // todo: rename these methods to something more reasonable
+#if XNA_MATH
     XMMATRIX W2C(){ return XMLoadFloat4x4(&m_worldToCamera); }
     XMMATRIX C2S(){ return XMLoadFloat4x4(&m_cameraToScreen); }
+#else
+    Matrix4x4 W2C(){ return m_worldToCamera; }
+    Matrix4x4 C2S(){ return m_cameraToScreen; }
+#endif // XNA_MATH
 
     // todo: refactor these away
     Point3& Position() { return m_position; }
@@ -55,9 +70,15 @@ public:
 
 protected:
 
+#if XNA_MATH
     XMFLOAT4X4 m_worldToCamera;  // view ??
     XMFLOAT4X4 m_cameraToScreen; // projection
     XMFLOAT4X4 m_screenToRaster; // viewport mapping
+#else
+    Matrix4x4 m_worldToCamera;  // view ??
+    Matrix4x4 m_cameraToScreen; // projection
+    Matrix4x4 m_screenToRaster; // viewport mapping
+#endif
 
     Rect m_viewport;
     FLOAT m_nearZ;

@@ -34,7 +34,7 @@ using std::string;
 
 ///@todo REFACTOR THIS HEADER OUT
 #ifdef _WIN32
-#include <xnamath.h>
+//#include <xnamath.h>
 #endif 
 
 
@@ -225,7 +225,7 @@ void ImportFstream(
             VertexPTN& v1 = pVerts[pIB[fIdx*3+1]];
             VertexPTN& v2 = pVerts[pIB[fIdx*3+2]];
 
-#ifdef _WIN32 // Stub code
+#ifdef XNA_MATH // Stub code
             FXMVECTOR xv0 = XMVectorSet(v0.Pos.x, v0.Pos.y, v0.Pos.z, 1.0f);
             FXMVECTOR xv1 = XMVectorSet(v1.Pos.x, v1.Pos.y, v1.Pos.z, 1.0f);
             FXMVECTOR xv2 = XMVectorSet(v2.Pos.x, v2.Pos.y, v2.Pos.z, 1.0f);
