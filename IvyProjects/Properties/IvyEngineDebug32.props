@@ -3,7 +3,7 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <IncludePath>$(SolutionDir)IvyEngine\core;$(SolutionDir)IvyEngine\dx;$(SolutionDir)IvyEngine\gl;$(SolutionDir)..\Lib\Eigen_3.1.2;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)IvyEngine\core;$(SolutionDir)IvyEngine\dx;$(SolutionDir)IvyEngine\gl;$(SolutionDir)..\Lib\stb_image;$(SolutionDir)..\Lib\Eigen_3.1.2;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)x86\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup>

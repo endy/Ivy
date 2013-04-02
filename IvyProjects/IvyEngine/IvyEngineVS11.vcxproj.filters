@@ -94,6 +94,9 @@
     <ClInclude Include="core\IvyConfig.h">
       <Filter>core</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Lib\stb_image\stb_image.h">
+      <Filter>external</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dx\DxBuffer.cpp">

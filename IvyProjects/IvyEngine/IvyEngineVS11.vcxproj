@@ -80,14 +80,12 @@
     <Import Project="..\Properties\IvyEngineDebug32.props" />
     <Import Project="..\Properties\OpenGLDebug32.props" />
     <Import Project="..\Properties\GLES2_32.props" />
-    <Import Project="..\Properties\Corona32.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\Properties\IvyEngineDebug32.props" />
     <Import Project="..\Properties\OpenGLDebug32.props" />
     <Import Project="..\Properties\GLES2_32.props" />
-    <Import Project="..\Properties\Corona32.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -122,11 +120,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IntDir>x86\$(Configuration)\</IntDir>
     <TargetName>$(ProjectName)32</TargetName>
+    <IncludePath>$(IncludePath)</IncludePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">
     <IntDir>x86\$(Configuration)\</IntDir>
     <TargetName>$(ProjectName)32</TargetName>
     <IncludePath>$(IncludePath)</IncludePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)x86\$(Configuration)\</OutDir>
@@ -258,6 +259,7 @@
     <ClCompile Include="gl\IvyAppGL.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Lib\stb_image\stb_image.h" />
     <ClInclude Include="core\IvyApp.h" />
     <ClInclude Include="core\IvyCamera.h" />
     <ClInclude Include="core\IvyConfig.h" />
