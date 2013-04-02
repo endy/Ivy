@@ -34,16 +34,16 @@ public:
     IvyShaderType Type() const { return m_type; }
 
     const CHAR* GetShaderName() { return m_shaderName.c_str(); }
-    const CHAR* GetShaderFilename() { return m_shaderFilename.c_str(); }
+    const WCHAR* GetShaderFilename() { return m_shaderFilename.c_str(); }
 
 protected:
-    IvyShader(IvyShaderType shaderType, const CHAR* pShaderName, const CHAR* pShaderFilename);
+    IvyShader(IvyShaderType shaderType, const CHAR* pShaderName, const WCHAR* pShaderFilename);
     virtual ~IvyShader();
 
 private:
     IvyShaderType m_type;
     std::string m_shaderName;
-    std::string m_shaderFilename;
+    std::wstring m_shaderFilename;
 };
 
 

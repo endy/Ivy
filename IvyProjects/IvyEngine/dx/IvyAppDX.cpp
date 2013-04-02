@@ -139,8 +139,8 @@ bool IvyApp::InitDX()
     m_pUI = DxUI::Create();
     m_pUIData = new IvyDxUIData();
 
-    m_pUIData->pUserInterfaceVS = DxShader::CreateFromFile(m_pDxData->pD3D11Device, "PosTexTri", "Content/shaders/DxUI.hlsl", PosTexVertexDesc, PosTexElements);
-    m_pUIData->pUserInterfacePS = DxShader::CreateFromFile(m_pDxData->pD3D11Device, "ApplyTex", "Content/shaders/DxUI.hlsl");
+    m_pUIData->pUserInterfaceVS = DxShader::CreateFromFile(m_pDxData->pD3D11Device, "PosTexTri", L"Content/shaders/DxUI.hlsl", PosTexVertexDesc, PosTexElements);
+    m_pUIData->pUserInterfacePS = DxShader::CreateFromFile(m_pDxData->pD3D11Device, "ApplyTex", L"Content/shaders/DxUI.hlsl");
 
     CameraBufferData cameraData;
     memset(&cameraData, 0, sizeof(CameraBufferData));

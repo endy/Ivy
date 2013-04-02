@@ -15,7 +15,7 @@
 IvyShader::IvyShader(
     IvyShaderType shaderType,
     const CHAR* pShaderName,
-    const CHAR* pShaderFilename)
+    const WCHAR* pShaderFilename)
     :
     m_type(shaderType),
     m_shaderName(pShaderName),

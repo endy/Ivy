@@ -4,9 +4,6 @@
     <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="dx\DxApp.h">
-      <Filter>dx</Filter>
-    </ClInclude>
     <ClInclude Include="dx\DxBuffer.h">
       <Filter>dx</Filter>
     </ClInclude>
@@ -99,9 +96,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="dx\DxApp.cpp">
-      <Filter>dx</Filter>
-    </ClCompile>
     <ClCompile Include="dx\DxBuffer.cpp">
       <Filter>dx</Filter>
     </ClCompile>
@@ -165,6 +159,15 @@
     <ClCompile Include="core\IvyConfig.cpp">
       <Filter>core</Filter>
     </ClCompile>
+    <ClCompile Include="dx\IvyAppDX.cpp">
+      <Filter>dx</Filter>
+    </ClCompile>
+    <ClCompile Include="gl\IvyAppGL.cpp">
+      <Filter>gl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Lib\stb_image\stb_image.c">
+      <Filter>external</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="dx">
@@ -175,6 +178,9 @@
     </Filter>
     <Filter Include="core">
       <UniqueIdentifier>{8f590af8-61b8-4b62-b2e3-676f4cec8ffa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="external">
+      <UniqueIdentifier>{4c75a21d-5632-4df7-aeea-68d38874cbd0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

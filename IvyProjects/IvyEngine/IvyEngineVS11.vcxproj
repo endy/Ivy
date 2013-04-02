@@ -1,6 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="DebugGL|Win32">
+      <Configuration>DebugGL</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DebugGL|x64">
+      <Configuration>DebugGL</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
@@ -31,7 +39,19 @@
     <CharacterSet>MultiByte</CharacterSet>
     <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v110</PlatformToolset>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v110</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugGL|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>MultiByte</CharacterSet>
@@ -62,7 +82,19 @@
     <Import Project="..\Properties\GLES2_32.props" />
     <Import Project="..\Properties\Corona32.props" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\Properties\IvyEngineDebug32.props" />
+    <Import Project="..\Properties\OpenGLDebug32.props" />
+    <Import Project="..\Properties\GLES2_32.props" />
+    <Import Project="..\Properties\Corona32.props" />
+  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\Properties\DX11Debug64.props" />
+    <Import Project="..\Properties\IvyEngineDebug64.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugGL|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\Properties\DX11Debug64.props" />
     <Import Project="..\Properties\IvyEngineDebug64.props" />
@@ -84,9 +116,17 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)x86\$(Configuration)\</OutDir>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">
+    <OutDir>$(SolutionDir)x86\Debug\</OutDir>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IntDir>x86\$(Configuration)\</IntDir>
     <TargetName>$(ProjectName)32</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">
+    <IntDir>x86\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)32</TargetName>
+    <IncludePath>$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)x86\$(Configuration)\</OutDir>
@@ -98,7 +138,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)x64\$(Configuration)\</OutDir>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugGL|x64'">
+    <OutDir>$(SolutionDir)x64\$(Configuration)\</OutDir>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IntDir>x64\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)64</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugGL|x64'">
     <IntDir>x64\$(Configuration)\</IntDir>
     <TargetName>$(ProjectName)64</TargetName>
   </PropertyGroup>
@@ -118,7 +165,26 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>IVY_GL_ONLY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugGL|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
@@ -154,6 +220,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Lib\stb_image\stb_image.c" />
     <ClCompile Include="core\IvyApp.cpp" />
     <ClCompile Include="core\IvyCamera.cpp" />
     <ClCompile Include="core\IvyConfig.cpp" />
@@ -166,16 +233,29 @@
     <ClCompile Include="core\IvyTexture.cpp" />
     <ClCompile Include="core\IvyUtils.cpp" />
     <ClCompile Include="core\IvyWindow.cpp" />
-    <ClCompile Include="dx\DxApp.cpp" />
-    <ClCompile Include="dx\DxBuffer.cpp" />
-    <ClCompile Include="dx\DxLight.cpp" />
-    <ClCompile Include="dx\DxMesh.cpp" />
-    <ClCompile Include="dx\DxShader.cpp" />
-    <ClCompile Include="dx\DxTexture.cpp" />
+    <ClCompile Include="dx\DxBuffer.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="dx\DxLight.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="dx\DxMesh.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="dx\DxShader.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="dx\DxTexture.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="dx\IvyAppDX.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="dx\SystemEventDispatcher.cpp" />
     <ClCompile Include="gl\GLMesh.cpp" />
     <ClCompile Include="gl\GLShader.cpp" />
     <ClCompile Include="gl\GLTexture.cpp" />
+    <ClCompile Include="gl\IvyAppGL.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core\IvyApp.h" />
@@ -195,15 +275,30 @@
     <ClInclude Include="core\IvyPerf.h" />
     <ClInclude Include="core\IvyUtils.h" />
     <ClInclude Include="core\IvyWindow.h" />
-    <ClInclude Include="dx\DxApp.h" />
-    <ClInclude Include="dx\DxBuffer.h" />
-    <ClInclude Include="dx\DxLight.h" />
-    <ClInclude Include="dx\DxMesh.h" />
-    <ClInclude Include="dx\DxShader.h" />
-    <ClInclude Include="dx\DxText.h" />
-    <ClInclude Include="dx\DxTexture.h" />
-    <ClInclude Include="dx\DxTypes.h" />
-    <ClInclude Include="dx\DxUtils.h" />
+    <ClInclude Include="dx\DxBuffer.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="dx\DxLight.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="dx\DxMesh.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="dx\DxShader.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="dx\DxText.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="dx\DxTexture.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="dx\DxTypes.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="dx\DxUtils.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="dx\SystemEventDispatcher.h" />
     <ClInclude Include="gl\GLMesh.h" />
     <ClInclude Include="gl\GLShader.h" />

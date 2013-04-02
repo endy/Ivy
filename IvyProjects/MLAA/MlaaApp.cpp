@@ -222,17 +222,17 @@ void MlaaApp::Run()
 
     // Shaders ////////////////////////////////////////////////////////////////////////////////////
 
-    DxShader* pPosTexTriVS = DxShader::CreateFromFile(pDevice, "PosTexTri", "MlaaShaders.hlsl", PosTexVertexDesc, PosTexElements);
-    DxShader* pGradientPS = DxShader::CreateFromFile(pDevice, "Gradient", "MlaaShaders.hlsl");
+    DxShader* pPosTexTriVS = DxShader::CreateFromFile(pDevice, "PosTexTri", L"MlaaShaders.hlsl", PosTexVertexDesc, PosTexElements);
+    DxShader* pGradientPS = DxShader::CreateFromFile(pDevice, "Gradient", L"MlaaShaders.hlsl");
 
-    DxShader* pApplyTexPS = DxShader::CreateFromFile(pDevice, "ApplyTexture", "MlaaShaders.hlsl");
+    DxShader* pApplyTexPS = DxShader::CreateFromFile(pDevice, "ApplyTexture", L"MlaaShaders.hlsl");
 
-    DxShader* pEdgeDetectPS = DxShader::CreateFromFile(pDevice, "ColorEdgeDetectionPS", "MlaaShaders.hlsl");
-    DxShader* pBlendWeightsPS = DxShader::CreateFromFile(pDevice, "BlendingWeightCalculationPS", "MlaaShaders.hlsl");
-    DxShader* pBlendEdgesPS = DxShader::CreateFromFile(pDevice, "NeighborhoodBlendingPS", "MlaaShaders.hlsl");
+    DxShader* pEdgeDetectPS = DxShader::CreateFromFile(pDevice, "ColorEdgeDetectionPS", L"MlaaShaders.hlsl");
+    DxShader* pBlendWeightsPS = DxShader::CreateFromFile(pDevice, "BlendingWeightCalculationPS", L"MlaaShaders.hlsl");
+    DxShader* pBlendEdgesPS = DxShader::CreateFromFile(pDevice, "NeighborhoodBlendingPS", L"MlaaShaders.hlsl");
 
-    DxShader* pZoomVS = DxShader::CreateFromFile(pDevice, "ZoomVS", "MlaaShaders.hlsl", PosTexVertexDesc, PosTexElements);
-    DxShader* pZoomPS = DxShader::CreateFromFile(pDevice, "ZoomPS", "MlaaShaders.hlsl");
+    DxShader* pZoomVS = DxShader::CreateFromFile(pDevice, "ZoomVS", L"MlaaShaders.hlsl", PosTexVertexDesc, PosTexElements);
+    DxShader* pZoomPS = DxShader::CreateFromFile(pDevice, "ZoomPS", L"MlaaShaders.hlsl");
 
     ////////////////////////////////////////////////////////////////////////////////////////
 

@@ -7,15 +7,11 @@
 ///
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-
 #ifndef _DXTEXTURE_H_
 #define _DXTEXTURE_H_
 
 #include "IvyTexture.h"
 #include "DxTypes.h"
-
-#include <D3DX11.h>
-
 
 struct DxTextureCreateInfo
 {

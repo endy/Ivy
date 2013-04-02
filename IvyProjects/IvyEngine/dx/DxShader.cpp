@@ -9,7 +9,8 @@
 
 #include "DxShader.h"
 #include "DxUtils.h"
-#include <D3DX11.h>
+
+#include <d3dcompiler.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// DxShader::DxShader
@@ -17,7 +18,7 @@
 DxShader::DxShader(
     IvyShaderType type,
     const CHAR* pShaderName,
-    const CHAR* pShaderFilename,
+    const WCHAR* pShaderFilename,
     ID3D11Device* pDevice)
     :
     IvyShader(type, pShaderName, pShaderFilename),
@@ -40,7 +41,7 @@ DxShader::~DxShader()
 DxShader* DxShader::CreateFromFile(
     ID3D11Device* pDevice,
     const CHAR* pShaderName,
-    const CHAR* pShaderFilename,
+    const WCHAR* pShaderFilename,
     const D3D11_INPUT_ELEMENT_DESC* pInputLayoutDesc,
     UINT numElements)
 {
@@ -61,7 +62,7 @@ DxShader* DxShader::CreateFromFile(
     char errorMsg[1024] = {0};
 
     // Compile the shader
-    statusOK = DxOK( D3DX11CompileFromFile(
+    statusOK = DxOK( D3DCompileFromFile(
         pVSShader->GetShaderFilename(),
         NULL,
         NULL,
@@ -69,10 +70,8 @@ DxShader* DxShader::CreateFromFile(
         "vs_4_0",
         0,
         0,
-        NULL,
         &pVSByteCode,
-        &pErrorMsgs,
-        NULL) );
+        &pErrorMsgs));
 
     if (pErrorMsgs != NULL)
     {
@@ -131,7 +130,7 @@ DxShader* DxShader::CreateFromSource(
     DxShader* pVSShader = new DxShader(
         IvyVertexShader,
         pShaderName,
-        "",
+        L"",
         pDevice);
 
     ///@todo Refactor this into an initialization step, constructor, or common IvyShaderCreateInfo
@@ -139,7 +138,7 @@ DxShader* DxShader::CreateFromSource(
     pVSShader->m_numVertexDescElements = numVertexDescElements;
 
     // Compile the shader
-    BOOL statusOK = DxOK( D3DX11CompileFromMemory(
+    BOOL statusOK = DxOK( D3DCompile(
         pShaderSource,
         strlen(pShaderSource),
         NULL,
@@ -149,10 +148,8 @@ DxShader* DxShader::CreateFromSource(
         "vs_4_0",
         0,
         0,
-        NULL,
         &pVSByteCode,
-        &pErrorMsgs,
-        NULL) );
+        &pErrorMsgs) );
 
     if (pErrorMsgs != NULL)
     {
@@ -194,7 +191,7 @@ DxShader* DxShader::CreateFromSource(
 DxShader* DxShader::CreateFromFile(
     ID3D11Device* pDevice,
     const CHAR* shaderName,
-    const CHAR* shaderFilename)
+    const WCHAR* shaderFilename)
 {
     BOOL statusOK = TRUE;
 
@@ -205,7 +202,7 @@ DxShader* DxShader::CreateFromFile(
 
     char errorMsg[1024] = {0};     
 
-    statusOK = DxOK( D3DX11CompileFromFile(
+    statusOK = DxOK( D3DCompileFromFile(
         pPSShader->GetShaderFilename(),
         NULL,
         NULL,
@@ -213,10 +210,8 @@ DxShader* DxShader::CreateFromFile(
         "ps_4_0",
         0,
         0,
-        NULL,
         &pPSByteCode,
-        &pErrorMsgs,
-        NULL) );
+        &pErrorMsgs) );
 
     if (pErrorMsgs != NULL)
     {
@@ -254,14 +249,14 @@ DxShader* DxShader::CreateFromSource(
 {
     BOOL statusOK = TRUE;
 
-    DxShader* pPSShader = new DxShader(IvyFragmentShader, pShaderName, "", pDevice);
+    DxShader* pPSShader = new DxShader(IvyFragmentShader, pShaderName, L"", pDevice);
 
     ID3D10Blob* pErrorMsgs = NULL;
     ID3D10Blob* pPSByteCode = NULL;
 
     char errorMsg[1024] = {0};     
 
-    statusOK = DxOK( D3DX11CompileFromMemory(
+    statusOK = DxOK( D3DCompile(
         pShaderSource,
         strlen(pShaderSource),
         NULL,
@@ -271,10 +266,8 @@ DxShader* DxShader::CreateFromSource(
         "ps_4_0",
         0,
         0,
-        NULL,
         &pPSByteCode,
-        &pErrorMsgs,
-        NULL) );
+        &pErrorMsgs) );
 
     if (pErrorMsgs != NULL)
     {

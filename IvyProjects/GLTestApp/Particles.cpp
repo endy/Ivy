@@ -24,7 +24,6 @@ inline float IvyMax(float a, float b) { return (a > b) ? a : b; }
 inline float IvyMin(float a, float b) { return (a < b) ? a : b; }
 inline float IvyClamp(float minClamp, float maxClamp, float value) { return IvyMax(IvyMin(value, maxClamp), minClamp); }
 
-
 struct Particles
 {
     int count;
@@ -120,6 +119,7 @@ void GLTestApp::ParticlesTest()
     pProgram->Link();
     pProgram->Bind();
 
+#if XNA_MATH
     struct CameraBufferData
     {
         XMMATRIX worldMatrix;
@@ -140,6 +140,7 @@ void GLTestApp::ParticlesTest()
     glUniformMatrix4fv(worldMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.worldMatrix));
     glUniformMatrix4fv(viewMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.viewMatrix));
     glUniformMatrix4fv(projMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.projectionMatrix));
+#endif
 
     pParticles = new Particles();
     pParticles->count = width * height;

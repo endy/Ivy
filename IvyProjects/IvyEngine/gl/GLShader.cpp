@@ -42,7 +42,7 @@ const CHAR* gFS2String = "                      \n\
 GLShader::GLShader(
     IvyShaderType shaderType,
     const CHAR* pShaderName,
-    const CHAR* pShaderFilename)
+    const WCHAR* pShaderFilename)
     :
     IvyShader(shaderType, pShaderName, pShaderFilename),
     m_glShaderId(0)
@@ -102,7 +102,7 @@ GLShader* GLShader::CreateFromSource(
     }
     else
     {
-        pNewShader = new GLShader(shaderType, pShaderName, "");
+        pNewShader = new GLShader(shaderType, pShaderName, L"");
         pNewShader->m_glShaderId = shaderId;
     }
 
@@ -158,7 +158,7 @@ GLShader* GLShader::CreateFromFile(
     }
     else
     {
-        pNewShader = new GLShader(shaderType, pShaderName, "");
+        pNewShader = new GLShader(shaderType, pShaderName, L"FILENAME_NOT_SAVED");
         pNewShader->m_glShaderId = shaderId;
     }
 

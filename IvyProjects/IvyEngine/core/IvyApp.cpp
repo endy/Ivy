@@ -178,7 +178,9 @@ void IvyApp::ReceiveEvent(
     {
         case EventTypeWindowResize:
             m_pWindow->Resize();
+#ifndef IVY_GL_ONLY
             UpdateSwapChain();
+#endif // IVY_GL_ONLY
             break;
         case EventTypeMouseMove:
             UpdateMousePosition();

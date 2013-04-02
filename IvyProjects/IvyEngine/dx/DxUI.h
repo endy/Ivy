@@ -10,9 +10,7 @@
 #ifndef _DXUI_H_
 #define _DXUI_H_
 
-#include <D3DX11.h>
-#include <D2D1.h>
-#include <DWrite.h>
+#include "IvyDX.h"
 
 struct ID3D11Device;
 

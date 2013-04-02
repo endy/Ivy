@@ -11,9 +11,7 @@
 #define _DXTYPES_H_
 
 #include "IvyTypes.h"
-
-#include <Windows.h>
-
+#include "IvyDX.h"
 
 
 #endif // _DXTYPES_H_

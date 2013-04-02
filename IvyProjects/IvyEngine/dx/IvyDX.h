@@ -10,7 +10,11 @@
 #ifndef _IVYDX_H_
 #define _IVYDX_H_
 
-#include <D3DX11.h>
+//#include <D3DX11.h>
+#include <d3d11.h>
+#include <D2D1.h>
+#include <DWrite.h>
+
 
 class DxMesh;
 class DxShader;

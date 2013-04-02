@@ -43,7 +43,7 @@ public:
     void Reload();
 
 protected:
-    GLShader(IvyShaderType shaderType, const CHAR* pShaderName, const CHAR* pShaderFilename);
+    GLShader(IvyShaderType shaderType, const CHAR* pShaderName, const WCHAR* pShaderFilename);
     virtual ~GLShader(); 
 
     // GL-specific shader stuff

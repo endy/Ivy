@@ -14,7 +14,6 @@
 #include "GLTexture.h"
 #include "GLShader.h"
 
-
 void GLTestApp::LightingTest()
 {
 
@@ -43,6 +42,7 @@ void GLTestApp::LightingTest()
 
     IVY_PRINT((const CHAR*)gluErrorString(glGetError()));
 
+#if XNA_MATH
     struct CameraBufferData
     {
         XMMATRIX worldMatrix;
@@ -58,13 +58,15 @@ void GLTestApp::LightingTest()
 
     UINT worldMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "worldMatrix");
     UINT viewMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "viewMatrix");
-    UINT projMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "projectionMatrix");
-
-    pProgram->Bind();
+    UINT projMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "projectionMatrix"); 
 
     glUniformMatrix4fv(worldMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.worldMatrix));
     glUniformMatrix4fv(viewMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.viewMatrix));
     glUniformMatrix4fv(projMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.projectionMatrix));
+
+#endif
+
+	pProgram->Bind();
 
     IVY_PRINT((const CHAR*)gluErrorString(glGetError()));
 
@@ -174,6 +176,4 @@ void GLTestApp::LightingTest()
 
         EndFrame();
     }
-
-
 }

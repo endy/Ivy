@@ -14,6 +14,7 @@
 #include "IvyMemory.h"
 #include "IvyImporter.h"
 #include "IvyPerf.h"
+#include "IvyMath.h"
 
 #include <fstream>
 #include <iostream>
@@ -31,11 +32,6 @@ using std::ifstream;
 using std::iostream;
 using std::stringstream;
 using std::string;
-
-///@todo REFACTOR THIS HEADER OUT
-#ifdef _WIN32
-//#include <xnamath.h>
-#endif 
 
 
 inline bool mygetline(
@@ -383,7 +379,7 @@ void ImportCString(
             VertexPTN& v1 = pVerts[pIB[fIdx*3+1]];
             VertexPTN& v2 = pVerts[pIB[fIdx*3+2]];
 
-#ifdef _WIN32 // Stub
+#ifdef XNA_MATH // Stub
             FXMVECTOR xv0 = XMVectorSet(v0.Pos.x, v0.Pos.y, v0.Pos.z, 1.0f);
             FXMVECTOR xv1 = XMVectorSet(v1.Pos.x, v1.Pos.y, v1.Pos.z, 1.0f);
             FXMVECTOR xv2 = XMVectorSet(v2.Pos.x, v2.Pos.y, v2.Pos.z, 1.0f);

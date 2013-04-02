@@ -12,14 +12,7 @@
 
 #include "IvyTypes.h"
 #include "IvyObject.h"
-
-///@todo Replace xnamath matrix class with own implementation, at least for 'core' Camera class
-#if XNA_MATH
-#include <xnamath.h>
-#else
 #include "IvyMath.h"
-#endif // XNA_MATH
-
 
 struct CameraBufferData
 {
@@ -27,6 +20,10 @@ struct CameraBufferData
     XMMATRIX worldMatrix;
     XMMATRIX viewMatrix;
     XMMATRIX projectionMatrix;
+#elif EIGEN_MATH
+	IvyMatrix4x4 worldMatrix;
+	IvyMatrix4x4 viewMatrix;
+	IvyMatrix4x4 projectionMatrix;
 #else
 	// Ivy Math
 	Matrix4x4 worldMatrix;
@@ -50,6 +47,11 @@ class IvyCamera :
     public IvyObject
 {
 public:
+
+#if EIGEN_MATH
+	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+#endif
+
     IvyCamera(const IvyCameraInfo* pCreateInfo);
     virtual ~IvyCamera();
 
@@ -60,8 +62,8 @@ public:
     XMMATRIX W2C(){ return XMLoadFloat4x4(&m_worldToCamera); }
     XMMATRIX C2S(){ return XMLoadFloat4x4(&m_cameraToScreen); }
 #else
-    Matrix4x4 W2C(){ return m_worldToCamera; }
-    Matrix4x4 C2S(){ return m_cameraToScreen; }
+    IvyMatrix4x4 W2C(){ return m_worldToCamera; }
+    IvyMatrix4x4 C2S(){ return m_cameraToScreen; }
 #endif // XNA_MATH
 
     // todo: refactor these away
@@ -75,9 +77,9 @@ protected:
     XMFLOAT4X4 m_cameraToScreen; // projection
     XMFLOAT4X4 m_screenToRaster; // viewport mapping
 #else
-    Matrix4x4 m_worldToCamera;  // view ??
-    Matrix4x4 m_cameraToScreen; // projection
-    Matrix4x4 m_screenToRaster; // viewport mapping
+    IvyMatrix4x4 m_worldToCamera;  // view ??
+    IvyMatrix4x4 m_cameraToScreen; // projection
+    IvyMatrix4x4 m_screenToRaster; // viewport mapping
 #endif
 
     Rect m_viewport;

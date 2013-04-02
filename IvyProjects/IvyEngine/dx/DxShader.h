@@ -84,7 +84,7 @@ public:
     static DxShader* CreateFromFile(
         ID3D11Device* pDevice,
         const CHAR* pShaderName,
-        const CHAR* pShaderFilename,
+        const WCHAR* pShaderFilename,
         const D3D11_INPUT_ELEMENT_DESC* pInputLayoutDesc,
         UINT numVertexDescElements);
 
@@ -98,7 +98,7 @@ public:
     static DxShader* CreateFromFile(
         ID3D11Device* pDevice,
         const CHAR* pShaderName,
-        const CHAR* pShaderFilename);
+        const WCHAR* pShaderFilename);
 
     static DxShader* CreateFromSource(
         ID3D11Device* pDevice,
@@ -110,7 +110,7 @@ public:
     virtual void Bind(ID3D11DeviceContext* pContext);
 
 private:
-    DxShader(IvyShaderType type, const CHAR* pShaderName, const CHAR* pShaderFilename, ID3D11Device* pDevice);
+    DxShader(IvyShaderType type, const CHAR* pShaderName, const WCHAR* pShaderFilename, ID3D11Device* pDevice);
     virtual ~DxShader(); 
 
     DxShader(const DxShader& copy);   // Disallow copy constructor

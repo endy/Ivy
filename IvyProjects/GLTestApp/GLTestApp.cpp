@@ -19,6 +19,10 @@
 #include "GLShader.h"
 #include "GLMesh.h"
 
+#ifndef XNA_MATH
+#define STUB 1
+#endif 
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// GlTestApp::GlTestApp
 ///
@@ -131,12 +135,12 @@ void DebugCallbackAMD(
 
 void GLTestApp::Run()
 {
-    //DrawTestGL2();
+    DrawTestGL2();
     //DrawTestGL4();
     //DrawTestGLES2();
 
     //ParticlesTest();
-    LightingTest();
+    //LightingTest();
 }
 
 void GLTestApp::ReceiveEvent(
@@ -207,12 +211,19 @@ void GLTestApp::DrawTestGL2()
 
     struct CameraBufferData
     {
+#if XNA_MATH
         XMMATRIX worldMatrix;
         XMMATRIX viewMatrix;
         XMMATRIX projectionMatrix;
+#else
+		IvyMatrix4x4 worldMatrix;
+		IvyMatrix4x4 viewMatrix;
+		IvyMatrix4x4 projectionMatrix;
+#endif
     };
 
     CameraBufferData cameraBufferData;
+#if XNA_MATH
     cameraBufferData.worldMatrix = XMMatrixScaling(1.0, 1.0, 1); 
     //XMMatrixIdentity(); //XMMatrixRotationX(-3.14f/2.0f) * XMMatrixScaling(2, 2, 1); //XMMatrixIdentity();
     cameraBufferData.viewMatrix = XMMatrixTranslation(0, 0, 3.0f) * m_pCamera->W2C();
@@ -226,6 +237,20 @@ void GLTestApp::DrawTestGL2()
     glUniformMatrix4fv(viewMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.viewMatrix));
     glUniformMatrix4fv(projMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.projectionMatrix));
 
+#else
+	cameraBufferData.worldMatrix = IvyMatrix4x4::Identity(); 
+    //XMMatrixIdentity(); //XMMatrixRotationX(-3.14f/2.0f) * XMMatrixScaling(2, 2, 1); //XMMatrixIdentity();
+    cameraBufferData.viewMatrix = XMMatrixTranslation(0, 0, 3.0f) * m_pCamera->W2C();
+    cameraBufferData.projectionMatrix = m_pCamera->C2S();
+
+    UINT worldMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "worldMatrix");
+    UINT viewMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "viewMatrix");
+    UINT projMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "projectionMatrix");
+
+    glUniformMatrix4fv(worldMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(cameraBufferData.worldMatrix.data()));
+    glUniformMatrix4fv(viewMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(cameraBufferData.viewMatrix.data()));
+    glUniformMatrix4fv(projMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(cameraBufferData.projectionMatrix.data()));
+#endif
 
     VertexPTN triangle[4];
     memset(triangle, 0, sizeof(triangle));
@@ -294,7 +319,7 @@ void GLTestApp::DrawTestGL2()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-    glViewport(0, 0, 800, 450);
+    glViewport(0, 0, 400, 400);
 
     GLubyte indices[] = {0, 1, 2, 0, 2, 3 };
     while (!quit)
@@ -335,6 +360,7 @@ void GLTestApp::DrawTestGL4()
     pProgram->Link();
     pProgram->Bind();
 
+#ifndef STUB
     struct CameraBufferData
     {
         XMMATRIX worldMatrix;
@@ -358,7 +384,7 @@ void GLTestApp::DrawTestGL4()
     glUniformMatrix4fv(worldMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.worldMatrix));
     glUniformMatrix4fv(viewMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.viewMatrix));
     glUniformMatrix4fv(projMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.projectionMatrix));
-
+#endif
 
     VertexPTN triangle[3];
     memset(triangle, 0, sizeof(triangle));
@@ -419,6 +445,7 @@ void GLTestApp::DrawTestGL4()
 
         glClear(GL_COLOR_BUFFER_BIT);
 
+#ifndef STUB
         // Update camera for Bunny
         cameraBufferData.worldMatrix = XMMatrixIdentity(); 
         cameraBufferData.worldMatrix = XMMatrixScaling(5, 5.0, 1.0); //XMMatrixTranslation(0, 0, 0); // * XMMatrixRotationY(0);
@@ -433,6 +460,7 @@ void GLTestApp::DrawTestGL4()
         glUniformMatrix4fv(worldMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.worldMatrix));
         glUniformMatrix4fv(viewMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.viewMatrix));
         glUniformMatrix4fv(projMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.projectionMatrix));
+#endif
 
         pMesh->Bind(pProgram);
         //pMesh->Draw();
