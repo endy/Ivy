@@ -10,6 +10,8 @@
 #include "DxMesh.h"
 #include "IvyUtils.h"
 
+#include "stb_image.h"
+
 MlaaApp* MlaaApp::Create()
 {
     return new MlaaApp();
@@ -43,15 +45,43 @@ void MlaaApp::Run()
     ID3D11DeviceContext* pContext = m_pDxData->pD3D11Context;
     ID3D11Device* pDevice = m_pDxData->pD3D11Device;
 
-    // Texture2D <float4> colorTex : register(t0);
+    int width;
+    int height;
+    int comp;
+    unsigned char* pPixels = stbi_load("Content/bc3.png", &width, &height, &comp, STBI_rgb_alpha);
 
-    D3DX11_IMAGE_LOAD_INFO imageLoadInfo;
-    memset( &imageLoadInfo, 0, sizeof(D3DX11_IMAGE_LOAD_INFO) );
-    imageLoadInfo.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-    imageLoadInfo.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    D3D11_TEXTURE2D_DESC texDesc;
+    memset(&texDesc, 0, sizeof(D3D11_TEXTURE2D_DESC));
+    texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    texDesc.Width = width;
+    texDesc.Height = height;
+    texDesc.ArraySize = 1;
+    texDesc.MipLevels = 1;
+    texDesc.CPUAccessFlags = 0;
+    texDesc.SampleDesc.Count = 1;
+    texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+
+    D3D11_SUBRESOURCE_DATA initialData;
+    memset(&initialData, 0, sizeof(D3D11_SUBRESOURCE_DATA));
+    initialData.pSysMem = pPixels;
+    initialData.SysMemPitch = width * 4;
+
+    ID3D11Texture2D* pTex2D = NULL;
+    pDevice->CreateTexture2D(&texDesc, &initialData, &pTex2D);
+
 
     ID3D11ShaderResourceView *pColorTexSRV = NULL;
-    D3DX11CreateShaderResourceViewFromFile(pDevice, "content/bc3.dds", &imageLoadInfo, NULL, &pColorTexSRV, NULL );
+    D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+
+    memset(&srvDesc, 0, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
+    srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+    srvDesc.Texture2D.MipLevels = 1;
+    srvDesc.Texture2D.MostDetailedMip = 0;
+
+    pDevice->CreateShaderResourceView(pTex2D, &srvDesc, &pColorTexSRV);
+
+    stbi_image_free(pPixels);
 
     UINT colorTexWidth = 1680;
     UINT colorTexHeight = 1050;
@@ -222,17 +252,17 @@ void MlaaApp::Run()
 
     // Shaders ////////////////////////////////////////////////////////////////////////////////////
 
-    DxShader* pPosTexTriVS = DxShader::CreateFromFile(pDevice, "PosTexTri", L"MlaaShaders.hlsl", PosTexVertexDesc, PosTexElements);
-    DxShader* pGradientPS = DxShader::CreateFromFile(pDevice, "Gradient", L"MlaaShaders.hlsl");
+    DxShader* pPosTexTriVS = DxShader::CreateFromFile(pDevice, "PosTexTri", L"MLAA/MlaaShaders.hlsl", PosTexVertexDesc, PosTexElements);
+    DxShader* pGradientPS = DxShader::CreateFromFile(pDevice, "Gradient", L"MLAA/MlaaShaders.hlsl");
 
-    DxShader* pApplyTexPS = DxShader::CreateFromFile(pDevice, "ApplyTexture", L"MlaaShaders.hlsl");
+    DxShader* pApplyTexPS = DxShader::CreateFromFile(pDevice, "ApplyTexture", L"MLAA/MlaaShaders.hlsl");
 
-    DxShader* pEdgeDetectPS = DxShader::CreateFromFile(pDevice, "ColorEdgeDetectionPS", L"MlaaShaders.hlsl");
-    DxShader* pBlendWeightsPS = DxShader::CreateFromFile(pDevice, "BlendingWeightCalculationPS", L"MlaaShaders.hlsl");
-    DxShader* pBlendEdgesPS = DxShader::CreateFromFile(pDevice, "NeighborhoodBlendingPS", L"MlaaShaders.hlsl");
+    DxShader* pEdgeDetectPS = DxShader::CreateFromFile(pDevice, "ColorEdgeDetectionPS", L"MLAA/MlaaShaders.hlsl");
+    DxShader* pBlendWeightsPS = DxShader::CreateFromFile(pDevice, "BlendingWeightCalculationPS", L"MLAA/MlaaShaders.hlsl");
+    DxShader* pBlendEdgesPS = DxShader::CreateFromFile(pDevice, "NeighborhoodBlendingPS", L"MLAA/MlaaShaders.hlsl");
 
-    DxShader* pZoomVS = DxShader::CreateFromFile(pDevice, "ZoomVS", L"MlaaShaders.hlsl", PosTexVertexDesc, PosTexElements);
-    DxShader* pZoomPS = DxShader::CreateFromFile(pDevice, "ZoomPS", L"MlaaShaders.hlsl");
+    DxShader* pZoomVS = DxShader::CreateFromFile(pDevice, "ZoomVS", L"MLAA/MlaaShaders.hlsl", PosTexVertexDesc, PosTexElements);
+    DxShader* pZoomPS = DxShader::CreateFromFile(pDevice, "ZoomPS", L"MLAA/MlaaShaders.hlsl");
 
     ////////////////////////////////////////////////////////////////////////////////////////
 

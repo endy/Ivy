@@ -97,6 +97,15 @@
     <ClInclude Include="..\..\Lib\stb_image\stb_image.h">
       <Filter>external</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Lib\stb_image\stb_image_write.h">
+      <Filter>external</Filter>
+    </ClInclude>
+    <ClInclude Include="dx\DxUI.h">
+      <Filter>dx</Filter>
+    </ClInclude>
+    <ClInclude Include="dx\IvyDX.h">
+      <Filter>dx</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dx\DxBuffer.cpp">
@@ -170,6 +179,12 @@
     </ClCompile>
     <ClCompile Include="..\..\Lib\stb_image\stb_image.c">
       <Filter>external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Lib\stb_image\stb_image_write.c">
+      <Filter>external</Filter>
+    </ClCompile>
+    <ClCompile Include="dx\DxUI.cpp">
+      <Filter>dx</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

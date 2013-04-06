@@ -24,6 +24,8 @@
 #include "IvyImporter.h"
 #include "DxLight.h"
 
+#include "stb_image.h"
+
 DxTestApp::DxTestApp()
     :
     IvyApp()
@@ -84,13 +86,43 @@ void DxTestApp::Run()
 
     // Resources ////////////////////////////////////////////////////////////////////////////////////   
 
-    D3DX11_IMAGE_LOAD_INFO kittenLoadInfo;
-    memset( &kittenLoadInfo, 0, sizeof(D3DX11_IMAGE_LOAD_INFO) );
-    kittenLoadInfo.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-    kittenLoadInfo.Format = DXGI_FORMAT_BC1_UNORM;
+    int width;
+    int height;
+    int comp;
+    unsigned char* pPixels = stbi_load("Content/kitten_rgb.png", &width, &height, &comp, STBI_rgb_alpha);
+
+    D3D11_TEXTURE2D_DESC texDesc;
+    memset(&texDesc, 0, sizeof(D3D11_TEXTURE2D_DESC));
+    texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    texDesc.Width = width;
+    texDesc.Height = height;
+    texDesc.ArraySize = 1;
+    texDesc.MipLevels = 1;
+    texDesc.CPUAccessFlags = 0;
+    texDesc.SampleDesc.Count = 1;
+    texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+
+    D3D11_SUBRESOURCE_DATA initialData;
+    memset(&initialData, 0, sizeof(D3D11_SUBRESOURCE_DATA));
+    initialData.pSysMem = pPixels;
+    initialData.SysMemPitch = width * 4;
+
+    ID3D11Texture2D* pTex2D = NULL;
+    pDevice->CreateTexture2D(&texDesc, &initialData, &pTex2D);
+
 
     ID3D11ShaderResourceView *pKittenSRView = NULL;
-    D3DX11CreateShaderResourceViewFromFile(pDevice, "Content/kitten_rgb.dds", &kittenLoadInfo, NULL, &pKittenSRView, NULL );
+    D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+
+    memset(&srvDesc, 0, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
+    srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+    srvDesc.Texture2D.MipLevels = 1;
+    srvDesc.Texture2D.MostDetailedMip = 0;
+
+    pDevice->CreateShaderResourceView(pTex2D, &srvDesc, &pKittenSRView);
+
+    stbi_image_free(pPixels);
 
 
     // Samplers  /////////////////////////////////////////////////////////////////////////////

@@ -80,7 +80,7 @@ GLTexture::~GLTexture()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 GLTexture* GLTexture::CreateFromFile(
     IvyTextureType type,        ///< Texture type
-    const CHAR* pFilename)       ///< Image filename
+    const CHAR* pFilename)      ///< Image filename
 {
     UINT texId = 0;
     glGenTextures(1, &texId);

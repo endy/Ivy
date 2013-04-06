@@ -283,7 +283,7 @@ bool DxTexture::Init(
                     stencilResView.Format = DXGI_FORMAT_X24_TYPELESS_G8_UINT;
                     stencilResView.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
                     stencilResView.Texture2D.MipLevels = 1;
-                    stencilResView.Texture2D.MostDetailedMip = 0;    
+                    stencilResView.Texture2D.MostDetailedMip = 0;
 
                     statusOK = DxOK(pDevice->CreateShaderResourceView(m_pTexture2D, &stencilResView, &m_pStencilResourceView));
                 }

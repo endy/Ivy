@@ -222,6 +222,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Lib\stb_image\stb_image.c" />
+    <ClCompile Include="..\..\Lib\stb_image\stb_image_write.c" />
     <ClCompile Include="core\IvyApp.cpp" />
     <ClCompile Include="core\IvyCamera.cpp" />
     <ClCompile Include="core\IvyConfig.cpp" />
@@ -249,6 +250,7 @@
     <ClCompile Include="dx\DxTexture.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="dx\DxUI.cpp" />
     <ClCompile Include="dx\IvyAppDX.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">true</ExcludedFromBuild>
     </ClCompile>
@@ -260,6 +262,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Lib\stb_image\stb_image.h" />
+    <ClInclude Include="..\..\Lib\stb_image\stb_image_write.h" />
     <ClInclude Include="core\IvyApp.h" />
     <ClInclude Include="core\IvyCamera.h" />
     <ClInclude Include="core\IvyConfig.h" />
@@ -298,9 +301,11 @@
     <ClInclude Include="dx\DxTypes.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="dx\DxUI.h" />
     <ClInclude Include="dx\DxUtils.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="dx\IvyDX.h" />
     <ClInclude Include="dx\SystemEventDispatcher.h" />
     <ClInclude Include="gl\GLMesh.h" />
     <ClInclude Include="gl\GLShader.h" />
