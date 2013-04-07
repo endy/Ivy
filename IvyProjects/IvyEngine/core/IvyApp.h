@@ -57,6 +57,10 @@ protected:
 
     void IvySwapBuffers();
 
+    void ProcessUpdates();
+
+    const IvyGamepadState* GetGamepadState() { return &m_gamepad; }
+
     bool DeinitDX();
     bool DeinitGL();
 
@@ -110,6 +114,7 @@ private:
     FramerateTracker m_framerateTracker;
 
     KeyboardState m_keys;
+    IvyGamepadState m_gamepad;
 
     // Configuration
     static unsigned int ScreenWidth;

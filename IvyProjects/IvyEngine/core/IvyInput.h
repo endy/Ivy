@@ -44,7 +44,25 @@ struct KeyboardState
     KeyboardKey keys[EKeyNumKeys];
 };
 
+enum IvyGamepadButtons
+{
+    ButtonA = 0,
+    ButtonB,
+    ButtonX,
+    ButtonY,
+    NumButtons
+};
 
-UINT input();
+struct IvyGamepadState
+{
+    BOOL ButtonPressed[IvyGamepadButtons::NumButtons];
+
+    FLOAT ThumbLX;
+    FLOAT ThumbLY;
+    FLOAT ThumbRX;
+    FLOAT ThumbRY;
+};
+
+VOID IvyGetGamepadStates(IvyGamepadState* pGamepadStates, UINT numGamepads);
 
 #endif // _IVYINPUT_H_

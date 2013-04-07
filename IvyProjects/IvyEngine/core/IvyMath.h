@@ -12,8 +12,11 @@
 
 #include "IvyTypes.h"
 
+#if 1
 #define DIRECTX_MATH 1
-//#define EIGEN_MATH 1
+#else
+#define EIGEN_MATH 1
+#endif
 
 ///@todo Replace xnamath matrix class with own implementation, at least for 'core' Camera class
 #if XNA_MATH__OLD

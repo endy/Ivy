@@ -8,7 +8,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>
-      <AdditionalDependencies>IvyEngine32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>IvyEngine32.lib;XInput9_1_0.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup />

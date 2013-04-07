@@ -222,49 +222,22 @@ void GLTestApp::DrawTestGL2()
 #endif
     };
 
-    CameraBufferData cameraBufferData;
-#if XNA_MATH
-    cameraBufferData.worldMatrix = XMMatrixScaling(1.0, 1.0, 1); 
-    //XMMatrixIdentity(); //XMMatrixRotationX(-3.14f/2.0f) * XMMatrixScaling(2, 2, 1); //XMMatrixIdentity();
-    cameraBufferData.viewMatrix = XMMatrixTranslation(0, 0, 3.0f) * m_pCamera->W2C();
-    cameraBufferData.projectionMatrix = m_pCamera->C2S();
-
-    UINT worldMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "worldMatrix");
-    UINT viewMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "viewMatrix");
-    UINT projMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "projectionMatrix");
-
-    glUniformMatrix4fv(worldMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.worldMatrix));
-    glUniformMatrix4fv(viewMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.viewMatrix));
-    glUniformMatrix4fv(projMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.projectionMatrix));
-
-#else
-	cameraBufferData.worldMatrix = IvyMatrix4x4::Identity(); 
-    //XMMatrixIdentity(); //XMMatrixRotationX(-3.14f/2.0f) * XMMatrixScaling(2, 2, 1); //XMMatrixIdentity();
-    cameraBufferData.viewMatrix = XMMatrixTranslation(0, 0, 3.0f) * m_pCamera->W2C();
-    cameraBufferData.projectionMatrix = m_pCamera->C2S();
-
-    UINT worldMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "worldMatrix");
-    UINT viewMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "viewMatrix");
-    UINT projMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "projectionMatrix");
-
-    glUniformMatrix4fv(worldMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(cameraBufferData.worldMatrix.data()));
-    glUniformMatrix4fv(viewMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(cameraBufferData.viewMatrix.data()));
-    glUniformMatrix4fv(projMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(cameraBufferData.projectionMatrix.data()));
-#endif
 
     VertexPTN triangle[4];
     memset(triangle, 0, sizeof(triangle));
 
-    triangle[0].Pos = Point3(-1.0f, 1.0f, 0.0f);
+    float z = 0.0f;
+
+    triangle[0].Pos = Point3(-1.0f, 1.0f, z);
     triangle[0].N   = Point4(1.0f, 0.0f, 0.0f, 1.0f);
     triangle[0].Tex = Point2(0.0f, 0.0f);
-    triangle[1].Pos = Point3(1.0f, 1.0f, 0.0f);
+    triangle[1].Pos = Point3(1.0f, 1.0f, z);
     triangle[1].N   = Point4(0.0f, 1.0f, 0.0f, 1.0f);
     triangle[1].Tex = Point2(1.0f, 0.0f);
-    triangle[2].Pos = Point3(1.0f, -1.0f, 0.0f);
+    triangle[2].Pos = Point3(1.0f, -1.0f, z);
     triangle[2].N   = Point4(0.0f, 0.0f, 1.0f, 1.0f);
     triangle[2].Tex = Point2(1.0f, 1.0f);
-    triangle[3].Pos = Point3(-1.0f, -1.0f, 0.0f);
+    triangle[3].Pos = Point3(-1.0f, -1.0f, z);
     triangle[3].N   = Point4(1.0f, 1.0f, 1.0f, 1.0f);
     triangle[3].Tex = Point2(0.0f, 1.0f);
 
@@ -319,15 +292,59 @@ void GLTestApp::DrawTestGL2()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-    glViewport(0, 0, 400, 400);
+    glViewport(0, 0, m_screenWidth, m_screenHeight);
 
     GLubyte indices[] = {0, 1, 2, 0, 2, 3 };
     while (!quit)
     {
-        m_pWindow->ProcessMsg(&quit);
+        ProcessUpdates();
 
-        glClearColor(0.4f, 1.0f, 0.4f, 1.0f);
+        const IvyGamepadState* pGamepad = GetGamepadState();
+        if (pGamepad->ButtonPressed[IvyGamepadButtons::ButtonA])
+        {
+            glClearColor(0.0f, 4.0f, 0.0f, 1.0f);
+        }
+        else if (pGamepad->ButtonPressed[IvyGamepadButtons::ButtonB])
+        {
+            glClearColor(0.4f, 0.0f, 0.0f, 1.0f);
+        }
+        else
+        {
+            glClearColor(0.4f, 1.0f, 0.4f, 1.0f);
+        }
+        
+
         glClear(GL_COLOR_BUFFER_BIT);
+
+        CameraBufferData cameraBufferData;
+#if XNA_MATH
+        // camera is at (0,0).  need to offset world by z+1 to move camera to -1 for LookAt(0,0) (i think...)
+        cameraBufferData.worldMatrix = XMMatrixTranslation(0, 0, (IVY_MAX(-1.0, pGamepad->ThumbLY) * 5.0) + 6.0);
+        cameraBufferData.viewMatrix = m_pCamera->W2C();
+        cameraBufferData.projectionMatrix = m_pCamera->C2S();
+
+        UINT worldMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "worldMatrix");
+        UINT viewMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "viewMatrix");
+        UINT projMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "projectionMatrix");
+
+        glUniformMatrix4fv(worldMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.worldMatrix));
+        glUniformMatrix4fv(viewMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.viewMatrix));
+        glUniformMatrix4fv(projMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.projectionMatrix));
+
+#else
+        cameraBufferData.worldMatrix = IvyMatrix4x4::Identity(); 
+        //XMMatrixIdentity(); //XMMatrixRotationX(-3.14f/2.0f) * XMMatrixScaling(2, 2, 1); //XMMatrixIdentity();
+        cameraBufferData.viewMatrix = IvyMatrix4x4::Identity(); //XMMatrixTranslation(0, 0, 3.0f) * m_pCamera->W2C();
+        cameraBufferData.projectionMatrix = IvyMatrix4x4::Identity(); //m_pCamera->C2S();
+
+        UINT worldMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "worldMatrix");
+        UINT viewMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "viewMatrix");
+        UINT projMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "projectionMatrix");
+
+        glUniformMatrix4fv(worldMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(cameraBufferData.worldMatrix.data()));
+        glUniformMatrix4fv(viewMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(cameraBufferData.viewMatrix.data()));
+        glUniformMatrix4fv(projMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(cameraBufferData.projectionMatrix.data()));
+#endif
 
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, indices);
 

@@ -16,6 +16,9 @@
 #include <fstream>
 #include <iostream>
 
+#define IVY_MIN(a,b) (((a) < (b)) ? (a) : (b))
+#define IVY_MAX(a,b) (((a) > (b)) ? (a) : (b))
+
 static const FLOAT IvyPi = 3.14159f;
 
 inline void IvyPrint (const CHAR* message, const CHAR* file, unsigned int line)

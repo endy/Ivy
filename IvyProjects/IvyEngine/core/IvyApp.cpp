@@ -39,7 +39,7 @@ IvyApp::IvyApp() :
     m_screenHeight(ScreenHeight),
     m_fovX(90 * (IvyPi/180)),
     m_fovY(90 * (IvyPi/180)),
-    m_nearZ(1.0),
+    m_nearZ(0.00001),
     m_farZ(20.0),
     m_pCamera(NULL)
 {
@@ -161,6 +161,22 @@ bool IvyApp::Init()
 void IvyApp::Run()
 {
 
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/// IvyApp::ProcessUpdates
+///
+/// @brief
+///     
+/// @return
+///     N/A
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void IvyApp::ProcessUpdates()
+{
+    BOOL quit;
+    m_pWindow->ProcessMsg(&quit);
+
+    IvyGetGamepadStates(&m_gamepad, 1);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
