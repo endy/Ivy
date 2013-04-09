@@ -82,6 +82,32 @@ DxUI* DxUI::Create()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void DxUI::Destroy()
 {
+    m_pUIKeyedMutex_D2D->Release();
+
+    if (m_pITextBrush)
+    {
+        m_pITextBrush->Release();
+        m_pITextBrush = NULL;
+    }
+
+    if (m_pITextFormat)
+    {
+        m_pITextFormat->Release();
+        m_pITextFormat = NULL;
+    }
+
+    if (m_pIDWriteFactory)
+    {
+        m_pIDWriteFactory->Release();
+        m_pIDWriteFactory = NULL;
+    }
+
+    if (m_pRenderTarget)
+    {
+        m_pRenderTarget->Release();
+        m_pRenderTarget = NULL;
+    }
+
     if (m_pDevice10_1)
     {
         m_pDevice10_1->Release();

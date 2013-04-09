@@ -342,13 +342,11 @@ void CelShadeApp::CelShadeD3D()
     FLOAT yRotationAngle = 0.0f;
     while (!quit)
     {
+        ProcessUpdates();
+
         BeginFrame();
 
         CameraBufferData* pCameraData = NULL;
-
-        m_pWindow->ProcessMsg(&quit);
-
-        input();
 
         // new frame, clear state
         pContext->ClearState();

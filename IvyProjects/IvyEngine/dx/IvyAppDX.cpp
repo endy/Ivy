@@ -21,6 +21,8 @@
 #include "DxBuffer.h"
 #include "DxTexture.h"
 
+#include <Initguid.h>
+#include <dxgidebug.h>
 
 struct IvyDxUIData
 {
@@ -235,17 +237,60 @@ bool IvyApp::DeinitDX()
         m_pDxData->pDXGISwapChain->Release();
     }
 
-    /*
-    m_pUI(NULL),
-    m_pUIVS(NULL),
-    m_pUIPS(NULL),
-    pUserInterfaceCameraBuf(NULL),
-    m_pUIQuadMesh(NULL),
-    m_pUIBlendState(NULL),
-    pUI_SRV(NULL)
-    m_pUIData
-    m_pDxData
-    */
+    if (m_pUI)
+    {
+        m_pUI->Destroy();
+        m_pUI = NULL;
+    }
+
+    if (m_pUIData->pUserInterfaceVS)
+    {
+        m_pUIData->pUserInterfaceVS->Destroy();
+    }
+
+    if (m_pUIData->pUserInterfacePS)
+    {
+        m_pUIData->pUserInterfacePS->Destroy();
+    }
+
+    if (m_pUIData->pUserInterfaceCameraBuf)
+    {
+        m_pUIData->pUserInterfaceCameraBuf->Destroy();
+    }
+
+    if (m_pUIData->pUserInterfaceQuad)
+    {
+        m_pUIData->pUserInterfaceQuad->Destroy();
+    }
+
+    if (m_pUIData->pUserInterfaceBlendState)
+    {
+        m_pUIData->pUserInterfaceBlendState->Release();
+    }
+
+    if (m_pUIData->pUserInterfaceSRV)
+    {
+        m_pUIData->pUserInterfaceSRV->Release();
+    }
+
+    if (m_pUIData->pUserInterfaceOverlay)
+    {
+        m_pUIData->pUserInterfaceOverlay->Release();
+    }
+
+    if (m_pUIData->pUserInterfaceMutexD3D)
+    {
+        m_pUIData->pUserInterfaceMutexD3D->Release();
+    }
+
+    ///@todo Clean this up, perhaps make it more general
+    typedef HANDLE(__stdcall *fPtr)(const IID&, void**);
+    HMODULE hDxgiDebug = GetModuleHandle("DXGIDebug.dll");
+    fPtr DXGIGetDebugInterface = (fPtr) GetProcAddress(hDxgiDebug, "DXGIGetDebugInterface");
+
+    IDXGIDebug* pDxgiDebug = NULL;
+    DXGIGetDebugInterface(__uuidof(IDXGIDebug), (void**)&pDxgiDebug);
+    pDxgiDebug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_ALL);
 
     return true;
 }

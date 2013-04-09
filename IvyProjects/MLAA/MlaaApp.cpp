@@ -32,7 +32,9 @@ MlaaApp::~MlaaApp()
 
 void MlaaApp::Destroy()
 {
+    DeinitDX();
 
+    IvyApp::Destroy();
 }
 
 
@@ -298,14 +300,11 @@ void MlaaApp::Run()
 
     m_pWindow->Show();
 
-    BOOL quit = false;
-    while (!quit)
+    while (ExitApp() == FALSE)
     {
-        BeginFrame();
+        ProcessUpdates();
 
-        m_pWindow->ProcessMsg(&quit);
-        
-        input();
+        BeginFrame();
 
         // new frame, clear state
         pContext->ClearState();
@@ -513,9 +512,15 @@ void MlaaApp::Run()
 
     // Shader Resource Views
     pColorTexSRV->Release();
+
+    // Texture2D
+    pTex2D->Release();
+
+    // DxTextures
     pEdgesTex->Destroy();
     pAreaTex->Destroy();
     pBlendTex->Destroy();
+    pFinalImage->Destroy();
 
     // Const Buffer
     pZoomInfoBuffer->Release();
@@ -524,6 +529,13 @@ void MlaaApp::Run()
     pApplyTexPS->Destroy();
     pPosTexTriVS->Destroy();
     pGradientPS->Destroy();
+
+    pEdgeDetectPS->Destroy();
+    pBlendWeightsPS->Destroy();
+    pBlendEdgesPS->Destroy();
+
+    pZoomVS->Destroy();
+    pZoomPS->Destroy();
 
     // Samplers
     pPointSampler->Release();

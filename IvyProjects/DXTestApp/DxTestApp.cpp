@@ -153,13 +153,6 @@ void DxTestApp::Run()
     cameraBufferCreateInfo.pInitialData = &cameraData;
     DxBuffer* pCameraBuffer = DxBuffer::Create(pDevice, &cameraBufferCreateInfo);
 
-    // Light
-    DxLightCreateInfo lightInfo;
-    memset(&lightInfo, 0, sizeof(DxLightCreateInfo));
-    lightInfo.pDevice = pDevice;
-    lightInfo.pContext = pContext;
-    DxLight* pLight = DxLight::Create(&lightInfo);
-
     // Material
     D3D11_BUFFER_DESC cbMaterialDesc;
     memset(&cbMaterialDesc, 0, sizeof(D3D11_BUFFER_DESC));
@@ -312,10 +305,9 @@ void DxTestApp::Run()
     ID3D11Query* pQuery = NULL;
     pDevice->CreateQuery(&queryDesc, &pQuery);
 
-    BOOL quit = false;
-    while (!quit)
+    while (ExitApp() == FALSE)
     {            
-        m_pWindow->ProcessMsg(&quit);
+        ProcessUpdates();
 
         BeginFrame();
 
@@ -325,9 +317,6 @@ void DxTestApp::Run()
         pContext->RSSetViewports(1, &m_pDxData->viewport);
         pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         pCameraBuffer->BindVS(pContext, 0);
-
-        ID3D11Buffer* pLightBuffer = pLight->GetBuffer();
-        pContext->PSSetConstantBuffers(0, 1, &pLightBuffer);
 
         pContext->PSSetConstantBuffers(1, 1, &pMaterialBuffer);
         pContext->RSSetState(pRasterizerState);
@@ -367,19 +356,19 @@ void DxTestApp::Run()
         pApplyTexPS->Bind(pContext);
 
         pPlaneMesh->Bind(pContext);
-        //pPlaneMesh->Draw(pContext);
+        pPlaneMesh->Draw(pContext);
 
         pCubeMesh->Bind(pContext);
-        //pCubeMesh->Draw(pContext);
+        pCubeMesh->Draw(pContext);
 
         // DRAW BUNNY WITH CAMERA /////////////////////////////
 
         pCameraBufferData = reinterpret_cast<CameraBufferData*>(pCameraBuffer->Map(pContext));
-        pCameraBufferData->worldMatrix = XMMatrixScaling(5, 5, 1); // * XMMatrixRotationY(rotation.x);
+        pCameraBufferData->worldMatrix = XMMatrixTranslation(0, 0, 2.0f) * XMMatrixScaling(5, 5, 1); // * XMMatrixRotationY(rotation.x);
         
         // translate world +6 in Z to position camera -9 from world origin
-        pCameraBufferData->viewMatrix = XMMatrixIdentity(); 
-        pCameraBufferData->viewMatrix = XMMatrixTranslation(0, 0, 2.0f) * m_pCamera->W2C(); 
+        pCameraBufferData->viewMatrix = XMMatrixIdentity();  
+        pCameraBufferData->viewMatrix = m_pCamera->W2C(); 
         
         pCameraBufferData->projectionMatrix = m_pCamera->C2S();
         
@@ -426,13 +415,14 @@ void DxTestApp::Run()
 
         }
 
-
+        /*
         // Draw UI
         m_pUI->Begin();
         m_pUI->RenderRect();
         m_pUI->RenderText();
         m_pUI->End();
         DrawUI();
+        */
 
         m_pDxData->pDXGISwapChain->Present(0,0);
 
@@ -464,12 +454,6 @@ void DxTestApp::Run()
         pBunnyMesh = NULL;
     }
 
-    if (pLight != NULL)
-    {
-        pLight->Destroy();
-        pLight = NULL;
-    }
-
     if (pCameraBuffer != NULL)
     {
         // Buffers
@@ -478,8 +462,11 @@ void DxTestApp::Run()
 
     pMaterialBuffer->Release(); 
 
-    // Texture2D
-    //pDynamic->Release();
+    if (pTex2D)
+    {
+        pTex2D->Release();
+        pTex2D = NULL;
+    }
 
     // Shader Resource Views
     pKittenSRView->Release();
@@ -512,5 +499,5 @@ void DxTestApp::Run()
     }
 
     pContext->ClearState();
-    pContext->Flush(); 
+
 }

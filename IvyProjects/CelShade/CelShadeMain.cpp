@@ -17,8 +17,6 @@ int main(unsigned int argc, const char** argv)
 {
     IvyApp::Configure(argc, argv);
 
-    input();
-
     CelShadeApp* app = CelShadeApp::Create();
 
     if (app != NULL)

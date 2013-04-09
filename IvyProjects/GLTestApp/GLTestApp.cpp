@@ -334,8 +334,8 @@ void GLTestApp::DrawTestGL2()
 #else
         cameraBufferData.worldMatrix = IvyMatrix4x4::Identity(); 
         //XMMatrixIdentity(); //XMMatrixRotationX(-3.14f/2.0f) * XMMatrixScaling(2, 2, 1); //XMMatrixIdentity();
-        cameraBufferData.viewMatrix = IvyMatrix4x4::Identity(); //XMMatrixTranslation(0, 0, 3.0f) * m_pCamera->W2C();
-        cameraBufferData.projectionMatrix = IvyMatrix4x4::Identity(); //m_pCamera->C2S();
+        cameraBufferData.viewMatrix = m_pCamera->W2C();
+        cameraBufferData.projectionMatrix = m_pCamera->C2S();
 
         UINT worldMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "worldMatrix");
         UINT viewMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "viewMatrix");

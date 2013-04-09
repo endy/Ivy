@@ -58,6 +58,7 @@ protected:
     void IvySwapBuffers();
 
     void ProcessUpdates();
+    BOOL ExitApp() { return m_exit; }
 
     const IvyGamepadState* GetGamepadState() { return &m_gamepad; }
 
@@ -115,6 +116,8 @@ private:
 
     KeyboardState m_keys;
     IvyGamepadState m_gamepad;
+
+    BOOL m_exit;
 
     // Configuration
     static unsigned int ScreenWidth;

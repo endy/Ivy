@@ -25,6 +25,20 @@ IvyConfigItem IvyApp::IvyAppConfig[] =
     { NULL, NULL, IvyUnknown, NULL, false }
 };
 
+// ConsoleHandler routine for Console App events
+BOOL WINAPI ConsoleHandlerRoutine(
+    DWORD dwCtrlType)
+{
+    BOOL quit = FALSE;
+
+    if (dwCtrlType == CTRL_CLOSE_EVENT)
+    {
+        IvyLog("IvyApp: ", "Console Closed, Force Immediate Shutdown");
+    }
+
+    return TRUE;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// IvyApp::IvyApp
 ///
@@ -41,7 +55,8 @@ IvyApp::IvyApp() :
     m_fovY(90 * (IvyPi/180)),
     m_nearZ(0.00001),
     m_farZ(20.0),
-    m_pCamera(NULL)
+    m_pCamera(NULL),
+    m_exit(FALSE)
 {
 
 }
@@ -135,6 +150,9 @@ bool IvyApp::Init()
     // Setup Window
     m_pWindow = IvyWindow::Create(m_screenWidth, m_screenHeight);
 
+    // Setup Console Event Handler
+    SetConsoleCtrlHandler(ConsoleHandlerRoutine, TRUE);
+
     // Setup Camera
     IvyPerspectiveCameraInfo cameraCreateInfo;
     memset(&cameraCreateInfo, 0, sizeof(IvyPerspectiveCameraInfo));
@@ -173,8 +191,7 @@ void IvyApp::Run()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void IvyApp::ProcessUpdates()
 {
-    BOOL quit;
-    m_pWindow->ProcessMsg(&quit);
+    m_pWindow->ProcessMsg(&m_exit);
 
     IvyGetGamepadStates(&m_gamepad, 1);
 }

@@ -16,8 +16,6 @@ int main(unsigned int argc, const char** argv)
 {
     IvyApp::Configure(argc, argv);
 
-    input();
-
     MlaaApp* app = MlaaApp::Create();
 
     if (app != NULL)

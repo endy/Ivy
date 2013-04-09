@@ -9,7 +9,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;XInput9_1_0.lib;d2d1.lib;dxgi.lib;dwrite.lib;d3d10_1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dxguid.lib;d3d11.lib;d3dcompiler.lib;XInput9_1_0.lib;d2d1.lib;dxgi.lib;dwrite.lib;d3d10_1.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup />
