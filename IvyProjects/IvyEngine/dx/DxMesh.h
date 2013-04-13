@@ -38,6 +38,7 @@ public:
 
     void Bind(ID3D11DeviceContext* pContext);
     void Draw(ID3D11DeviceContext* pContext);
+    void DrawInstanced(ID3D11DeviceContext* pContext, UINT instanceCount);
 
 protected:
     DxMesh(DxMeshCreateInfo* pCreateInfo);

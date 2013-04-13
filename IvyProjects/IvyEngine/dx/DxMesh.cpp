@@ -131,3 +131,19 @@ void DxMesh::Draw(
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/// DxMesh::DrawInstanced
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void DxMesh::DrawInstanced(
+    ID3D11DeviceContext* pContext,
+    UINT instanceCount)
+{
+    if (m_pIndexBuffer != NULL)
+    {
+        pContext->DrawIndexedInstanced(m_indexCount, instanceCount, 0, 0, 0);
+    }
+    else
+    {
+        pContext->DrawInstanced(m_vertexCount, instanceCount, 0, 0);
+    }
+}

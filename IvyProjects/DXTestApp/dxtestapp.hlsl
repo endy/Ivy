@@ -14,7 +14,7 @@ SamplerState mySampler : register(s0);
 struct VS_PT_OUT
 {
     float4 position : SV_POSITION;
-    float2 tex0		: TEXCOORD;
+    float2 tex0     : TEXCOORD;
 };
 
 struct VS_PTN_OUT
@@ -46,7 +46,7 @@ cbuffer Material : register(c1)
 
 
 VS_PT_OUT PosTex( float4 Pos : SV_POSITION,
-                  float2 Tex : TEXCOORD )
+                  float2 Tex : TEXCOORD)
 {
     VS_PT_OUT vsOut;
 
@@ -55,6 +55,41 @@ VS_PT_OUT PosTex( float4 Pos : SV_POSITION,
     vsOut.position = mul(vsOut.position, projection);
 
     vsOut.tex0 = Tex;
+
+    return vsOut;
+}
+
+
+struct VS_P4T3_OUT
+{
+    float4 position : SV_POSITION;
+    float3 tex0     : TEXCOORD;
+};
+
+VS_P4T3_OUT InstanceCube( float4 Pos : SV_POSITION,
+                          uint id : SV_InstanceID )
+{
+    VS_P4T3_OUT vsOut;
+
+    vsOut.position = mul(Pos, world);
+
+
+    int x = -5 + (id % 10);
+    int y = -5 + (id / 10)  % 10;
+    int z = -5 + (id / 100) % 10;
+
+    float spacing = 0.5;
+    float zSpacing = 0.5;
+
+    vsOut.position.x += x;//  + (id%10) * spacing;
+    vsOut.position.y += y;// * 0.25  + ((id/10) % 10) * spacing;
+    vsOut.position.z += z;// * 0.25  + ((id/100) % 10) * zSpacing;
+
+   // vsOut.tex0 = vsOut.position.xyz;
+    vsOut.tex0 = (vsOut.position.xyz + 5.0) / 10.0;
+
+    vsOut.position = mul(vsOut.position, view);
+    vsOut.position = mul(vsOut.position, projection);
 
     return vsOut;
 }
@@ -87,6 +122,12 @@ VS_PTN_OUT PosTexNorm( float4 Pos : SV_POSITION,
     vsOut.normal = normalize(vsOut.normal);
 
     return vsOut;
+}
+
+float4 VisTexCoord( float4 pos      : SV_POSITION,
+                    float3 texCoord : TEXCOORD  )     : SV_TARGET
+{
+    return float4(texCoord, 1.0);
 }
 
 float4 VisNormal( float4 pos      : SV_POSITION,

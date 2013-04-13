@@ -33,10 +33,11 @@ VOID IvyGetGamepadStates(
     UINT numGamepads)
 {
     static const UINT MaxGamepadsSupported = 4;
-    static const SHORT AnalogDeadZone = 10000;
+    static const SHORT AnalogDeadZone = 6000;
     static const FLOAT MaxSignedShort = (FLOAT) 0x7FFF;
 
     UINT gamepadQueryCount = IVY_MIN(numGamepads, MaxGamepadsSupported);
+    
 
 #ifndef STUB_INPUT
   
@@ -49,6 +50,8 @@ VOID IvyGetGamepadStates(
         // Simply get the state of the controller from XInput.
         DWORD dwResult = XInputGetState( i, &state );
         
+        memset(&pGamepadStates[i], 0, sizeof(IvyGamepadState));
+
         if( dwResult == ERROR_SUCCESS )
         { 
             // Controller is connected 

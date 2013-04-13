@@ -323,7 +323,6 @@ void DxUI::Begin()
 void DxUI::End()
 {
     m_pRenderTarget->EndDraw();
-    m_pRenderTarget->Flush();
 
     m_pUIKeyedMutex_D2D->ReleaseSync(m_ReleaseKey);
 

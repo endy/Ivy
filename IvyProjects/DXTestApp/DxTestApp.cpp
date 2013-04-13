@@ -180,6 +180,9 @@ void DxTestApp::Run()
     DxShader* pPosTexNormVS = DxShader::CreateFromFile(pDevice, "PosTexNorm", L"DXTestApp/dxtestapp.hlsl", PosTexNormVertexDesc, PosTexNormElements);
     DxShader* pVisNormalPS = DxShader::CreateFromFile(pDevice, "VisNormal", L"DXTestApp/dxtestapp.hlsl");
 
+    DxShader* pInstanceCubeVS = DxShader::CreateFromFile(pDevice, "InstanceCube", L"DXTestApp/dxtestapp.hlsl", PosVertexDesc, PosElements);
+    DxShader* pVisTexCoordPS = DxShader::CreateFromFile(pDevice, "VisTexCoord", L"DXTestApp/dxtestapp.hlsl");
+
     // Models /////////////////////////////////////////////////////////////////////////////////////
 
     // Cube
@@ -289,25 +292,11 @@ void DxTestApp::Run()
 
     m_pWindow->Show();
 
-    /* // IHV-independent counters were removed from D3D11 (change from D3D10)
-    D3D11_COUNTER_DESC counterDesc;
-    memset(&counterDesc, 0, sizeof(D3D11_COUNTER_DESC));
-
-    ID3D11Counter* pCounter = NULL;
-    pDevice->CreateCounter(&counterDesc, &pCounter);
-    //*/
-
-    D3D11_QUERY_DESC queryDesc;
-    memset(&queryDesc, 0, sizeof(D3D11_QUERY_DESC));
-
-    queryDesc.Query = D3D11_QUERY_PIPELINE_STATISTICS;
-
-    ID3D11Query* pQuery = NULL;
-    pDevice->CreateQuery(&queryDesc, &pQuery);
-
     while (ExitApp() == FALSE)
     {            
         ProcessUpdates();
+
+        const IvyGamepadState* pGamepad = GetGamepadState();
 
         BeginFrame();
 
@@ -340,8 +329,8 @@ void DxTestApp::Run()
 
         // update cube matrix
         pCameraBufferData = reinterpret_cast<CameraBufferData*>(pCameraBuffer->Map(pContext));
-        pCameraBufferData->worldMatrix      = XMMatrixRotationX(-3.14f/2.0f) * XMMatrixScaling(2, 2, 1); //XMMatrixIdentity();
-        pCameraBufferData->viewMatrix       = XMMatrixTranslation(0, 0, 3.0f) * m_pCamera->W2C(); 
+        pCameraBufferData->worldMatrix      = XMMatrixScaling(0.2, 0.2, 0.2) * XMMatrixRotationX(rotation.x*10 + -3.14f/2.0f); //XMMatrixIdentity();
+        pCameraBufferData->viewMatrix       = XMMatrixTranslation(0.5, 0.5, 1.0f + sin(rotation.x)*5) * m_pCamera->W2C(); 
         pCameraBufferData->projectionMatrix = m_pCamera->C2S(); 
         pCameraBuffer->Unmap(pContext);
 
@@ -356,15 +345,17 @@ void DxTestApp::Run()
         pApplyTexPS->Bind(pContext);
 
         pPlaneMesh->Bind(pContext);
-        pPlaneMesh->Draw(pContext);
+        //pPlaneMesh->Draw(pContext);
 
+        pInstanceCubeVS->Bind(pContext);
+        pVisTexCoordPS->Bind(pContext);
         pCubeMesh->Bind(pContext);
-        pCubeMesh->Draw(pContext);
+        pCubeMesh->DrawInstanced(pContext, 1000);
 
         // DRAW BUNNY WITH CAMERA /////////////////////////////
 
         pCameraBufferData = reinterpret_cast<CameraBufferData*>(pCameraBuffer->Map(pContext));
-        pCameraBufferData->worldMatrix = XMMatrixTranslation(0, 0, 2.0f) * XMMatrixScaling(5, 5, 1); // * XMMatrixRotationY(rotation.x);
+        pCameraBufferData->worldMatrix = XMMatrixRotationY(pGamepad->ThumbRX) * XMMatrixTranslation(0, 0, 2.0f) * XMMatrixScaling(5, 5, 1) * XMMatrixRotationY(pGamepad->ThumbLX);
         
         // translate world +6 in Z to position camera -9 from world origin
         pCameraBufferData->viewMatrix = XMMatrixIdentity();  
@@ -404,25 +395,12 @@ void DxTestApp::Run()
         //pPlaneMesh->Draw(pContext);
         //*/
 
-        //pContext->End(pQuery);
-
-        // Perf Query
-        D3D11_QUERY_DATA_PIPELINE_STATISTICS pipelineStats;
-        memset(&pipelineStats, 0, sizeof(D3D11_QUERY_DATA_PIPELINE_STATISTICS));
-
-        //while (S_OK != pContext->GetData(pQuery, &pipelineStats, sizeof(D3D11_QUERY_DATA_PIPELINE_STATISTICS), 0))
-        {
-
-        }
-
-        /*
         // Draw UI
         m_pUI->Begin();
         m_pUI->RenderRect();
         m_pUI->RenderText();
         m_pUI->End();
         DrawUI();
-        */
 
         m_pDxData->pDXGISwapChain->Present(0,0);
 
@@ -475,12 +453,14 @@ void DxTestApp::Run()
 
     // Vertex Shaders
     pPosTexVS->Destroy();
-    pPosTexNormVS->Destroy();  
+    pPosTexNormVS->Destroy();
+    pInstanceCubeVS->Destroy();
 
     // Pixel Shaders
     pApplyTexPS->Destroy();
     pVisNormalPS->Destroy();
     pVisDepthPS->Destroy();
+    pVisTexCoordPS->Destroy();
 
     // Samplers
     pSamplerState->Release();
@@ -490,13 +470,6 @@ void DxTestApp::Run()
 
     // Rasterizer State
     pRasterizerState->Release();
-
-
-    if (pQuery != NULL)
-    {
-        pQuery->Release();
-        pQuery = NULL;
-    }
 
     pContext->ClearState();
 
