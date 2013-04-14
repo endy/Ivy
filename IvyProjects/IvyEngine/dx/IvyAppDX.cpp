@@ -308,12 +308,12 @@ void IvyApp::UpdateSwapChain()
     Rect viewportRect = m_pWindow->GetDrawableArea();
     m_pCamera->UpdateViewport(viewportRect);
 
-    UINT width = viewportRect.right - viewportRect.left;
-    UINT height = viewportRect.bottom - viewportRect.top;
+    m_screenWidth = viewportRect.right - viewportRect.left;
+    m_screenHeight = viewportRect.bottom - viewportRect.top;
 
     // Setup the viewport
-    m_pDxData->viewport.Width = static_cast<FLOAT>(width);
-    m_pDxData->viewport.Height = static_cast<FLOAT>(height);
+    m_pDxData->viewport.Width = static_cast<FLOAT>(m_screenWidth);
+    m_pDxData->viewport.Height = static_cast<FLOAT>(m_screenHeight);
     m_pDxData->viewport.MinDepth = 0.0f;
     m_pDxData->viewport.MaxDepth = 1.0f;
     m_pDxData->viewport.TopLeftX = 0;
@@ -326,8 +326,8 @@ void IvyApp::UpdateSwapChain()
 
     HRESULT hr;
     hr = m_pDxData->pDXGISwapChain->ResizeBuffers(BufferCount,
-        width,
-        height,
+        m_screenWidth,
+        m_screenHeight,
         DXGI_FORMAT_R8G8B8A8_UNORM,
         0);
 
@@ -356,8 +356,8 @@ void IvyApp::UpdateSwapChain()
         depthStencilCreateInfo.flags.DepthStencil = TRUE;
         depthStencilCreateInfo.flags.ShaderInput = TRUE;
         depthStencilCreateInfo.format = DXGI_FORMAT_D32_FLOAT;	//@todo texture doesnt read format currently
-        depthStencilCreateInfo.width = width;
-        depthStencilCreateInfo.height = height;
+        depthStencilCreateInfo.width = m_screenWidth;
+        depthStencilCreateInfo.height = m_screenHeight;
 
         m_pDxData->pAppDepthStencilTex = DxTexture::Create(m_pDxData->pD3D11Device, &depthStencilCreateInfo);
     }

@@ -97,9 +97,14 @@ void IvyApp::Destroy()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 bool IvyApp::Configure(unsigned int argc, const char** argv)
 {
+    bool success = true;
+
     char* pConfigString = IvyConfigBuildString(argc, argv);
 
-    bool success = IvyConfigParseConfigString(pConfigString, IvyAppConfig);
+    if (strlen(pConfigString) > 0)
+    {
+        success = IvyConfigParseConfigString(pConfigString, IvyAppConfig);
+    }
 
     IVY_FREE(pConfigString);
 

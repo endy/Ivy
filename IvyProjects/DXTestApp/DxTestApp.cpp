@@ -372,7 +372,7 @@ void DxTestApp::Run()
         pBunnyMesh->Draw(pContext);
 
         // VISUALIZE DEPTH/STENCIL /////////////////////////////  
-        //*
+        /*
         pContext->OMSetRenderTargets( 1, &m_pDxData->pAppRenderTargetView, NULL );
 
         pCameraBufferData = reinterpret_cast<CameraBufferData*>(pCameraBuffer->Map(pContext));
@@ -395,10 +395,23 @@ void DxTestApp::Run()
         //pPlaneMesh->Draw(pContext);
         //*/
 
+
+        wchar_t stringBuffer[1024];
+        memset(stringBuffer, 0, 1024*sizeof(wchar_t));
+
+        swprintf(stringBuffer,
+                 1024,
+                 L"Viewport: (%i, %i, %i, %i)\nFOVX: (%f) FOVY: (%f)\nCamera Pos (%f, %f, %f)",
+                 0, 0, m_screenWidth, m_screenHeight,
+                 m_fovX,
+                 m_fovY,
+                 m_pCamera->Position().x,
+                 m_pCamera->Position().y,
+                 m_pCamera->Position().z);
+
         // Draw UI
         m_pUI->Begin();
-        m_pUI->RenderRect();
-        m_pUI->RenderText();
+        m_pUI->RenderText(stringBuffer);
         m_pUI->End();
         DrawUI();
 

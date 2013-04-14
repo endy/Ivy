@@ -11,6 +11,7 @@
 #define _DXUI_H_
 
 #include "IvyDX.h"
+#include <string>
 
 struct ID3D11Device;
 
@@ -26,8 +27,8 @@ public:
     void Begin();
     void End();
 
-    void RenderRect();
-    void RenderText();
+    void RenderRect(FLOAT left, FLOAT top, FLOAT right, FLOAT bottom);
+    void RenderText(std::wstring s);
 
     ID3D11Texture2D* CreateSharedTextureOverlay(ID3D11Device* pDevice);
 
@@ -41,7 +42,8 @@ protected:
     ID2D1Factory* m_pDirect2dFactory;
     ID2D1RenderTarget* m_pRenderTarget;
 
-    ID2D1SolidColorBrush* m_pITextBrush;
+    ID2D1SolidColorBrush* m_pITextForeground;
+    ID2D1SolidColorBrush* m_pITextBackground;
 
     // DWrite
     IDWriteTextFormat* m_pITextFormat;

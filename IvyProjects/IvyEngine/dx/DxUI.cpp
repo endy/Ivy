@@ -25,7 +25,8 @@ DxUI::DxUI()
     m_pDirect2dFactory(NULL),
     m_pDevice10_1(NULL),
     m_pRenderTarget(NULL),
-    m_pITextBrush(NULL),
+    m_pITextForeground(NULL),
+    m_pITextBackground(NULL),
     m_pITextFormat(NULL),
     m_pIDWriteFactory(NULL),
     m_pD2DOverlay(NULL),
@@ -84,10 +85,16 @@ void DxUI::Destroy()
 {
     m_pUIKeyedMutex_D2D->Release();
 
-    if (m_pITextBrush)
+    if (m_pITextForeground)
     {
-        m_pITextBrush->Release();
-        m_pITextBrush = NULL;
+        m_pITextForeground->Release();
+        m_pITextForeground = NULL;
+    }
+
+    if (m_pITextBackground)
+    {
+        m_pITextBackground->Release();
+        m_pITextBackground = NULL;
     }
 
     if (m_pITextFormat)
@@ -250,8 +257,12 @@ bool DxUI::Init()
             &m_pITextFormat);
 
         m_pRenderTarget->CreateSolidColorBrush(
-            D2D1:: ColorF(D2D1::ColorF::CornflowerBlue),
-            &m_pITextBrush);
+            D2D1:: ColorF(D2D1::ColorF::Black),
+            &m_pITextForeground);
+
+        m_pRenderTarget->CreateSolidColorBrush(
+            D2D1:: ColorF(D2D1::ColorF::Gray),
+            &m_pITextBackground);
     }
 
     return success;
@@ -336,15 +347,15 @@ void DxUI::End()
 /// @return
 ///     N/A
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void DxUI::RenderRect()
+void DxUI::RenderRect(
+    FLOAT left,
+    FLOAT top,
+    FLOAT right,
+    FLOAT bottom)
 {
-    D2D1_RECT_F rect;
-    rect.left = 0.0f;
-    rect.top = 0.0f;
-    rect.right = 20.0f;
-    rect.bottom = 20.0f;
+    D2D1_RECT_F rect = { left, top, right, bottom};
 
-    m_pRenderTarget->DrawRectangle(&rect, m_pITextBrush, 3.0f);
+    m_pRenderTarget->DrawRectangle(&rect, m_pITextForeground, 3.0f);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -355,29 +366,18 @@ void DxUI::RenderRect()
 /// @return
 ///     N/A
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void DxUI::RenderText()
+void DxUI::RenderText(std::wstring s) //wchar_t* text, textSize)
 {
+    D2D1_RECT_F layoutRect = D2D1::RectF(0.f, 0.f, 300.f, 45);
 
-    D2D1_RECT_F layoutRect = D2D1::RectF(0.f, 0.f, 300.f, 100.f);
-
-    wchar_t stringBuffer[1024];
-    memset(stringBuffer, 0, 1024*sizeof(wchar_t));
-    swprintf(stringBuffer, 1024, L"DirectWrite Test String");
-    /*
-    swprintf(stringBuffer,
-        1024,
-        L"Camera Pos (%f, %f, %f)",
-        m_pCamera->Position().x,
-        m_pCamera->Position().y,
-        m_pCamera->Position().z);
-        */
+    m_pRenderTarget->FillRectangle(&layoutRect, m_pITextBackground);
 
     m_pRenderTarget->DrawText(
-        stringBuffer,
-        wcslen(stringBuffer),
+        s.c_str(),
+        s.length(),
         m_pITextFormat,
         layoutRect, 
-        m_pITextBrush);
+        m_pITextForeground);
 }
 
 
