@@ -55,7 +55,7 @@ enum IvyGamepadButtons
 
 struct IvyGamepadState
 {
-    BOOL ButtonPressed[IvyGamepadButtons::NumButtons];
+    bool ButtonPressed[IvyGamepadButtons::NumButtons];
 
     FLOAT ThumbLX;
     FLOAT ThumbLY;

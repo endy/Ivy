@@ -378,6 +378,15 @@ void DxUI::RenderText(std::wstring s) //wchar_t* text, textSize)
         m_pITextFormat,
         layoutRect, 
         m_pITextForeground);
+
+    ///@TODO Break this out into generic RenderLine(s) function
+    D2D1_POINT_2F p0 = {250.0, 256.0};
+    D2D1_POINT_2F p1 = {262.0, 256.0};
+    m_pRenderTarget->DrawLine(p0, p1, m_pITextForeground, 1.0f);
+
+    D2D1_POINT_2F p2 = {256.0, 250.0};
+    D2D1_POINT_2F p3 = {256.0, 262.0};
+    m_pRenderTarget->DrawLine(p2, p3, m_pITextForeground, 1.0f);
 }
 
 

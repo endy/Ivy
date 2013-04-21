@@ -52,8 +52,7 @@ public:
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 #endif
 
-    IvyCamera(const IvyCameraInfo* pCreateInfo);
-    virtual ~IvyCamera();
+        virtual ~IvyCamera();
 
     void UpdateViewport(Rect viewport);
 
@@ -71,6 +70,7 @@ public:
     Point3& LookAt() { return m_lookAt; }
 
 protected:
+    IvyCamera(const IvyCameraInfo* pCreateInfo);
 
 #if XNA_MATH
     XMFLOAT4X4 m_worldToCamera;  // view ??
@@ -86,6 +86,8 @@ protected:
     FLOAT m_nearZ;
     FLOAT m_farZ;
 
+    FLOAT m_fovY;
+
     Point3 m_position;
     Point3 m_lookAt;
 };
@@ -93,8 +95,9 @@ protected:
 
 struct IvyPerspectiveCameraInfo : public IvyCameraInfo
 {
-    FLOAT fovX;
     FLOAT fovY;
+
+    BOOL  pbrtPerspective;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

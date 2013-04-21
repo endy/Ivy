@@ -2,7 +2,7 @@
 ///
 ///     Ivy Engine - Generic DirectX Test App
 ///
-///     Copyright 2010-2011, Brandon Light
+///     Copyright 2010-2013, Brandon Light
 ///     All rights reserved.
 ///
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -287,10 +287,13 @@ void DxTestApp::Run()
         depthClearValue, 
         stencilClearValue); 
 
-    CameraBufferData* pCameraBufferData = NULL; ;
+    CameraBufferData* pCameraBufferData = NULL;
     Material* pMaterialCB = NULL;   
 
     m_pWindow->Show();
+
+    IvyGamepadState prevGamepadState;
+    memset(&prevGamepadState, 0, sizeof(IvyGamepadState));
 
     while (ExitApp() == FALSE)
     {            
@@ -299,6 +302,16 @@ void DxTestApp::Run()
         const IvyGamepadState* pGamepad = GetGamepadState();
 
         BeginFrame();
+
+        /////// UPDATE WORLD MODEL
+        if ((pGamepad->ButtonPressed[IvyGamepadButtons::ButtonA]) &&
+            (pGamepad->ButtonPressed[IvyGamepadButtons::ButtonA] != prevGamepadState.ButtonPressed[IvyGamepadButtons::ButtonA]))
+        {
+            std::cout << "FIRE!" << std::endl;
+        }
+
+
+        /////// DRAW GRAPHICS
 
         // new frame, clear state
         pContext->ClearState();
@@ -323,39 +336,44 @@ void DxTestApp::Run()
 
         // UPDATE SCENE
 
-        //pContext->Begin(pQuery);
-
         // DRAW CUBE /////////////////////////////   
 
         // update cube matrix
         pCameraBufferData = reinterpret_cast<CameraBufferData*>(pCameraBuffer->Map(pContext));
         pCameraBufferData->worldMatrix      = XMMatrixScaling(0.2, 0.2, 0.2) * XMMatrixRotationX(rotation.x*10 + -3.14f/2.0f); //XMMatrixIdentity();
-        pCameraBufferData->viewMatrix       = XMMatrixTranslation(0.5, 0.5, 1.0f + sin(rotation.x)*5) * m_pCamera->W2C(); 
+        pCameraBufferData->viewMatrix       = XMMatrixTranslation(0.5, 0.5, 0.0f - sin(rotation.x)*5) * m_pCamera->W2C(); 
         pCameraBufferData->projectionMatrix = m_pCamera->C2S(); 
         pCameraBuffer->Unmap(pContext);
-
-        pPosTexVS->Bind(pContext);
 
         // Bind the view -- note: if either views are bound as resources, this generates warnings
         // calling set render target here after the previous set shader res' calls get rid of the warnings
 
         pContext->OMSetRenderTargets( 1, &m_pDxData->pAppRenderTargetView, m_pDxData->pAppDepthStencilTex->GetDepthStencilView());
 
-        pContext->PSSetShaderResources(0, 1, &pKittenSRView);
-        pApplyTexPS->Bind(pContext);
-
-        pPlaneMesh->Bind(pContext);
-        //pPlaneMesh->Draw(pContext);
-
         pInstanceCubeVS->Bind(pContext);
         pVisTexCoordPS->Bind(pContext);
         pCubeMesh->Bind(pContext);
         pCubeMesh->DrawInstanced(pContext, 1000);
 
+        pPosTexVS->Bind(pContext);
+
+        pContext->PSSetShaderResources(0, 1, &pKittenSRView);
+        pApplyTexPS->Bind(pContext);
+
+
+        pCameraBufferData = reinterpret_cast<CameraBufferData*>(pCameraBuffer->Map(pContext));
+        pCameraBufferData->worldMatrix      = XMMatrixRotationX(-IvyPi/2.0f); //XMMatrixIdentity();
+        pCameraBufferData->viewMatrix       = XMMatrixTranslation(0.0, 0.0, -19.5f) * m_pCamera->W2C(); 
+        pCameraBufferData->projectionMatrix = m_pCamera->C2S(); 
+        pCameraBuffer->Unmap(pContext);
+
+        pPlaneMesh->Bind(pContext);
+        pPlaneMesh->Draw(pContext);
+
         // DRAW BUNNY WITH CAMERA /////////////////////////////
 
         pCameraBufferData = reinterpret_cast<CameraBufferData*>(pCameraBuffer->Map(pContext));
-        pCameraBufferData->worldMatrix = XMMatrixRotationY(pGamepad->ThumbRX) * XMMatrixTranslation(0, 0, 2.0f) * XMMatrixScaling(5, 5, 1) * XMMatrixRotationY(pGamepad->ThumbLX);
+        pCameraBufferData->worldMatrix = XMMatrixRotationY(pGamepad->ThumbRX) * XMMatrixTranslation(0, 0, -2.0f) * XMMatrixScaling(5, 5, 1) * XMMatrixRotationY(pGamepad->ThumbLX);
         
         // translate world +6 in Z to position camera -9 from world origin
         pCameraBufferData->viewMatrix = XMMatrixIdentity();  
@@ -401,9 +419,8 @@ void DxTestApp::Run()
 
         swprintf(stringBuffer,
                  1024,
-                 L"Viewport: (%i, %i, %i, %i)\nFOVX: (%f) FOVY: (%f)\nCamera Pos (%f, %f, %f)",
+                 L"Viewport: (%i, %i, %i, %i)\nFOVY: (%f)\nCamera Pos (%f, %f, %f)",
                  0, 0, m_screenWidth, m_screenHeight,
-                 m_fovX,
                  m_fovY,
                  m_pCamera->Position().x,
                  m_pCamera->Position().y,
@@ -422,6 +439,8 @@ void DxTestApp::Run()
 
         rotation.x += 0.002f;
         rotation.y += 0.13f;
+
+        memcpy(&prevGamepadState, pGamepad, sizeof(IvyGamepadState));
 
         EndFrame();
     }

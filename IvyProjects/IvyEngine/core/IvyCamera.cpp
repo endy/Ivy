@@ -14,7 +14,8 @@ using std::stringstream;
 
 #define STUB 1
 
-IvyMatrix4x4 Perspective(FLOAT nearZ, FLOAT farZ, FLOAT fovX, FLOAT fovY)
+// Calculates perspective transform using PBRT's perspective transform
+IvyMatrix4x4 PerspectivePBRT(FLOAT nearZ, FLOAT farZ, FLOAT fovY)
 {
     FLOAT invDenom = 1.0f / (farZ - nearZ);
 
@@ -26,18 +27,44 @@ IvyMatrix4x4 Perspective(FLOAT nearZ, FLOAT farZ, FLOAT fovX, FLOAT fovY)
 
     XMMATRIX perspective(r0, r1, r2, r3);
 #else
-	IvyMatrix4x4 perspective;
-	perspective << 1.0f, 0.0f, 0.0f, 0.0f;
+    IvyMatrix4x4 perspective;
+    perspective << 1.0f, 0.0f, 0.0f, 0.0f;
 #endif
-    FLOAT invTanAngX = tanf(fovX/2);
-    FLOAT invTanAngY = tanf(fovY/2);
+    FLOAT invTanAng = tanf(fovY/2);
    
 #if XNA_MATH
-    return XMMatrixScaling(invTanAngX, invTanAngY, 1) * perspective;
+    return XMMatrixScaling(invTanAng, invTanAng, 1) * perspective;
 #else
-	return perspective;
+    return perspective;
 #endif
 }
+
+IvyMatrix4x4 Perspective(FLOAT nearZ, FLOAT farZ, FLOAT aspectRatio, FLOAT fovY)
+{
+    
+    FLOAT fovX = 2*atanf(tanf(fovY/2)*aspectRatio);
+
+    // PBRT 
+    //return PerspectivePBRT(nearZ, farZ, fovY);
+
+    CHAR buffer[1024];
+    memset(&buffer[0], 0, 1024);
+    sprintf(buffer, "FovX: %f radians, %f degrees\nFovY: %f radians, %f dgrees\n",
+        fovX, fovX*180/IvyPi, fovY, fovY*180/IvyPi);
+
+    IVY_PRINT(buffer);
+
+    FLOAT f = 1.0f / tan(fovY/2.0f);
+
+    // gluPerspective transform
+    XMVECTOR r0 = {f / aspectRatio, 0.0f, 0.0f, 0.0f};
+    XMVECTOR r1 = {0.0f, f, 0.0f, 0.0f};
+    XMVECTOR r2 = {0.0f, 0.0f, (farZ+nearZ)/ (nearZ-farZ), -1};
+    XMVECTOR r3 = {0.0f, 0.0f, (2*farZ*nearZ)/(nearZ-farZ), 0.0f};
+
+    return XMMATRIX(r0, r1, r2, r3);
+}
+
 
 IvyMatrix4x4 Orthographic(FLOAT near, FLOAT far)
 {
@@ -84,6 +111,10 @@ void IvyCamera::UpdateViewport(Rect viewport)
 
     UINT imagePlaneWidth = m_viewport.right - m_viewport.left;
     UINT imagePlaneHeight = m_viewport.bottom - m_viewport.top;
+
+    FLOAT aspectRatio = imagePlaneWidth / (FLOAT) imagePlaneHeight;
+    XMStoreFloat4x4(&m_cameraToScreen, 
+        Perspective(m_nearZ, m_farZ, aspectRatio, m_fovY));
 
 #if XNA_MATH
     XMStoreFloat4x4(&m_screenToRaster, XMMatrixScaling(1.0f/imagePlaneWidth, 1.0f/imagePlaneHeight, 1.0f) *
@@ -137,8 +168,19 @@ IvyPerspective::IvyPerspective(const IvyPerspectiveCameraInfo* pInfo)
     IvyCamera(pInfo)
 {
 #if XNA_MATH
-    XMStoreFloat4x4(&m_cameraToScreen, 
-                    Perspective(pInfo->nearZ, pInfo->farZ, pInfo->fovX, pInfo->fovY));
+    if (pInfo->pbrtPerspective)
+    {
+        XMStoreFloat4x4(&m_cameraToScreen, 
+                        PerspectivePBRT(pInfo->nearZ, pInfo->farZ, pInfo->fovY));
+    }
+    else
+    {
+        m_fovY = pInfo->fovY;
+        FLOAT aspectRatio = (pInfo->viewport.right - pInfo->viewport.left) / 
+                            (FLOAT)(pInfo->viewport.bottom - pInfo->viewport.top);
+        XMStoreFloat4x4(&m_cameraToScreen, 
+                        Perspective(pInfo->nearZ, pInfo->farZ, aspectRatio, pInfo->fovY));
+    }
 #else
 #endif // XNA_MATH
 }

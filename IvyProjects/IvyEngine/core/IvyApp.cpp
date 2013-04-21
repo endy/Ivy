@@ -51,7 +51,6 @@ IvyApp::IvyApp() :
     m_pWindow(NULL),
     m_screenWidth(ScreenWidth),
     m_screenHeight(ScreenHeight),
-    m_fovX(90 * (IvyPi/180)),
     m_fovY(90 * (IvyPi/180)),
     m_nearZ(0.00001),
     m_farZ(20.0),
@@ -165,10 +164,20 @@ bool IvyApp::Init()
     cameraCreateInfo.nearZ = m_nearZ;
     cameraCreateInfo.viewport.bottom = m_screenHeight;
     cameraCreateInfo.viewport.right = m_screenWidth;
-    cameraCreateInfo.fovX = m_fovX;
     cameraCreateInfo.fovY = m_fovY;
 
     m_pCamera = new IvyPerspective(&cameraCreateInfo);
+
+    /*
+	///@TODO Expose orthographic camera option in config
+    IvyOrthographicCameraInfo orthoInfo;
+    memset(&orthoInfo, 0, sizeof(IvyOrthographicCameraInfo));
+    orthoInfo.farZ = m_farZ;
+    orthoInfo.nearZ = m_nearZ;
+    orthoInfo.viewport.bottom = m_screenHeight;
+    orthoInfo.viewport.right = m_screenWidth;
+    m_pCamera = new IvyOrthographic(&orthoInfo);
+    //*/
 
     return success;
 }

@@ -2,7 +2,7 @@
 ///
 ///     DXTestApp HLSL
 ///
-///     Copyright 2012, Brandon Light
+///     Copyright 2012-2013, Brandon Light
 ///     All rights reserved.
 ///
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -81,11 +81,10 @@ VS_P4T3_OUT InstanceCube( float4 Pos : SV_POSITION,
     float spacing = 0.5;
     float zSpacing = 0.5;
 
-    vsOut.position.x += x;//  + (id%10) * spacing;
-    vsOut.position.y += y;// * 0.25  + ((id/10) % 10) * spacing;
-    vsOut.position.z += z;// * 0.25  + ((id/100) % 10) * zSpacing;
+    vsOut.position.x += x;
+    vsOut.position.y += y;
+    vsOut.position.z += z;
 
-   // vsOut.tex0 = vsOut.position.xyz;
     vsOut.tex0 = (vsOut.position.xyz + 5.0) / 10.0;
 
     vsOut.position = mul(vsOut.position, view);

@@ -82,7 +82,6 @@ protected:
 
     Point2 m_mousePos;
 
-    FLOAT m_fovX;           // FOV X
     FLOAT m_fovY;           // FOV Y
     FLOAT m_nearZ;          // near plane
     FLOAT m_farZ;           // far plane

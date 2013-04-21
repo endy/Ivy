@@ -101,7 +101,6 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\Properties\DX11Release32.props" />
     <Import Project="..\Properties\IvyEngineRelease32.props" />
-    <Import Project="..\Properties\Corona32.props" />
     <Import Project="..\Properties\GLES2_32.props" />
     <Import Project="..\Properties\OpenGLDebug32.props" />
   </ImportGroup>

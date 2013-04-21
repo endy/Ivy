@@ -3,12 +3,12 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <IncludePath>$(SolutionDir)IvyEngine\core;$(SolutionDir)IvyEngine\dx;$(SolutionDir)IvyEngine\gl;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)IvyEngine\core;$(SolutionDir)IvyEngine\dx;$(SolutionDir)IvyEngine\gl;$(SolutionDir)..\Lib\stb_image;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)x86\Release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>
-      <AdditionalDependencies>IvyEngine32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>IvyEngine32.lib;XInput9_1_0.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup />
