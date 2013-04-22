@@ -52,7 +52,7 @@ public:
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 #endif
 
-        virtual ~IvyCamera();
+    virtual ~IvyCamera();
 
     void UpdateViewport(Rect viewport);
 
@@ -65,9 +65,10 @@ public:
     IvyMatrix4x4 C2S(){ return m_cameraToScreen; }
 #endif // XNA_MATH
 
-    // todo: refactor these away
-    Point3& Position() { return m_position; }
-    Point3& LookAt() { return m_lookAt; }
+
+    const Point3& Position() const { return m_position; }
+
+    void Move(Point3 delta);
 
 protected:
     IvyCamera(const IvyCameraInfo* pCreateInfo);
@@ -89,7 +90,6 @@ protected:
     FLOAT m_fovY;
 
     Point3 m_position;
-    Point3 m_lookAt;
 };
 
 

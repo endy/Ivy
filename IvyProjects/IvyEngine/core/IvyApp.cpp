@@ -268,6 +268,8 @@ void IvyApp::UpdateMousePosition()
 void IvyApp::BeginFrame()
 {
     m_framerateTracker.BeginFrame();
+
+    ProcessUpdates();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -297,13 +297,18 @@ void DxTestApp::Run()
 
     while (ExitApp() == FALSE)
     {            
-        ProcessUpdates();
-
-        const IvyGamepadState* pGamepad = GetGamepadState();
-
         BeginFrame();
 
         /////// UPDATE WORLD MODEL
+        const IvyGamepadState* pGamepad = GetGamepadState();
+
+        Point3 deltaPos = Point3(-pGamepad->ThumbLX * 0.01, 
+                                 0.0,
+                                 pGamepad->ThumbLY * 0.01);
+        m_pCamera->Move(deltaPos);
+
+        XMMATRIX cameraView = m_pCamera->W2C();
+
         if ((pGamepad->ButtonPressed[IvyGamepadButtons::ButtonA]) &&
             (pGamepad->ButtonPressed[IvyGamepadButtons::ButtonA] != prevGamepadState.ButtonPressed[IvyGamepadButtons::ButtonA]))
         {
@@ -336,12 +341,12 @@ void DxTestApp::Run()
 
         // UPDATE SCENE
 
-        // DRAW CUBE /////////////////////////////   
+        // DRAW CUBE /////////////////////////////
 
         // update cube matrix
         pCameraBufferData = reinterpret_cast<CameraBufferData*>(pCameraBuffer->Map(pContext));
         pCameraBufferData->worldMatrix      = XMMatrixScaling(0.2, 0.2, 0.2) * XMMatrixRotationX(rotation.x*10 + -3.14f/2.0f); //XMMatrixIdentity();
-        pCameraBufferData->viewMatrix       = XMMatrixTranslation(0.5, 0.5, 0.0f - sin(rotation.x)*5) * m_pCamera->W2C(); 
+        pCameraBufferData->viewMatrix       = cameraView;
         pCameraBufferData->projectionMatrix = m_pCamera->C2S(); 
         pCameraBuffer->Unmap(pContext);
 
@@ -353,7 +358,7 @@ void DxTestApp::Run()
         pInstanceCubeVS->Bind(pContext);
         pVisTexCoordPS->Bind(pContext);
         pCubeMesh->Bind(pContext);
-        pCubeMesh->DrawInstanced(pContext, 1000);
+        pCubeMesh->DrawInstanced(pContext, 32000);
 
         pPosTexVS->Bind(pContext);
 
@@ -363,7 +368,7 @@ void DxTestApp::Run()
 
         pCameraBufferData = reinterpret_cast<CameraBufferData*>(pCameraBuffer->Map(pContext));
         pCameraBufferData->worldMatrix      = XMMatrixRotationX(-IvyPi/2.0f); //XMMatrixIdentity();
-        pCameraBufferData->viewMatrix       = XMMatrixTranslation(0.0, 0.0, -19.5f) * m_pCamera->W2C(); 
+        pCameraBufferData->viewMatrix       = cameraView;
         pCameraBufferData->projectionMatrix = m_pCamera->C2S(); 
         pCameraBuffer->Unmap(pContext);
 
@@ -373,12 +378,11 @@ void DxTestApp::Run()
         // DRAW BUNNY WITH CAMERA /////////////////////////////
 
         pCameraBufferData = reinterpret_cast<CameraBufferData*>(pCameraBuffer->Map(pContext));
-        pCameraBufferData->worldMatrix = XMMatrixRotationY(pGamepad->ThumbRX) * XMMatrixTranslation(0, 0, -2.0f) * XMMatrixScaling(5, 5, 1) * XMMatrixRotationY(pGamepad->ThumbLX);
-        
-        // translate world +6 in Z to position camera -9 from world origin
-        pCameraBufferData->viewMatrix = XMMatrixIdentity();  
-        pCameraBufferData->viewMatrix = m_pCamera->W2C(); 
-        
+        pCameraBufferData->worldMatrix = XMMatrixRotationY(pGamepad->ThumbRX)   *
+                                         XMMatrixTranslation(0, 0, -2.0f)       *
+                                         XMMatrixScaling(5, 5, 1)               *
+                                         XMMatrixRotationY(pGamepad->ThumbLX);
+        pCameraBufferData->viewMatrix = cameraView; 
         pCameraBufferData->projectionMatrix = m_pCamera->C2S();
         
         pCameraBuffer->Unmap(pContext);

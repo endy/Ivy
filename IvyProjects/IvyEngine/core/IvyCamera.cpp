@@ -162,6 +162,15 @@ void IvyCamera::UpdateViewport(Rect viewport)
     IVY_PRINT(ss.str().c_str());
 }
 
+void IvyCamera::Move(
+    Point3 delta)
+{
+    m_position.x += delta.x;
+    m_position.y += delta.y;
+    m_position.z += delta.z;
+
+    XMStoreFloat4x4(&m_worldToCamera, XMMatrixTranslation(m_position.x, m_position.y, m_position.z));
+}
 
 IvyPerspective::IvyPerspective(const IvyPerspectiveCameraInfo* pInfo)
     :

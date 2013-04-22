@@ -302,8 +302,6 @@ void MlaaApp::Run()
 
     while (ExitApp() == FALSE)
     {
-        ProcessUpdates();
-
         BeginFrame();
 
         // new frame, clear state
@@ -506,8 +504,6 @@ void MlaaApp::Run()
         m_pDxData->pDXGISwapChain->Present(0,0);
 
         EndFrame();
-
-        Sleep(50);
     }
 
     // Shader Resource Views
