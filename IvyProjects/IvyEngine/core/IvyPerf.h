@@ -56,9 +56,10 @@ public:
     void BeginFrame();
     void EndFrame();
 
-    DOUBLE AvgFrameTime() { return m_averageFrameTime; }
-    DOUBLE MaxFrameTime() { return m_maxFrameTime; }
-    DOUBLE MinFrameTime() { return m_minFrameTime; }
+    DOUBLE AvgFrameTime() const { return m_averageFrameTime; }
+    DOUBLE MaxFrameTime() const { return m_maxFrameTime; }
+    DOUBLE MinFrameTime() const { return m_minFrameTime; }
+    FLOAT  LastFrameTime() const { return m_lastFrameTime; }
 
 private:
 
@@ -67,15 +68,16 @@ private:
     DOUBLE m_averageFrameTime;
     DOUBLE m_maxFrameTime;
     DOUBLE m_minFrameTime;
+    FLOAT  m_lastFrameTime;
 
     std::vector<DOUBLE> m_frameTimes;
     DOUBLE m_trackedElapsedTime;
-
     DOUBLE m_totalElapsedTime;
 
     DOUBLE m_framePeriod;
 
-    PerfData m_perfTracker;
+    UINT64 m_frameStartTick;
+    LARGE_INTEGER m_perfCounterFreq;
 };
 
 inline void WriteOut(std::string out)

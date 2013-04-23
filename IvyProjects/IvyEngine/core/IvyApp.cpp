@@ -283,5 +283,17 @@ void IvyApp::BeginFrame()
 void IvyApp::EndFrame()
 {
     m_framerateTracker.EndFrame();
+
+    ///@TODO Allow unlockable framerate via config
+    // if (lock framerate)
+    {
+        // 16 ms = 60 FPS
+        int maxFrametime = 16;  
+
+        ///@TODO consider remainder handling, +1 rounds up
+        int actualFrameTime = ((int)m_framerateTracker.LastFrameTime() * 1000) + 1;
+
+        Sleep(maxFrametime - (actualFrameTime % maxFrametime));
+    }
 }
 

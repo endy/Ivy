@@ -12,6 +12,7 @@
 #include <cstdio>
 #include <cstring>
 
+
 PerfData::PerfData()
 {
     m_top = 0;
@@ -56,6 +57,8 @@ DOUBLE PerfData::pop()
 FramerateTracker::FramerateTracker()
 {
     m_framePeriod = 1.0;
+    QueryPerformanceFrequency(&m_perfCounterFreq);
+
     Reset();
 }
 
@@ -70,6 +73,8 @@ void FramerateTracker::Reset()
     m_maxFrameTime = 0.0;
     m_minFrameTime = 0.0;
 
+    m_lastFrameTime = 0.0;
+
     m_frameTimes.clear();
     m_trackedElapsedTime = 0.0;
 
@@ -78,12 +83,23 @@ void FramerateTracker::Reset()
 
 void FramerateTracker::BeginFrame()
 {
-    m_perfTracker.push();
+    if (m_frameStartTick == 0)
+    {
+        LARGE_INTEGER tick;
+        QueryPerformanceCounter(&tick);
+        m_frameStartTick = tick.QuadPart;
+    }
 }
 
 void FramerateTracker::EndFrame()
 {
-    AddFrameTime(m_perfTracker.pop());
+    LARGE_INTEGER currentTick;
+    QueryPerformanceCounter(&currentTick);
+
+    m_lastFrameTime = (FLOAT)(currentTick.QuadPart - m_frameStartTick) / m_perfCounterFreq.QuadPart;
+    m_frameStartTick = currentTick.QuadPart;
+
+    AddFrameTime(m_lastFrameTime);
 }
 
 void FramerateTracker::AddFrameTime(DOUBLE frameTime)
