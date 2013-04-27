@@ -66,9 +66,11 @@ public:
 #endif // XNA_MATH
 
 
-    const Point3& Position() const { return m_position; }
+    void Position(Point3& position) const { position = m_position; }
+    void Orientation(FLOAT& phi, FLOAT& theta) const { phi = m_phi; theta = m_theta; }
 
-    void Move(Point3 delta);
+    void Move(Point3 deltaPosition, FLOAT deltaPhi, FLOAT deltaTheta);
+    void Reset();
 
 protected:
     IvyCamera(const IvyCameraInfo* pCreateInfo);
@@ -89,7 +91,12 @@ protected:
 
     FLOAT m_fovY;
 
+    // Position
     Point3 m_position;
+
+    // Orientation
+    FLOAT m_phi;
+    FLOAT m_theta;
 };
 
 

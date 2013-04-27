@@ -229,9 +229,9 @@ void DxTestApp::Run()
 
     Point3 rotation = Point3(0.0f, 0.0f, 0.0f);
     FLOAT clearColor[4];
-    clearColor[0] = 0.4f;
-    clearColor[1] = 1.0f;
-    clearColor[2] = 0.4f; 
+    clearColor[0] = 0.0f; //0.4f;
+    clearColor[1] = 0.0f; //1.0f;
+    clearColor[2] = 0.0f; //0.4f; 
     clearColor[3] = 1.0f;
 
     FLOAT depthClearValue = 1.0f;
@@ -295,6 +295,7 @@ void DxTestApp::Run()
     IvyGamepadState prevGamepadState;
     memset(&prevGamepadState, 0, sizeof(IvyGamepadState));
 
+
     while (ExitApp() == FALSE)
     {            
         BeginFrame();
@@ -302,10 +303,18 @@ void DxTestApp::Run()
         /////// UPDATE WORLD MODEL
         const IvyGamepadState* pGamepad = GetGamepadState();
 
-        Point3 deltaPos = Point3(-pGamepad->ThumbLX * 0.01, 
-                                 0.0,
-                                 pGamepad->ThumbLY * 0.01);
-        m_pCamera->Move(deltaPos);
+        if (pGamepad->ButtonPressed[IvyGamepadButtons::ButtonY])
+        {
+            m_pCamera->Reset();
+        }
+        else
+        {
+            m_pCamera->Move(Point3(-pGamepad->ThumbLX * 0.05,
+                                   0.0,
+                                   pGamepad->ThumbLY * 0.05),
+                            pGamepad->ThumbRX * 0.05,
+                            pGamepad->ThumbRY * 0.05);
+        }
 
         XMMATRIX cameraView = m_pCamera->W2C();
 
@@ -373,7 +382,7 @@ void DxTestApp::Run()
         pCameraBuffer->Unmap(pContext);
 
         pPlaneMesh->Bind(pContext);
-        pPlaneMesh->Draw(pContext);
+     ///   pPlaneMesh->Draw(pContext);
 
         // DRAW BUNNY WITH CAMERA /////////////////////////////
 
@@ -391,7 +400,7 @@ void DxTestApp::Run()
         pVisNormalPS->Bind(pContext);
 
         pBunnyMesh->Bind(pContext);
-        pBunnyMesh->Draw(pContext);
+     ///   pBunnyMesh->Draw(pContext);
 
         // VISUALIZE DEPTH/STENCIL /////////////////////////////  
         /*
@@ -421,14 +430,17 @@ void DxTestApp::Run()
         wchar_t stringBuffer[1024];
         memset(stringBuffer, 0, 1024*sizeof(wchar_t));
 
+        Point3 position;
+        m_pCamera->Position(position);
+
         swprintf(stringBuffer,
                  1024,
                  L"Viewport: (%i, %i, %i, %i)\nFOVY: (%f)\nCamera Pos (%f, %f, %f)",
                  0, 0, m_screenWidth, m_screenHeight,
                  m_fovY,
-                 m_pCamera->Position().x,
-                 m_pCamera->Position().y,
-                 m_pCamera->Position().z);
+                 position.x,
+                 position.y,
+                 position.z);
 
         // Draw UI
         m_pUI->Begin();

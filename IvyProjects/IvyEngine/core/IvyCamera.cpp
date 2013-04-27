@@ -77,6 +77,9 @@ IvyMatrix4x4 Orthographic(FLOAT near, FLOAT far)
 
 
 IvyCamera::IvyCamera(const IvyCameraInfo* pInfo)
+    :
+    m_phi(0.0f),
+    m_theta(0.0f)
 {
 #if XNA_MATH
     memset(&m_worldToCamera, 0, sizeof(XMMATRIX));
@@ -163,13 +166,27 @@ void IvyCamera::UpdateViewport(Rect viewport)
 }
 
 void IvyCamera::Move(
-    Point3 delta)
+    Point3 deltaPosition,
+    FLOAT deltaPhi,
+    FLOAT deltaTheta)
 {
-    m_position.x += delta.x;
-    m_position.y += delta.y;
-    m_position.z += delta.z;
+    // Need to extract position, orientaton data from the matrix itself
+    //m_position.x += deltaPosition.x;
+    //m_position.y += deltaPosition.y;
+    //m_position.z += deltaPosition.z;
 
-    XMStoreFloat4x4(&m_worldToCamera, XMMatrixTranslation(m_position.x, m_position.y, m_position.z));
+    XMMATRIX worldToCamera = W2C();
+    worldToCamera = worldToCamera * XMMatrixTranslation(deltaPosition.x, deltaPosition.y, deltaPosition.z) * 
+                                    XMMatrixRotationY(deltaPhi) *
+                                    XMMatrixRotationX(deltaTheta);
+
+
+    XMStoreFloat4x4(&m_worldToCamera, worldToCamera);
+}
+
+void IvyCamera::Reset()
+{
+    XMStoreFloat4x4(&m_worldToCamera, XMMatrixIdentity());
 }
 
 IvyPerspective::IvyPerspective(const IvyPerspectiveCameraInfo* pInfo)
