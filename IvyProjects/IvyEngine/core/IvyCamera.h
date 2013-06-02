@@ -72,6 +72,8 @@ public:
     void Move(Point3 deltaPosition, FLOAT deltaPhi, FLOAT deltaTheta);
     void Reset();
 
+    void Print();
+
 protected:
     IvyCamera(const IvyCameraInfo* pCreateInfo);
 

@@ -307,6 +307,18 @@ void DxTestApp::Run()
         {
             m_pCamera->Reset();
         }
+        else if(pGamepad->ButtonPressed[IvyGamepadButtons::ButtonB])
+        {
+            FLOAT phi;
+            FLOAT theta;
+            m_pCamera->Orientation(phi, theta);
+            m_pCamera->Move(Point3(), -phi, -theta);
+        }
+        else if ((pGamepad->ButtonPressed[IvyGamepadButtons::ButtonX]) &&
+                 (prevGamepadState.ButtonPressed[IvyGamepadButtons::ButtonX] != pGamepad->ButtonPressed[IvyGamepadButtons::ButtonX]))
+        {
+            m_pCamera->Print();
+        }
         else
         {
             m_pCamera->Move(Point3(-pGamepad->ThumbLX * 0.05,
@@ -367,7 +379,7 @@ void DxTestApp::Run()
         pInstanceCubeVS->Bind(pContext);
         pVisTexCoordPS->Bind(pContext);
         pCubeMesh->Bind(pContext);
-        pCubeMesh->DrawInstanced(pContext, 32000);
+        pCubeMesh->DrawInstanced(pContext, 1000);
 
         pPosTexVS->Bind(pContext);
 
@@ -432,15 +444,20 @@ void DxTestApp::Run()
 
         Point3 position;
         m_pCamera->Position(position);
+        FLOAT phi;
+        FLOAT theta;
+        m_pCamera->Orientation(phi, theta);
 
         swprintf(stringBuffer,
                  1024,
-                 L"Viewport: (%i, %i, %i, %i)\nFOVY: (%f)\nCamera Pos (%f, %f, %f)",
+                 L"Viewport: (%i, %i, %i, %i)\nFOVY: (%f)\nCamera Pos (%f, %f, %f)\nCamera Orientation [Phi: %f, Theta: %f]",
                  0, 0, m_screenWidth, m_screenHeight,
                  m_fovY,
                  position.x,
                  position.y,
-                 position.z);
+                 position.z,
+                 phi,
+                 theta);
 
         // Draw UI
         m_pUI->Begin();

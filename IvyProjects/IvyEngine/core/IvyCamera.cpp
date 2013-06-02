@@ -124,8 +124,13 @@ void IvyCamera::UpdateViewport(Rect viewport)
                                        XMMatrixTranslation(-m_viewport.left, -m_viewport.top, 0));
 #endif
 
+    Print();
+}
+
+void IvyCamera::Print()
+{
     stringstream ss;
-    ss << "IvyCamera: UpdateViewport\n";
+
 #if XNA_MATH
     ss << "World To Camera...\n";
 
@@ -170,22 +175,49 @@ void IvyCamera::Move(
     FLOAT deltaPhi,
     FLOAT deltaTheta)
 {
-    // Need to extract position, orientaton data from the matrix itself
-    //m_position.x += deltaPosition.x;
-    //m_position.y += deltaPosition.y;
-    //m_position.z += deltaPosition.z;
+    ///@TODO 6DOF camera--suffers from gimble lock due to use of matrix transforms
 
-    XMMATRIX worldToCamera = W2C();
-    worldToCamera = worldToCamera * XMMatrixTranslation(deltaPosition.x, deltaPosition.y, deltaPosition.z) * 
-                                    XMMatrixRotationY(deltaPhi) *
-                                    XMMatrixRotationX(deltaTheta);
+    m_phi += deltaPhi;
+    m_theta += deltaTheta;
 
+    XMVECTOR u, v, n;
+    u = XMVectorSet(1, 0, 0, 0);
+    v = XMVectorSet(0, 1, 0, 0);
+    n = XMVectorSet(0, 0, 1, 0);
+
+    u = XMVector3Transform(u, XMMatrixRotationY(m_phi) *
+                                XMMatrixRotationX(m_theta));
+    v = XMVector3Transform(v, XMMatrixRotationY(m_phi) *
+                                XMMatrixRotationX(m_theta));
+    n = XMVector3Transform(n, XMMatrixRotationY(m_phi) *
+                                XMMatrixRotationX(m_theta));
+    u = XMVectorSetW(u, 0);
+    v = XMVectorSetW(v, 0);
+    n = XMVectorSetW(n, 0);
+
+    XMMATRIX m(u,
+               v,
+               n,
+               XMVectorSet(0,0,0,1));
+
+    XMVECTOR deltaVector = XMVectorSet(deltaPosition.x, 0, deltaPosition.z, 1.0);
+
+    m_position.x += XMVectorGetX(XMVector3Dot(deltaVector, u));
+    m_position.y += XMVectorGetX(XMVector3Dot(deltaVector, v));
+    m_position.z += XMVectorGetX(XMVector3Dot(deltaVector, n));
+
+    XMMATRIX worldToCamera = XMMatrixTranslation(m_position.x, m_position.y, m_position.z) * 
+                            m; 
 
     XMStoreFloat4x4(&m_worldToCamera, worldToCamera);
 }
 
 void IvyCamera::Reset()
 {
+    m_position = Point3();
+    m_phi = 0.0f;
+    m_theta = 0.0f;
+
     XMStoreFloat4x4(&m_worldToCamera, XMMatrixIdentity());
 }
 

@@ -368,7 +368,7 @@ void DxUI::RenderRect(
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void DxUI::RenderText(std::wstring s) //wchar_t* text, textSize)
 {
-    D2D1_RECT_F layoutRect = D2D1::RectF(0.f, 0.f, 300.f, 45);
+    D2D1_RECT_F layoutRect = D2D1::RectF(0.f, 0.f, 350.f, 60);
 
     m_pRenderTarget->FillRectangle(&layoutRect, m_pITextBackground);
 
