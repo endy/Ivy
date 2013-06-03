@@ -68,6 +68,7 @@ public:
 
     void Position(Point3& position) const { position = m_position; }
     void Orientation(FLOAT& phi, FLOAT& theta) const { phi = m_phi; theta = m_theta; }
+    Point3 LookAt();
 
     void Move(Point3 deltaPosition, FLOAT deltaPhi, FLOAT deltaTheta);
     void Reset();

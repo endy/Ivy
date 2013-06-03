@@ -79,6 +79,20 @@ void DxTestApp::Run()
 {
     IVY_PRINT("DxTestApp D3D11 Path");
 
+    struct Projectile
+    {
+        Point3 position;
+        Point3 direction;
+        float speed;
+        unsigned int age;
+    };
+
+    const unsigned int MaxBullets = 10;
+    Projectile g_bullets[MaxBullets];
+    unsigned int g_nextFreeBullet = 0;
+
+    memset(g_bullets, 0, sizeof(g_bullets));
+
     ID3D11Device* pDevice = m_pDxData->pD3D11Device;
     ID3D11DeviceContext* pContext = m_pDxData->pD3D11Context;
 
@@ -309,10 +323,11 @@ void DxTestApp::Run()
         }
         else if(pGamepad->ButtonPressed[IvyGamepadButtons::ButtonB])
         {
+            // Reset orientation to (0,0,+z) by doing (-phi, -theta)+(IvyPi/2,IvyPi/2)
             FLOAT phi;
             FLOAT theta;
             m_pCamera->Orientation(phi, theta);
-            m_pCamera->Move(Point3(), -phi, -theta);
+            m_pCamera->Move(Point3(), -phi+(IvyPi/2.0f), -theta+(IvyPi/2.0f));
         }
         else if ((pGamepad->ButtonPressed[IvyGamepadButtons::ButtonX]) &&
                  (prevGamepadState.ButtonPressed[IvyGamepadButtons::ButtonX] != pGamepad->ButtonPressed[IvyGamepadButtons::ButtonX]))
@@ -321,10 +336,10 @@ void DxTestApp::Run()
         }
         else
         {
-            m_pCamera->Move(Point3(-pGamepad->ThumbLX * 0.05,
+            m_pCamera->Move(Point3(pGamepad->ThumbLX * 0.05,
                                    0.0,
                                    pGamepad->ThumbLY * 0.05),
-                            pGamepad->ThumbRX * 0.05,
+                            -(pGamepad->ThumbRX * 0.05),    // phi = clockwise rotation about y-axis, invert input
                             pGamepad->ThumbRY * 0.05);
         }
 
@@ -334,6 +349,13 @@ void DxTestApp::Run()
             (pGamepad->ButtonPressed[IvyGamepadButtons::ButtonA] != prevGamepadState.ButtonPressed[IvyGamepadButtons::ButtonA]))
         {
             std::cout << "FIRE!" << std::endl;
+
+            g_bullets[g_nextFreeBullet].age = 500;
+            m_pCamera->Position(g_bullets[g_nextFreeBullet].position);
+            g_bullets[g_nextFreeBullet].direction = m_pCamera->LookAt();
+            g_bullets[g_nextFreeBullet].speed = 0.1f;
+
+            g_nextFreeBullet = (g_nextFreeBullet+1 < MaxBullets) ? g_nextFreeBullet+1 : 0;
         }
 
 
@@ -366,7 +388,7 @@ void DxTestApp::Run()
 
         // update cube matrix
         pCameraBufferData = reinterpret_cast<CameraBufferData*>(pCameraBuffer->Map(pContext));
-        pCameraBufferData->worldMatrix      = XMMatrixScaling(0.2, 0.2, 0.2) * XMMatrixRotationX(rotation.x*10 + -3.14f/2.0f); //XMMatrixIdentity();
+        pCameraBufferData->worldMatrix      = XMMatrixScaling(0.2, 0.2, 0.2); // * XMMatrixRotationX(rotation.x*10 + -3.14f/2.0f); //XMMatrixIdentity();
         pCameraBufferData->viewMatrix       = cameraView;
         pCameraBufferData->projectionMatrix = m_pCamera->C2S(); 
         pCameraBuffer->Unmap(pContext);
@@ -380,6 +402,30 @@ void DxTestApp::Run()
         pVisTexCoordPS->Bind(pContext);
         pCubeMesh->Bind(pContext);
         pCubeMesh->DrawInstanced(pContext, 1000);
+
+
+        for (unsigned int idx = 0; idx < MaxBullets; ++idx)
+        {
+            pPosTexVS->Bind(pContext);
+
+            if (g_bullets[idx].age > 0)
+            {
+                g_bullets[idx].position.x += g_bullets[idx].direction.x * g_bullets[idx].speed;
+                g_bullets[idx].position.y += g_bullets[idx].direction.y * g_bullets[idx].speed;
+                g_bullets[idx].position.z += g_bullets[idx].direction.z * g_bullets[idx].speed;
+
+                pCameraBufferData = reinterpret_cast<CameraBufferData*>(pCameraBuffer->Map(pContext));
+                pCameraBufferData->worldMatrix      = XMMatrixScaling(0.2, 0.2, 0.2) *
+                                                      XMMatrixTranslation(g_bullets[idx].position.x, g_bullets[idx].position.y, g_bullets[idx].position.z);
+                pCameraBufferData->viewMatrix       = cameraView;
+                pCameraBufferData->projectionMatrix = m_pCamera->C2S(); 
+                pCameraBuffer->Unmap(pContext);
+
+                pCubeMesh->Draw(pContext);
+
+                g_bullets[idx].age--;
+            }
+        }
 
         pPosTexVS->Bind(pContext);
 
@@ -447,17 +493,21 @@ void DxTestApp::Run()
         FLOAT phi;
         FLOAT theta;
         m_pCamera->Orientation(phi, theta);
+        Point3 direction = m_pCamera->LookAt();
 
         swprintf(stringBuffer,
                  1024,
-                 L"Viewport: (%i, %i, %i, %i)\nFOVY: (%f)\nCamera Pos (%f, %f, %f)\nCamera Orientation [Phi: %f, Theta: %f]",
+                 L"Viewport: (%i, %i, %i, %i) FOVY: (%f)\nCamera Pos (%f, %f, %f)\nOrientation [Phi: %f, Theta: %f]\nDirection Vector: (%f, %f, %f)",
                  0, 0, m_screenWidth, m_screenHeight,
-                 m_fovY,
+                 m_fovY*180/IvyPi,
                  position.x,
                  position.y,
                  position.z,
-                 phi,
-                 theta);
+                 phi*180/IvyPi,
+                 theta*180/IvyPi,
+                 direction.x,
+                 direction.y,
+                 direction.z);
 
         // Draw UI
         m_pUI->Begin();

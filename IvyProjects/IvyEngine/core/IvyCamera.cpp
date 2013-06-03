@@ -56,10 +56,10 @@ IvyMatrix4x4 Perspective(FLOAT nearZ, FLOAT farZ, FLOAT aspectRatio, FLOAT fovY)
 
     FLOAT f = 1.0f / tan(fovY/2.0f);
 
-    // gluPerspective transform
+    // gluPerspective transform (facing +Z)
     XMVECTOR r0 = {f / aspectRatio, 0.0f, 0.0f, 0.0f};
     XMVECTOR r1 = {0.0f, f, 0.0f, 0.0f};
-    XMVECTOR r2 = {0.0f, 0.0f, (farZ+nearZ)/ (nearZ-farZ), -1};
+    XMVECTOR r2 = {0.0f, 0.0f, -(farZ+nearZ)/ (nearZ-farZ), 1};
     XMVECTOR r3 = {0.0f, 0.0f, (2*farZ*nearZ)/(nearZ-farZ), 0.0f};
 
     return XMMATRIX(r0, r1, r2, r3);
@@ -78,8 +78,8 @@ IvyMatrix4x4 Orthographic(FLOAT near, FLOAT far)
 
 IvyCamera::IvyCamera(const IvyCameraInfo* pInfo)
     :
-    m_phi(0.0f),
-    m_theta(0.0f)
+    m_phi((IvyPi/2.0f)),
+    m_theta(IvyPi/2.0f)
 {
 #if XNA_MATH
     memset(&m_worldToCamera, 0, sizeof(XMMATRIX));
@@ -170,27 +170,75 @@ void IvyCamera::Print()
     IVY_PRINT(ss.str().c_str());
 }
 
+Point3 IvyCamera::LookAt()
+{
+    
+    float theta = m_theta;
+    float phi = m_phi;
+    Point3 direction;
+
+    direction.x = sin(theta) * cos(phi);
+    direction.y = cos(theta);
+    direction.z = sin(theta) * sin(phi);
+    
+
+    /*
+    XMVECTOR lookat = XMVectorSet(0, 1, 0, 0);
+
+    lookat = XMVector3Transform(lookat, XMMatrixRotationY(m_phi) *
+                                       XMMatrixRotationX(m_theta));
+
+    Point3 direction;
+    direction.x += XMVectorGetX(lookat);
+    direction.y += XMVectorGetY(lookat);
+    direction.z += XMVectorGetZ(lookat);
+    */
+
+    return direction;
+}
+
 void IvyCamera::Move(
     Point3 deltaPosition,
     FLOAT deltaPhi,
     FLOAT deltaTheta)
 {
+    std::cout << deltaPosition.x << "   " << deltaPosition.z << std::endl;
+
     ///@TODO 6DOF camera--suffers from gimble lock due to use of matrix transforms
 
     m_phi += deltaPhi;
+
+    ///@TODO clean up this range wrapping
+    m_phi = (m_phi>=IvyPi*2) ? m_phi-(IvyPi*2) : (m_phi < 0) ? m_phi+(IvyPi*2) : m_phi;
+
+
     m_theta += deltaTheta;
+
+
+    if (m_theta > IvyPi)
+    {
+        m_theta = m_theta - IvyPi;
+    }
+    else if (m_theta < 0)
+    {
+        m_theta = m_theta + IvyPi;
+    }
+
+
+    //m_theta = 0;
+    //m_phi = 0;
 
     XMVECTOR u, v, n;
     u = XMVectorSet(1, 0, 0, 0);
     v = XMVectorSet(0, 1, 0, 0);
     n = XMVectorSet(0, 0, 1, 0);
 
-    u = XMVector3Transform(u, XMMatrixRotationY(m_phi) *
-                                XMMatrixRotationX(m_theta));
-    v = XMVector3Transform(v, XMMatrixRotationY(m_phi) *
-                                XMMatrixRotationX(m_theta));
-    n = XMVector3Transform(n, XMMatrixRotationY(m_phi) *
-                                XMMatrixRotationX(m_theta));
+    u = XMVector3Transform(u, XMMatrixRotationY(m_phi - (IvyPi/2.0f)) *
+                                XMMatrixRotationX((IvyPi/2.0f) - m_theta));
+    v = XMVector3Transform(v, XMMatrixRotationY(m_phi - (IvyPi/2.0f)) *
+                                XMMatrixRotationX((IvyPi/2.0f) - m_theta));
+    n = XMVector3Transform(n, XMMatrixRotationY(m_phi - (IvyPi/2.0f)) *
+                                XMMatrixRotationX((IvyPi/2.0f) - m_theta));
     u = XMVectorSetW(u, 0);
     v = XMVectorSetW(v, 0);
     n = XMVectorSetW(n, 0);
@@ -206,7 +254,8 @@ void IvyCamera::Move(
     m_position.y += XMVectorGetX(XMVector3Dot(deltaVector, v));
     m_position.z += XMVectorGetX(XMVector3Dot(deltaVector, n));
 
-    XMMATRIX worldToCamera = XMMatrixTranslation(m_position.x, m_position.y, m_position.z) * 
+    // Reverse translate world to "move camera" to position
+    XMMATRIX worldToCamera = XMMatrixTranslation(-m_position.x, -m_position.y, -m_position.z) * 
                             m; 
 
     XMStoreFloat4x4(&m_worldToCamera, worldToCamera);
@@ -215,8 +264,8 @@ void IvyCamera::Move(
 void IvyCamera::Reset()
 {
     m_position = Point3();
-    m_phi = 0.0f;
-    m_theta = 0.0f;
+    m_phi = IvyPi/2.0f;
+    m_theta = IvyPi/2.0f;
 
     XMStoreFloat4x4(&m_worldToCamera, XMMatrixIdentity());
 }
