@@ -47,58 +47,10 @@ LRESULT CALLBACK WndProc(
         break;
     case WM_KEYDOWN:
         EventDataKeyDown data;
-        switch(wParam)
+        if ((Key_0 <= wParam && wParam <= Key_9) ||
+            (Key_A <= wParam && wParam <= Key_Z))
         {
-        case '1':
-            data.key = EKey1;
-            break;
-        case '2':
-            data.key = EKey2;
-            break;
-        case '3':
-            data.key = EKey3;
-            break;
-        case '4':
-            data.key = EKey4;
-            break;
-        case '5':
-            data.key = EKey5;
-            break;
-        case '6':
-            data.key = EKey6;
-            break;
-        case '7':
-            data.key = EKey7;
-            break;
-        case '8':
-            data.key = EKey8;
-            break;
-        case '9':
-            data.key = EKey9;
-            break;
-        case '0':
-            data.key = EKey0;
-            break;
-        case 'r':
-        case 'R':
-            data.key = EKeyR;
-            break;
-        case 'w':
-        case 'W':
-            data.key = EKeyW;
-            break;
-        case 'a':
-        case 'A':
-            data.key = EKeyA;
-            break;
-        case 's':
-        case 'S':
-            data.key = EKeyS;
-            break;
-        case 'd':
-        case 'D':
-            data.key = EKeyD;
-            break;
+            data.key = (KeyboardKey)wParam;
         }
         pEvent = new EventKeyDown(data);
         break;

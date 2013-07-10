@@ -16,25 +16,45 @@
 // Supported Keys
 enum KeyboardKey
 {
-    // Letter keys
-    EKeyW = 0,
-    EKeyA,
-    EKeyS,
-    EKeyD,
+    // Number keys, using ASCII value for convenience
+	Key_0 = 0x30,
+    Key_1,
+    Key_2,
+    Key_3,
+    Key_4,
+    Key_5,
+    Key_6,
+    Key_7,
+    Key_8,
+    Key_9,
 
-    EKeyR,
-
-    // Number keys
-    EKey1,
-    EKey2,
-    EKey3,
-    EKey4,
-    EKey5,
-    EKey6,
-    EKey7,
-    EKey8,
-    EKey9,
-    EKey0,
+    // Letter keys, using ASCII value for convenience
+    Key_A = 0x41,
+    Key_B,
+    Key_C,
+    Key_D,
+    Key_E,
+    Key_F,
+    Key_G,
+    Key_H,
+    Key_I,
+    Key_J,
+    Key_K,
+    Key_L,
+    Key_M,
+    Key_N,
+    Key_O,
+    Key_P,
+    Key_Q,
+    Key_R,
+    Key_S,
+    Key_T,
+    Key_U,
+    Key_V,
+    Key_W,
+    Key_X,
+    Key_Y,
+    Key_Z,
 
     EKeyNumKeys
 };

@@ -240,7 +240,7 @@ void GLTestApp::ReceiveEventParticles(
     if (pEvent->GetType() == EventTypeKeyDown)
     {
         const EventKeyDown* pKeyDown = reinterpret_cast<const EventKeyDown*>(pEvent); 
-        if (pKeyDown->GetData().key == EKeyR)
+        if (pKeyDown->GetData().key == Key_R)
         {
             InitParticles2DArray(pParticles, width, height);
         }

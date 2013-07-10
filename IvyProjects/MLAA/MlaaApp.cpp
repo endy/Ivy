@@ -567,19 +567,19 @@ void MlaaApp::HandleKeyboardInput(const Event* pEvent)
 
         switch(pKeyDownEvent->GetData().key)
         {
-            case EKey1:
+            case Key_1:
                 m_passDisplayed = MlaaPassPrePass;
                 break;
-            case EKey2:
+            case Key_2:
                 m_passDisplayed = MlaaPassEdgeDetect;
                 break;
-            case EKey3:
+            case Key_3:
                 m_passDisplayed = MlaaPassBlendWeightCalc;
                 break;
-            case EKey4:
+            case Key_4:
                 m_passDisplayed = MlaaPassBlendEdge;
                 break;
-            case EKey5:
+            case Key_5:
                 m_passDisplayed = MlaaAreaTex;
                 break;
             default:
