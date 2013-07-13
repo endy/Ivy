@@ -52,15 +52,13 @@ GLMesh* GLMesh::Create(
 
     if (pMeshCreateInfo->numIndicies > 0 && pMeshCreateInfo->pIndexData)
     {
-        /*
         GLuint ibId = 0;
         glGenBuffers(1, &ibId);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibId);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, pMeshCreateInfo->numIndicies * 4, pMeshCreateInfo->pIndexData, GL_STATIC_DRAW);
 
         pMesh->m_glIndexBufferId = ibId;
-        pMesh->numIndices = pMeshCreateInfo->numIndicies;
-        */
+        pMesh->m_numIndices = pMeshCreateInfo->numIndicies;
     }
 
     return pMesh;
@@ -116,9 +114,12 @@ void GLMesh::Draw()
 {
     if (m_glIndexBufferId > 0)
     {
-     //   glDrawElements(GL_TRIANGLES, m_numIndices, GL_UNSIGNED_INT, )
+        glDrawElements(GL_TRIANGLES, m_numIndices, GL_UNSIGNED_INT, NULL);
     }
-    //glDrawArrays(GL_TRIANGLES, 0, m_numVertices);
+    else
+    {
+        glDrawArrays(GL_TRIANGLES, 0, m_numVertices);
+    }
 }
 
 
