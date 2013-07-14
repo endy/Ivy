@@ -13,9 +13,14 @@
 
 SystemEventDispatcher* SystemEventDispatcher::Get()
 {
-    static SystemEventDispatcher dispatcher;
+    static SystemEventDispatcher* pDispatcher = NULL;
 
-    return &dispatcher;
+    if (pDispatcher == NULL)
+    {
+        pDispatcher = new SystemEventDispatcher();
+    }
+
+    return pDispatcher;
 }
 
 
@@ -32,14 +37,14 @@ SystemEventDispatcher::~SystemEventDispatcher()
 void SystemEventDispatcher::RegisterReceiver(
     IEventReceiver* pReceiver)
 {
-    ///@todo Assert if item is intersted multiple times
+    m_receivers.remove(pReceiver);
     m_receivers.push_back(pReceiver);
 }
 
 void SystemEventDispatcher::UnregisterReceiver(
     IEventReceiver* pReceiver)
 {
-
+    m_receivers.remove(pReceiver);
 }
 
 void SystemEventDispatcher::Dispatch(

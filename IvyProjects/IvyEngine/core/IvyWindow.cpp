@@ -31,8 +31,11 @@ LRESULT CALLBACK WndProc(
 
     switch(Msg)
     {
+        case WM_CLOSE:
+            DestroyWindow(hWnd);
+            break;
         case WM_DESTROY:
-            PostQuitMessage(WM_QUIT);
+            PostQuitMessage(0);
             break;
         case WM_SIZE:
             pEvent = new EventWindowResize();
@@ -69,16 +72,16 @@ LRESULT CALLBACK WndProc(
                 (Key_A <= wParam && wParam <= Key_Z))
             {
                 keyData.key = (KeyboardKey)wParam;
+                pEvent = new EventKeyDown(keyData);
             }
-            pEvent = new EventKeyDown(keyData);
             break;
         case WM_KEYUP:
             if ((Key_0 <= wParam && wParam <= Key_9) ||
                 (Key_A <= wParam && wParam <= Key_Z))
             {
                 keyData.key = (KeyboardKey)wParam;
+                pEvent = new EventKeyUp(keyData);
             }
-            pEvent = new EventKeyUp(keyData);
             break;
         default:
             return DefWindowProc(hWnd, Msg, wParam, lParam);

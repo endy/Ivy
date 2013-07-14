@@ -83,6 +83,8 @@ IvyApp::~IvyApp()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void IvyApp::Destroy()
 {
+    SystemEventDispatcher::Get()->UnregisterReceiver(this);
+
     delete this;
 }
 

@@ -474,8 +474,7 @@ void GLTestApp::DrawTestGL4()
 
     glEnable(GL_DEPTH_TEST);
 
-    BOOL quit = FALSE;
-    while (!quit)
+    while (ExitApp() == FALSE)
     {
         ProcessUpdates();
 
