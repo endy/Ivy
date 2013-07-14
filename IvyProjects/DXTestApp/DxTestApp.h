@@ -12,6 +12,8 @@
 
 #include "IvyApp.h"
 
+class DxBuffer;
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// DxTestApp Class
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -24,6 +26,8 @@ public:
 
     virtual void Run();
 
+    virtual void ReceiveEvent(const Event* pEvent);
+
 protected:
     DxTestApp();
     virtual ~DxTestApp();
@@ -32,6 +36,8 @@ protected:
 
 private:
     DxTestApp(const DxTestApp& copy);	// disallow copy constructor
+
+    DxBuffer* m_pAppConstBuffer;    ///< Global shader constants
 };
 
 #endif // _DXTESTAPP_H_

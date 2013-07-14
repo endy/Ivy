@@ -172,7 +172,6 @@ void IvyCamera::Print()
 
 Point3 IvyCamera::LookAt()
 {
-    
     float theta = m_theta;
     float phi = m_phi;
     Point3 direction;
@@ -180,20 +179,6 @@ Point3 IvyCamera::LookAt()
     direction.x = sin(theta) * cos(phi);
     direction.y = cos(theta);
     direction.z = sin(theta) * sin(phi);
-    
-
-    /*
-    XMVECTOR lookat = XMVectorSet(0, 1, 0, 0);
-
-    lookat = XMVector3Transform(lookat, XMMatrixRotationY(m_phi) *
-                                       XMMatrixRotationX(m_theta));
-
-    Point3 direction;
-    direction.x += XMVectorGetX(lookat);
-    direction.y += XMVectorGetY(lookat);
-    direction.z += XMVectorGetZ(lookat);
-    */
-
     return direction;
 }
 
@@ -202,15 +187,12 @@ void IvyCamera::Move(
     FLOAT deltaPhi,
     FLOAT deltaTheta)
 {
-    std::cout << deltaPosition.x << "   " << deltaPosition.z << std::endl;
-
     ///@TODO 6DOF camera--suffers from gimble lock due to use of matrix transforms
 
     m_phi += deltaPhi;
 
     ///@TODO clean up this range wrapping
     m_phi = (m_phi>=IvyPi*2) ? m_phi-(IvyPi*2) : (m_phi < 0) ? m_phi+(IvyPi*2) : m_phi;
-
 
     m_theta += deltaTheta;
 
@@ -223,10 +205,6 @@ void IvyCamera::Move(
     {
         m_theta = m_theta + IvyPi;
     }
-
-
-    //m_theta = 0;
-    //m_phi = 0;
 
     XMVECTOR u, v, n;
     u = XMVectorSet(1, 0, 0, 0);

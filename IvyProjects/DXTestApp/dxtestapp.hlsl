@@ -31,6 +31,13 @@ cbuffer MB : register(c0)
     row_major matrix projection;
 };
 
+cbuffer AppConstants : register(c0)
+{
+    uint screenWidth;
+    uint screenHeight;
+    uint2 padding;
+};
+
 cbuffer Light : register(c0)
 {
     float4 lposition;
@@ -144,8 +151,8 @@ float4 VisDepth( float4 pos : SV_POSITION,
 {
     float4 color = myDepth.Sample(mySampler, dCoord);
 
-
-    color.g = (myStencil.Load(int3(int2(dCoord*800), 0)).g / 255.0);
-    color.a = 1.0;
+    color.rgba = float4(0,0,0,1);
+    color.g = (myStencil.Load(int3(int2(dCoord*uint2(screenWidth, screenHeight)), 0)).g*32 / 255.0);
+    
     return color;
 }

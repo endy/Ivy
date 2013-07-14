@@ -26,9 +26,17 @@
 
 #include "stb_image.h"
 
+struct DxTestAppShaderConsts
+{
+    UINT screenWidth;
+    UINT screenHeight;
+    UINT padding[2];
+};
+
 DxTestApp::DxTestApp()
     :
-    IvyApp()
+    IvyApp(),
+    m_pAppConstBuffer(NULL)
 {
 
 }
@@ -167,6 +175,16 @@ void DxTestApp::Run()
     cameraBufferCreateInfo.pInitialData = &cameraData;
     DxBuffer* pCameraBuffer = DxBuffer::Create(pDevice, &cameraBufferCreateInfo);
 
+    DxTestAppShaderConsts appConstants;
+    appConstants.screenWidth = m_screenWidth;
+    appConstants.screenHeight = m_screenHeight;
+
+    DxBufferCreateInfo globalAppConstants = {0};
+    globalAppConstants.flags.cpuWriteable = TRUE;
+    globalAppConstants.elemSizeBytes = sizeof(DxTestAppShaderConsts);
+    globalAppConstants.pInitialData = &appConstants;
+    m_pAppConstBuffer = DxBuffer::Create(pDevice, &globalAppConstants);
+
     // Material
     D3D11_BUFFER_DESC cbMaterialDesc;
     memset(&cbMaterialDesc, 0, sizeof(D3D11_BUFFER_DESC));
@@ -263,11 +281,11 @@ void DxTestApp::Run()
     dbDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
     dbDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_INCR;
     dbDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
-    dbDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_INCR;
+    dbDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
     dbDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
     dbDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_INCR;
     dbDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
-    dbDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_INCR;
+    dbDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
 
     ID3D11DepthStencilState* pDbState = NULL;
     hr = pDevice->CreateDepthStencilState(&dbDesc, &pDbState);
@@ -348,8 +366,6 @@ void DxTestApp::Run()
         if ((pGamepad->ButtonPressed[IvyGamepadButtons::ButtonA]) &&
             (pGamepad->ButtonPressed[IvyGamepadButtons::ButtonA] != prevGamepadState.ButtonPressed[IvyGamepadButtons::ButtonA]))
         {
-            std::cout << "FIRE!" << std::endl;
-
             g_bullets[g_nextFreeBullet].age = 500;
             m_pCamera->Position(g_bullets[g_nextFreeBullet].position);
             g_bullets[g_nextFreeBullet].direction = m_pCamera->LookAt();
@@ -366,6 +382,9 @@ void DxTestApp::Run()
 
         pContext->RSSetViewports(1, &m_pDxData->viewport);
         pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+        m_pAppConstBuffer->BindPS(pContext, 0);
+
         pCameraBuffer->BindVS(pContext, 0);
 
         pContext->PSSetConstantBuffers(1, 1, &pMaterialBuffer);
@@ -378,7 +397,7 @@ void DxTestApp::Run()
         // UPDATE RENDER STATE
         pContext->ClearRenderTargetView(m_pDxData->pAppRenderTargetView, clearColor);
         pContext->ClearDepthStencilView(m_pDxData->pAppDepthStencilTex->GetDepthStencilView(), 
-            D3D11_CLEAR_DEPTH, 
+            D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 
             depthClearValue, 
             stencilClearValue);
 
@@ -461,15 +480,22 @@ void DxTestApp::Run()
      ///   pBunnyMesh->Draw(pContext);
 
         // VISUALIZE DEPTH/STENCIL /////////////////////////////  
-        /*
         pContext->OMSetRenderTargets( 1, &m_pDxData->pAppRenderTargetView, NULL );
 
-        pCameraBufferData = reinterpret_cast<CameraBufferData*>(pCameraBuffer->Map(pContext));
-        pCameraBufferData->worldMatrix      = XMMatrixRotationX(-3.14f/2.0f) * XMMatrixScaling(2, 2, 1);
-        pCameraBufferData->viewMatrix       = XMMatrixTranslation(0, 0, 4.0f) * m_pCamera->W2C(); 
-        pCameraBufferData->projectionMatrix = m_pCamera->C2S();
-        pCameraBuffer->Unmap(pContext);
+        D3D11_VIEWPORT vizDepth;
+        vizDepth.MinDepth = 0;
+        vizDepth.MaxDepth = 1.0;
+        vizDepth.TopLeftX = m_screenWidth - (m_screenWidth / 4);
+        vizDepth.TopLeftY = m_screenHeight - (m_screenHeight / 4);
+        vizDepth.Width = m_screenWidth / 4;
+        vizDepth.Height = m_screenHeight / 4;
+        pContext->RSSetViewports(1, &vizDepth);
 
+        pCameraBufferData = reinterpret_cast<CameraBufferData*>(pCameraBuffer->Map(pContext));
+        pCameraBufferData->worldMatrix      = XMMatrixRotationX(-3.14f/2.0f);
+        pCameraBufferData->viewMatrix       = XMMatrixIdentity();  
+        pCameraBufferData->projectionMatrix = XMMatrixIdentity(); 
+        pCameraBuffer->Unmap(pContext);
 
         pPosTexVS->Bind(pContext);
 
@@ -481,9 +507,9 @@ void DxTestApp::Run()
         pVisDepthPS->Bind(pContext);
 
         pPlaneMesh->Bind(pContext);
-        //pPlaneMesh->Draw(pContext);
-        //*/
+        pPlaneMesh->Draw(pContext);
 
+        pContext->RSSetViewports(1, &m_pDxData->viewport);
 
         wchar_t stringBuffer[1024];
         memset(stringBuffer, 0, 1024*sizeof(wchar_t));
@@ -588,4 +614,22 @@ void DxTestApp::Run()
 
     pContext->ClearState();
 
+}
+
+void DxTestApp::ReceiveEvent(const Event* pEvent)
+{
+    if (pEvent->GetType() == EventTypeWindowResize)
+    {
+        IvyApp::ReceiveEvent(pEvent);
+
+        // Update constant buffer with new screen width/height
+        DxTestAppShaderConsts* pAppConstData = reinterpret_cast<DxTestAppShaderConsts*>(m_pAppConstBuffer->Map(m_pDxData->pD3D11Context));
+        pAppConstData->screenWidth  = m_screenWidth;
+        pAppConstData->screenHeight = m_screenHeight;
+        m_pAppConstBuffer->Unmap(m_pDxData->pD3D11Context);
+    }
+    else
+    {
+        IvyApp::ReceiveEvent(pEvent);
+    }
 }
