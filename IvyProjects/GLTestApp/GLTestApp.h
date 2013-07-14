@@ -43,10 +43,7 @@ private:
     void ParticlesTest();
     void LightingTest();
 
-    void ReceiveEventParticles(const Event* pEvent);
-
     BOOL m_useEgl;
-
 };
 
 #endif // _GLTESTAPP_H_

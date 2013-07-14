@@ -26,36 +26,62 @@ LRESULT CALLBACK WndProc(
     LPARAM lParam)      ///< lParam, used by the Windows OS
 {
     Event* pEvent = NULL;
+    EventDataMouseButton mouseData;
+    EventDataKey keyData;
 
     switch(Msg)
     {
-    case WM_DESTROY:
-        PostQuitMessage(WM_QUIT);
-        break;
-    case WM_SIZE:
-        pEvent = new EventWindowResize();
-        break;
-    case WM_MOUSEMOVE:
-        pEvent = new EventMouseMove();
-        break;
-    case WM_LBUTTONDOWN:
-    case WM_LBUTTONUP:
-    case WM_LBUTTONDBLCLK:
-    case WM_RBUTTONDOWN:
-    case WM_RBUTTONUP:
-    case WM_RBUTTONDBLCLK:
-        break;
-    case WM_KEYDOWN:
-        EventDataKeyDown data;
-        if ((Key_0 <= wParam && wParam <= Key_9) ||
-            (Key_A <= wParam && wParam <= Key_Z))
-        {
-            data.key = (KeyboardKey)wParam;
-        }
-        pEvent = new EventKeyDown(data);
-        break;
-    default:
-        return DefWindowProc(hWnd, Msg, wParam, lParam);
+        case WM_DESTROY:
+            PostQuitMessage(WM_QUIT);
+            break;
+        case WM_SIZE:
+            pEvent = new EventWindowResize();
+            break;
+        case WM_MOUSEMOVE:
+            pEvent = new EventMouseMove();
+            break;
+        case WM_LBUTTONDOWN:
+            mouseData.button = MouseLeft;
+            pEvent = new EventMouseButtonDown(mouseData);
+            break;
+        case WM_LBUTTONUP:
+            mouseData.button = MouseLeft;
+            pEvent = new EventMouseButtonUp(mouseData);
+            break;
+        case WM_LBUTTONDBLCLK:
+            mouseData.button = MouseLeft;
+            pEvent = new EventMouseDoubleClick(mouseData);
+            break;
+        case WM_RBUTTONDOWN:
+            mouseData.button = MouseRight;
+            pEvent = new EventMouseButtonDown(mouseData);
+            break;
+        case WM_RBUTTONUP:
+            mouseData.button = MouseRight;
+            pEvent = new EventMouseButtonUp(mouseData);
+            break;
+        case WM_RBUTTONDBLCLK:
+            mouseData.button = MouseRight;
+            pEvent = new EventMouseDoubleClick(mouseData);
+            break;
+        case WM_KEYDOWN:
+            if ((Key_0 <= wParam && wParam <= Key_9) ||
+                (Key_A <= wParam && wParam <= Key_Z))
+            {
+                keyData.key = (KeyboardKey)wParam;
+            }
+            pEvent = new EventKeyDown(keyData);
+            break;
+        case WM_KEYUP:
+            if ((Key_0 <= wParam && wParam <= Key_9) ||
+                (Key_A <= wParam && wParam <= Key_Z))
+            {
+                keyData.key = (KeyboardKey)wParam;
+            }
+            pEvent = new EventKeyUp(keyData);
+            break;
+        default:
+            return DefWindowProc(hWnd, Msg, wParam, lParam);
     }
 
     if (pEvent != NULL)

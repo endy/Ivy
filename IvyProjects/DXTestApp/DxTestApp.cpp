@@ -327,6 +327,8 @@ void DxTestApp::Run()
     IvyGamepadState prevGamepadState;
     memset(&prevGamepadState, 0, sizeof(IvyGamepadState));
 
+    MouseState prevMouseState;
+    memcpy(&prevMouseState, GetMouseState(), sizeof(MouseState));
 
     while (ExitApp() == FALSE)
     {            
@@ -334,8 +336,11 @@ void DxTestApp::Run()
 
         /////// UPDATE WORLD MODEL
         const IvyGamepadState* pGamepad = GetGamepadState();
+        const KeyboardState* pKeys = GetKeyboardState();
+        const MouseState* pMouse = GetMouseState();
 
-        if (pGamepad->ButtonPressed[IvyGamepadButtons::ButtonY])
+        if ((pGamepad->ButtonPressed[IvyGamepadButtons::ButtonY]) ||
+            (pKeys->Pressed[Key_R]))
         {
             m_pCamera->Reset();
         }
@@ -359,6 +364,31 @@ void DxTestApp::Run()
                                    pGamepad->ThumbLY * 0.05),
                             -(pGamepad->ThumbRX * 0.05),    // phi = clockwise rotation about y-axis, invert input
                             pGamepad->ThumbRY * 0.05);
+        }
+
+        if (pKeys->Pressed[Key_W])
+        {
+            m_pCamera->Move(Point3(0, 0, 0.05), 0, 0);
+        }
+        else if (pKeys->Pressed[Key_S])
+        {
+            m_pCamera->Move(Point3(0, 0, -0.05), 0, 0);
+        }
+
+        if (pKeys->Pressed[Key_A])
+        {
+            m_pCamera->Move(Point3(-0.05, 0, 0), 0, 0);
+        }
+        if (pKeys->Pressed[Key_D])
+        {
+            m_pCamera->Move(Point3(0.05, 0, 0), 0, 0);
+        }
+
+        if (pMouse->Pressed[MouseLeft])
+        {
+            INT dx = pMouse->x - prevMouseState.x;
+            INT dy = pMouse->y - prevMouseState.y;
+            m_pCamera->Move(Point3(), 2.0f * dx / (FLOAT)m_screenWidth, -2.0f * dy / (FLOAT)m_screenHeight);
         }
 
         XMMATRIX cameraView = m_pCamera->W2C();
@@ -550,6 +580,7 @@ void DxTestApp::Run()
         rotation.y += 0.13f;
 
         memcpy(&prevGamepadState, pGamepad, sizeof(IvyGamepadState));
+        memcpy(&prevMouseState, GetMouseState(), sizeof(MouseState));
 
         EndFrame();
     }

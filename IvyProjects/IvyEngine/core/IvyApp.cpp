@@ -230,8 +230,14 @@ void IvyApp::ReceiveEvent(
 #endif // IVY_GL_ONLY
             break;
         case EventTypeMouseMove:
-            UpdateMousePosition();
+        case EventTypeMouseButtonDown:
+        case EventTypeMouseButtonUp:
+        case EventTypeMouseDoubleClick:
+            ProcessMouseEvent(pEvent);
             break;
+        case EventTypeKeyDown:
+        case EventTypeKeyUp:
+            ProcessKeyboardEvent(pEvent);
         default:
             // Do nothing
             break;
@@ -239,22 +245,59 @@ void IvyApp::ReceiveEvent(
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/// IvyApp::UpdateMousePosition
+/// IvyApp::ProcessMouseEvent
 ///
 /// @brief
 ///     
 /// @return
 ///     N/A
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void IvyApp::UpdateMousePosition()
+void IvyApp::ProcessMouseEvent(
+    const Event* pEvent)    ///< Mouse event
 {
-    POINT point;
+    if (pEvent->GetType() == EventTypeMouseMove)
+    {
+        POINT point;
+        GetCursorPos(&point);
+        ScreenToClient(m_pWindow->GetHwnd(), &point);
 
-    GetCursorPos(&point);
-    ScreenToClient(m_pWindow->GetHwnd(), &point);
+        m_mouse.x = point.x;
+        m_mouse.y = point.y;
+    }
+    else if (pEvent->GetType() == EventTypeMouseButtonDown)
+    {
+        EventDataMouseButton mouseData = reinterpret_cast<const EventMouseButtonDown*>(pEvent)->GetData();
+        m_mouse.Pressed[mouseData.button] = TRUE;
+    }
+    else if (pEvent->GetType() == EventTypeMouseButtonUp)
+    {
+        EventDataMouseButton mouseData = reinterpret_cast<const EventMouseButtonDown*>(pEvent)->GetData();
+        m_mouse.Pressed[mouseData.button] = FALSE;
+    }
+    else
+    {
+        IvyAssert(pEvent->GetType() == EventTypeMouseDoubleClick);
+        
+    }
+}
 
-    m_mousePos.x = static_cast<FLOAT>(point.x);
-    m_mousePos.y = static_cast<FLOAT>(point.y);
+void IvyApp::ProcessKeyboardEvent(
+    const Event* pEvent)
+{
+    KeyboardKey key;
+
+    if (pEvent->GetType() == EventTypeKeyDown)
+    {
+        key = reinterpret_cast<const EventKeyUp*>(pEvent)->GetData().key;
+        m_keys.Pressed[key] = TRUE;
+    }
+    else
+    {
+        IvyAssert(pEvent->GetType() == EventTypeKeyUp);
+
+        key = reinterpret_cast<const EventKeyUp*>(pEvent)->GetData().key;
+        m_keys.Pressed[key] = FALSE;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

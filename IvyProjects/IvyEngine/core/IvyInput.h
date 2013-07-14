@@ -17,7 +17,7 @@
 enum KeyboardKey
 {
     // Number keys, using ASCII value for convenience
-	Key_0 = 0x30,
+    Key_0 = 0x30,
     Key_1,
     Key_2,
     Key_3,
@@ -56,12 +56,30 @@ enum KeyboardKey
     Key_Y,
     Key_Z,
 
-    EKeyNumKeys
+    KeyboardKeyEnumMax
 };
 
 struct KeyboardState
 {
-    KeyboardKey keys[EKeyNumKeys];
+    BOOL Pressed[KeyboardKeyEnumMax];
+
+    KeyboardState() { memset(&Pressed, 0, sizeof(Pressed)); }
+};
+
+enum MouseButton
+{
+    MouseRight = 0,
+    MouseLeft,
+
+    MouseButtonEnumMax
+};
+
+struct MouseState
+{
+    INT x;
+    INT y;
+
+    BOOL Pressed[MouseButtonEnumMax];
 };
 
 enum IvyGamepadButtons

@@ -442,7 +442,7 @@ void MlaaApp::Run()
 
             pZoomInfo = reinterpret_cast<ZoomInfo*>(mappedCB.pData);
 
-            Point2 zoomCenter = GetMousePos();
+            Point2 zoomCenter = Point2(static_cast<INT>(GetMouseState()->x), static_cast<INT>(GetMouseState()->y));
             zoomCenter.x *= colorTexWidth / m_pDxData->viewport.Width;
             zoomCenter.y *= colorTexHeight / m_pDxData->viewport.Height;
 

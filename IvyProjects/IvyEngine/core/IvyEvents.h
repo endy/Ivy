@@ -2,7 +2,7 @@
 ///
 ///     Ivy Engine
 ///
-///     Copyright 2010-2011, Brandon Light
+///     Copyright 2010-2013, Brandon Light
 ///     All rights reserved.
 ///
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -15,8 +15,12 @@
 enum EventType
 {
     EventTypeWindowResize,
+    EventTypeMouseButtonDown,
+    EventTypeMouseButtonUp,
+    EventTypeMouseDoubleClick,
     EventTypeMouseMove,
     EventTypeKeyDown,
+    EventTypeKeyUp
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -67,14 +71,23 @@ protected:
 };
 
 
-struct EventDataKeyDown
+struct EventDataKey
 {
     KeyboardKey key;
 };
 
+struct EventDataMouseButton
+{
+    MouseButton button;
+};
+
 typedef TEventNoData<EventTypeWindowResize> EventWindowResize;
 typedef TEventNoData<EventTypeMouseMove> EventMouseMove;
-typedef TEventWithData<EventTypeKeyDown, EventDataKeyDown> EventKeyDown;
+typedef TEventWithData<EventTypeMouseButtonDown, EventDataMouseButton> EventMouseButtonDown;
+typedef TEventWithData<EventTypeMouseButtonUp, EventDataMouseButton> EventMouseButtonUp;
+typedef TEventWithData<EventTypeMouseDoubleClick, EventDataMouseButton> EventMouseDoubleClick;
+typedef TEventWithData<EventTypeKeyDown, EventDataKey> EventKeyDown;
+typedef TEventWithData<EventTypeKeyUp, EventDataKey> EventKeyUp;
 
 
 #endif // _IVYEVENTS_H_

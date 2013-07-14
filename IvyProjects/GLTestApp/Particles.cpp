@@ -201,13 +201,21 @@ void GLTestApp::ParticlesTest()
         pIndicies[i] = i;
     }
 
+    KeyboardState lastKeyboardState;
     while (!quit)
     {
+        ProcessUpdates();
+
         BeginFrame();
 
-        m_pWindow->ProcessMsg(&quit);
         error = glGetError();
-        //glClearColor(0.4f, 1.0f, 0.4f, 1.0f);
+
+        const KeyboardState* pKeys = GetKeyboardState();
+        if (pKeys->Pressed[Key_R] && !lastKeyboardState.Pressed[Key_R])
+        {
+            InitParticles2DArray(pParticles, width, height);
+        }
+
 
         glClearColor(0.0f,0.4,0.4,1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -217,6 +225,7 @@ void GLTestApp::ParticlesTest()
         glDrawArrays(GL_POINTS, 0, width * height);
         IvySwapBuffers();
 
+        memcpy(&lastKeyboardState, pKeys, sizeof(KeyboardState));
         EndFrame();
     }
 
@@ -224,25 +233,4 @@ void GLTestApp::ParticlesTest()
     pProgram->Destroy();
     pFSShader->Destroy();
     pVSShader->Destroy();
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/// IvyApp::ReceiveEventParticles
-///
-/// @brief
-///     
-/// @return
-///     N/A
-///////////////////////////////////////////////////////////////////////////////////////////////////
-void GLTestApp::ReceiveEventParticles(
-    const Event* pEvent)    ///< Pointer to Event
-{
-    if (pEvent->GetType() == EventTypeKeyDown)
-    {
-        const EventKeyDown* pKeyDown = reinterpret_cast<const EventKeyDown*>(pEvent); 
-        if (pKeyDown->GetData().key == Key_R)
-        {
-            InitParticles2DArray(pParticles, width, height);
-        }
-    }
 }

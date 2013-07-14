@@ -139,7 +139,7 @@ void GLTestApp::Run()
     DrawTestGL4();
     //DrawTestGLES2();
 
-    //ParticlesTest();
+   // ParticlesTest();
     //LightingTest();
     //TessTest();
 }
@@ -153,9 +153,6 @@ void GLTestApp::ReceiveEvent(
     {
         case EventTypeWindowResize:
             glViewport(0, 0, m_pWindow->GetDrawableArea().right, m_pWindow->GetDrawableArea().bottom);
-            break;
-        case EventTypeKeyDown:
-            ReceiveEventParticles(pEvent);
             break;
         default:
             break;
@@ -301,6 +298,8 @@ void GLTestApp::DrawTestGL2()
         ProcessUpdates();
 
         const IvyGamepadState* pGamepad = GetGamepadState();
+        const KeyboardState* pKeys = GetKeyboardState();
+
         if (pGamepad->ButtonPressed[IvyGamepadButtons::ButtonA])
         {
             glClearColor(0.0f, 4.0f, 0.0f, 1.0f);
@@ -315,12 +314,30 @@ void GLTestApp::DrawTestGL2()
         }
         
 
+        if (pKeys->Pressed[Key_W])
+        {
+            m_pCamera->Move(Point3(0, 0, 0.05f), 0, 0);
+        }
+        else if (pKeys->Pressed[Key_S])
+        {
+            m_pCamera->Move(Point3(0, 0, -0.05f), 0, 0);
+        }
+
+        if (pKeys->Pressed[Key_A])
+        {
+            m_pCamera->Move(Point3(-0.05f, 0, 0), 0, 0);
+        }
+        if (pKeys->Pressed[Key_D])
+        {
+            m_pCamera->Move(Point3(0.05f, 0, 0), 0, 0);
+        }
+
         glClear(GL_COLOR_BUFFER_BIT);
 
         CameraBufferData cameraBufferData;
 #if XNA_MATH
         // camera is at (0,0).  need to offset world by z+1 to move camera to -1 for LookAt(0,0) (i think...)
-        cameraBufferData.worldMatrix = XMMatrixTranslation(0, 0, (IVY_MAX(-1.0, pGamepad->ThumbLY) * 5.0) + 6.0);
+        cameraBufferData.worldMatrix = XMMatrixTranslation(0, 0, (IVY_MAX(-1.0f, pGamepad->ThumbLY) * 5.0f) + 6.0f);
         cameraBufferData.viewMatrix = m_pCamera->W2C();
         cameraBufferData.projectionMatrix = m_pCamera->C2S();
 
@@ -462,6 +479,27 @@ void GLTestApp::DrawTestGL4()
     {
         ProcessUpdates();
 
+        const KeyboardState* pKeys = GetKeyboardState();
+
+        if (pKeys->Pressed[Key_W])
+        {
+            m_pCamera->Move(Point3(0, 0, 0.01f), 0, 0);
+        }
+        else if (pKeys->Pressed[Key_S])
+        {
+            m_pCamera->Move(Point3(0, 0, -0.01f), 0, 0);
+        }
+
+        if (pKeys->Pressed[Key_A])
+        {
+            m_pCamera->Move(Point3(-0.01f, 0, 0), 0, 0);
+        }
+        if (pKeys->Pressed[Key_D])
+        {
+            m_pCamera->Move(Point3(0.01f, 0, 0), 0, 0);
+        }
+
+
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 #ifndef STUB
@@ -469,7 +507,7 @@ void GLTestApp::DrawTestGL4()
         // Update camera for Bunny
         cameraBufferData.worldMatrix = XMMatrixScaling(1, 1, 1) * XMMatrixTranslation(0, -1, 0);
 
-        cameraBufferData.viewMatrix = m_pCamera->W2C() * XMMatrixTranslation(0, 0, 1);
+        cameraBufferData.viewMatrix = m_pCamera->W2C();
         cameraBufferData.projectionMatrix = m_pCamera->C2S();
 
         glUniformMatrix4fv(worldMatrixAttribLoc, 1, GL_TRUE, reinterpret_cast<GLfloat*>(&cameraBufferData.worldMatrix));

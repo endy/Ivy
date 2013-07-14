@@ -42,8 +42,6 @@ public:
 
     virtual void ReceiveEvent(const Event* pEvent);
 
-    Point2 GetMousePos() { return m_mousePos; }
-
 protected:
     IvyApp();
     virtual ~IvyApp();
@@ -61,11 +59,11 @@ protected:
     BOOL ExitApp() { return m_exit; }
 
     const IvyGamepadState* GetGamepadState() { return &m_gamepad; }
+    const KeyboardState* GetKeyboardState() { return &m_keys; }
+    const MouseState* GetMouseState() { return &m_mouse; }
 
     bool DeinitDX();
     bool DeinitGL();
-
-    void UpdateMousePosition();
 
     void BeginFrame();
     void EndFrame();
@@ -111,8 +109,12 @@ private:
     IvyApp(const IvyApp& copy);               // Disallow copy constructor
     IvyApp& operator=(const IvyApp& copy);    // Disallow assignment operator
 
+    void ProcessKeyboardEvent(const Event* pEvent);
+    void ProcessMouseEvent(const Event* pEvent);
+
     FramerateTracker m_framerateTracker;
 
+    MouseState m_mouse;
     KeyboardState m_keys;
     IvyGamepadState m_gamepad;
 
