@@ -226,7 +226,7 @@ void IvyCamera::Move(
                n,
                XMVectorSet(0,0,0,1));
 
-    XMVECTOR deltaVector = XMVectorSet(deltaPosition.x, 0, deltaPosition.z, 1.0);
+    XMVECTOR deltaVector = XMVectorSet(deltaPosition.x, deltaPosition.y, deltaPosition.z, 1.0);
 
     m_position.x += XMVectorGetX(XMVector3Dot(deltaVector, u));
     m_position.y += XMVectorGetX(XMVector3Dot(deltaVector, v));

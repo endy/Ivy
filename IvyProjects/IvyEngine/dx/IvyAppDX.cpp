@@ -121,7 +121,7 @@ bool IvyApp::InitDX()
         memset(&depthStencilCreateInfo, 0, sizeof(DxTextureCreateInfo));
         depthStencilCreateInfo.flags.DepthStencil = TRUE;
         depthStencilCreateInfo.flags.ShaderInput = TRUE;
-        depthStencilCreateInfo.format = DXGI_FORMAT_D32_FLOAT;  //@todo texture doesnt read format currently
+        depthStencilCreateInfo.format = DXGI_FORMAT_D24_UNORM_S8_UINT; ///@todo texture doesnt read format currently
         depthStencilCreateInfo.width = m_screenWidth;
         depthStencilCreateInfo.height = m_screenHeight;
 
@@ -355,7 +355,7 @@ void IvyApp::UpdateSwapChain()
         memset(&depthStencilCreateInfo, 0, sizeof(DxTextureCreateInfo));
         depthStencilCreateInfo.flags.DepthStencil = TRUE;
         depthStencilCreateInfo.flags.ShaderInput = TRUE;
-        depthStencilCreateInfo.format = DXGI_FORMAT_D32_FLOAT;	//@todo texture doesnt read format currently
+        depthStencilCreateInfo.format = DXGI_FORMAT_D24_UNORM_S8_UINT; ///@todo texture doesnt read format currently
         depthStencilCreateInfo.width = m_screenWidth;
         depthStencilCreateInfo.height = m_screenHeight;
 

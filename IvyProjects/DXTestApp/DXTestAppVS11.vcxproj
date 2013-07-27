@@ -224,6 +224,8 @@
   <ItemGroup>
     <ClCompile Include="dxmain.cpp" />
     <ClCompile Include="DxTestApp.cpp" />
+    <ClCompile Include="Instancing.cpp" />
+    <ClCompile Include="Lighting.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="dxtestapp.hlsl" />

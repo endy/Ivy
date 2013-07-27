@@ -14,6 +14,13 @@
 
 class DxBuffer;
 
+struct DxTestAppShaderConsts
+{
+    UINT screenWidth;
+    UINT screenHeight;
+    UINT padding[2];
+};
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// DxTestApp Class
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -36,6 +43,9 @@ protected:
 
 private:
     DxTestApp(const DxTestApp& copy);	// disallow copy constructor
+
+    void RunInstancing();
+    void RunLighting();
 
     DxBuffer* m_pAppConstBuffer;    ///< Global shader constants
 };
