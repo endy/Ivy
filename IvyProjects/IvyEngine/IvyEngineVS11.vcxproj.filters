@@ -73,9 +73,6 @@
     <ClInclude Include="gl\IvyGL.h">
       <Filter>gl</Filter>
     </ClInclude>
-    <ClInclude Include="dx\SystemEventDispatcher.h">
-      <Filter>core</Filter>
-    </ClInclude>
     <ClInclude Include="core\IvyShader.h">
       <Filter>core</Filter>
     </ClInclude>
@@ -105,6 +102,9 @@
     </ClInclude>
     <ClInclude Include="dx\IvyDX.h">
       <Filter>dx</Filter>
+    </ClInclude>
+    <ClInclude Include="core\SystemEventDispatcher.h">
+      <Filter>core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -150,9 +150,6 @@
     <ClCompile Include="core\IvyUtils.cpp">
       <Filter>core</Filter>
     </ClCompile>
-    <ClCompile Include="dx\SystemEventDispatcher.cpp">
-      <Filter>core</Filter>
-    </ClCompile>
     <ClCompile Include="core\IvyShader.cpp">
       <Filter>core</Filter>
     </ClCompile>
@@ -185,6 +182,9 @@
     </ClCompile>
     <ClCompile Include="dx\DxUI.cpp">
       <Filter>dx</Filter>
+    </ClCompile>
+    <ClCompile Include="core\SystemEventDispatcher.cpp">
+      <Filter>core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
