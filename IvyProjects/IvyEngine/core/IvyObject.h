@@ -13,34 +13,38 @@
 #include "IvyTypes.h"
 #include "IvyMemory.h"
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/// IvyObject Class
-///////////////////////////////////////////////////////////////////////////////////////////////////
-class IvyObject
+namespace Ivy
 {
-public:
-    void* operator new(size_t size) 
-    {
-        return IvyMemoryMgr::Alloc(size);
-    }
-    void* operator new[](size_t size)
-    {
-        return IvyMemoryMgr::Alloc(size);
-    }
-    void operator delete(void* pObj)
-    {
-        IvyMemoryMgr::Free(pObj);
-    }
-    void operator delete[](void* pObj)
-    {
-        IvyMemoryMgr::Free(pObj);
-    }
 
-protected:
-    IvyObject() { }
-    virtual ~IvyObject() { }
-};
+    ///////////////////////////////////////////////////////////////////////////////////////////////////
+    /// IvyObject Class
+    ///////////////////////////////////////////////////////////////////////////////////////////////////
+    class IvyObject
+    {
+    public:
+        void* operator new(size_t size) 
+        {
+            return IvyMemoryMgr::Alloc(size);
+        }
+        void* operator new[](size_t size)
+        {
+            return IvyMemoryMgr::Alloc(size);
+        }
+        void operator delete(void* pObj)
+        {
+            IvyMemoryMgr::Free(pObj);
+        }
+        void operator delete[](void* pObj)
+        {
+            IvyMemoryMgr::Free(pObj);
+        }
 
+    protected:
+        IvyObject() { }
+        virtual ~IvyObject() { }
+    };
+
+}
 
 #endif // _IVYOBJECT_H_
 

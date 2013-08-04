@@ -2,7 +2,7 @@
 ///
 ///     Ivy Engine
 ///
-///     Copyright 2010-2012, Brandon Light
+///     Copyright 2010-2013, Brandon Light
 ///     All rights reserved.
 ///
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -30,11 +30,11 @@ easiest is to reload a program, then reload the specific shader (thus creating a
 /// GLShader Class
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 class GLShader :
-    public IvyShader
+    public Ivy::IvyShader
 {
 public:
-    static GLShader* CreateFromSource(IvyShaderType shaderType, const CHAR* pShaderName, const CHAR* pShaderSource);
-    static GLShader* CreateFromFile(IvyShaderType shaderType, const CHAR* pShaderName, const CHAR* pFilename);
+    static GLShader* CreateFromSource(Ivy::IvyShaderType shaderType, const CHAR* pShaderName, const CHAR* pShaderSource);
+    static GLShader* CreateFromFile(Ivy::IvyShaderType shaderType, const CHAR* pShaderName, const CHAR* pFilename);
 
     virtual void Destroy();
 
@@ -43,7 +43,7 @@ public:
     void Reload();
 
 protected:
-    GLShader(IvyShaderType shaderType, const CHAR* pShaderName, const WCHAR* pShaderFilename);
+    GLShader(Ivy::IvyShaderType shaderType, const CHAR* pShaderName, const WCHAR* pShaderFilename);
     virtual ~GLShader(); 
 
     // GL-specific shader stuff
@@ -51,7 +51,7 @@ protected:
 };
 
 class GLProgram :
-    public IvyObject
+    public Ivy::IvyObject
 {
 public:
     static GLProgram* Create();
@@ -83,7 +83,6 @@ protected:
     GLShader* m_pVSShader;
     GLShader* m_pFSShader;
 };
-
 
 
 

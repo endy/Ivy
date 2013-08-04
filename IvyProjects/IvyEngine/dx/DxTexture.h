@@ -15,8 +15,8 @@
 
 struct DxTextureCreateInfo
 {
-    IvyTextureType type;
-    IvyTextureFlags flags;
+    Ivy::IvyTextureType type;
+    Ivy::IvyTextureFlags flags;
     UINT width;
     UINT height;
     DXGI_FORMAT format;
@@ -26,7 +26,7 @@ struct DxTextureCreateInfo
 /// DxTexture Class
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 class DxTexture :
-    public IvyTexture
+    public Ivy::IvyTexture
 {
 public:
     static DxTexture* Create(ID3D11Device* pDevice, DxTextureCreateInfo* pInfo);

@@ -14,7 +14,7 @@ TODO:
 
 int main(unsigned int argc, const char** argv)
 {
-    IvyApp::Configure(argc, argv);
+    Ivy::IvyApp::Configure(argc, argv);
 
     MlaaApp* app = MlaaApp::Create();
 

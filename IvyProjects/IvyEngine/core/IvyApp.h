@@ -17,116 +17,121 @@
 #include "IvyPerf.h"
 #include "IvyConfig.h"
 
-class IvyWindow;
-class IvyCamera;
-
-struct IvyAppDxData;
 class DxUI;
-struct IvyDxUIData;
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/// IvyApp Class
-///////////////////////////////////////////////////////////////////////////////////////////////////
-class IvyApp :
-    public IvyObject,
-    public IEventReceiver
+namespace Ivy
 {
-public:
-    static bool Configure(unsigned int argc, const char** argv);
+    class IvyWindow;
+    class IvyCamera;
 
-    static IvyConfigItemValue* QueryConfig(const char* pName);
+    struct IvyAppDxData;
+    struct IvyDxUIData;
 
-    virtual void Destroy();
+    ///////////////////////////////////////////////////////////////////////////////////////////////////
+    /// IvyApp Class
+    ///////////////////////////////////////////////////////////////////////////////////////////////////
+    class IvyApp :
+        public IvyObject,
+        public IEventReceiver
+    {
+    public:
+        static bool Configure(unsigned int argc, const char** argv);
 
-    virtual void Run();
+        static IvyConfigItemValue* QueryConfig(const char* pName);
 
-    virtual void ReceiveEvent(const Event* pEvent);
+        virtual void Destroy();
 
-protected:
-    IvyApp();
-    virtual ~IvyApp();
+        virtual void Run();
 
-    virtual bool Init();
-    bool InitDX();
+        virtual void ReceiveEvent(const Event* pEvent);
 
-    bool InitGL2();
-    bool InitGL4();
-    bool InitGLES2();
+    protected:
+        IvyApp();
+        virtual ~IvyApp();
 
-    void IvySwapBuffers();
+        virtual bool Init();
+        bool InitDX();
 
-    void ProcessUpdates();
-    BOOL ExitApp() { return m_exit; }
+        bool InitGL2();
+        bool InitGL4();
+        bool InitGLES2();
 
-    const IvyGamepadState* GetGamepadState() { return &m_gamepad; }
-    const KeyboardState* GetKeyboardState() { return &m_keys; }
-    const MouseState* GetMouseState() { return &m_mouse; }
+        void IvySwapBuffers();
 
-    bool DeinitDX();
-    bool DeinitGL();
+        void ProcessUpdates();
+        BOOL ExitApp() { return m_exit; }
 
-    void BeginFrame();
-    void EndFrame();
+        const IvyGamepadState* GetGamepadState() { return &m_gamepad; }
+        const KeyboardState* GetKeyboardState() { return &m_keys; }
+        const MouseState* GetMouseState() { return &m_mouse; }
 
-    // dx functions
-    void UpdateSwapChain();
-    void DrawUI();
+        bool DeinitDX();
+        bool DeinitGL();
 
-    IvyWindow* m_pWindow;
+        void BeginFrame();
+        void EndFrame();
 
-    ///@todo Refactor into IvyUI
-    DxUI* m_pUI;    ///< DxUI for the user interface overlay
-    IvyDxUIData* m_pUIData;
+        // dx functions
+        void UpdateSwapChain();
+        void DrawUI();
 
-    Point2 m_mousePos;
+        IvyWindow* m_pWindow;
 
-    FLOAT m_fovY;           // FOV Y
-    FLOAT m_nearZ;          // near plane
-    FLOAT m_farZ;           // far plane
-    UINT  m_screenWidth;    // viewport width
-    UINT  m_screenHeight;   // viewport height
+        ///@todo Refactor into IvyUI
+        DxUI* m_pUI;    ///< DxUI for the user interface overlay
+        IvyDxUIData* m_pUIData;
 
-    static const UINT BufferCount;
+        Point2 m_mousePos;
 
-    IvyCamera* m_pCamera;
+        FLOAT m_fovY;           // FOV Y
+        FLOAT m_nearZ;          // near plane
+        FLOAT m_farZ;           // far plane
+        UINT  m_screenWidth;    // viewport width
+        UINT  m_screenHeight;   // viewport height
 
-    /// D3D Data
-    IvyAppDxData* m_pDxData;
+        static const UINT BufferCount;
 
-    /// OpenGL Member Data
-    // Win32 handles
-    HDC m_hDC;
-    HGLRC m_hGLRC;
+        IvyCamera* m_pCamera;
+
+        /// D3D Data
+        IvyAppDxData* m_pDxData;
+
+        /// OpenGL Member Data
+        // Win32 handles
+        HDC m_hDC;
+        HGLRC m_hGLRC;
 
 #if IVY_GL_ES
-    // EGL & GLES
-    EGLDisplay m_eglDisplay;
-    EGLSurface m_eglSurface;
-    EGLContext m_eglContext;
+        // EGL & GLES
+        EGLDisplay m_eglDisplay;
+        EGLSurface m_eglSurface;
+        EGLContext m_eglContext;
 #endif // IVY_GL_ES
 
-private:
-    IvyApp(const IvyApp& copy);               // Disallow copy constructor
-    IvyApp& operator=(const IvyApp& copy);    // Disallow assignment operator
+    private:
+        IvyApp(const IvyApp& copy);               // Disallow copy constructor
+        IvyApp& operator=(const IvyApp& copy);    // Disallow assignment operator
 
-    void ProcessKeyboardEvent(const Event* pEvent);
-    void ProcessMouseEvent(const Event* pEvent);
+        void ProcessKeyboardEvent(const Event* pEvent);
+        void ProcessMouseEvent(const Event* pEvent);
 
-    FramerateTracker m_framerateTracker;
+        FramerateTracker m_framerateTracker;
 
-    MouseState m_mouse;
-    KeyboardState m_keys;
-    IvyGamepadState m_gamepad;
+        MouseState m_mouse;
+        KeyboardState m_keys;
+        IvyGamepadState m_gamepad;
 
-    BOOL m_exit;
+        BOOL m_exit;
 
-    // Configuration
-    static unsigned int ScreenWidth;
-    static unsigned int ScreenHeight;
+        // Configuration
+        static unsigned int ScreenWidth;
+        static unsigned int ScreenHeight;
 
-    static IvyConfigItem IvyAppConfig[];
+        static IvyConfigItem IvyAppConfig[];
 
-};
+    };
+
+}
 
 #endif // _IVYAPP_H_
 

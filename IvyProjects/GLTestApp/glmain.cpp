@@ -11,6 +11,8 @@
 #include "GLTestApp.h"
 #include "IvyConfig.h"
 
+using namespace Ivy;
+
 int main(unsigned int argc, const char** argv)
 {
     IvyApp::Configure(argc, argv);

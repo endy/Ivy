@@ -46,7 +46,7 @@ struct DxBufferCreateInfo
 /// DxBuffer Class
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 class DxBuffer :
-    IvyObject
+    Ivy::IvyObject
 {
 public:
     static DxBuffer* Create(ID3D11Device* pDevice, DxBufferCreateInfo* pCreateInfo);

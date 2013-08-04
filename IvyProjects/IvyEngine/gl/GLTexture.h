@@ -21,10 +21,10 @@
 /// GLTexture Class
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 class GLTexture :
-    public IvyTexture
+    public Ivy::IvyTexture
 {
 public:
-    static GLTexture* CreateFromFile(IvyTextureType type, const CHAR* pFilename);
+    static GLTexture* CreateFromFile(Ivy::IvyTextureType type, const CHAR* pFilename);
     virtual void Destroy();
 
     /// Returns OpenGL Texture ID
@@ -33,11 +33,12 @@ public:
     void Bind(UINT textureSlot, UINT uniformLoc);
 
 private:
-    GLTexture(IvyTextureType type, UINT glTextureId, UINT width, UINT height);
+    GLTexture(Ivy::IvyTextureType type, UINT glTextureId, UINT width, UINT height);
     virtual ~GLTexture();
 
     UINT m_glTextureId;   ///< OpenGL Texture ID
 };
+
 
 #endif // _GLTEXTURE_H_
 

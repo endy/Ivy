@@ -33,6 +33,7 @@ using std::iostream;
 using std::stringstream;
 using std::string;
 
+using namespace Ivy;
 
 inline bool mygetline(
     std::vector<char>::iterator& beginPos,
@@ -416,7 +417,7 @@ void ImportCString(
     printf("OVERALL: %lf s\n", perfoverall);
 }
 
-void Import(
+void Ivy::Import(
     UINT& numVertices,
     VertexPTN** ppVB,
     UINT& numIndices,
@@ -426,7 +427,7 @@ void Import(
     //ImportFstream(numVertices, ppVB, numIndices, ppIB);
 }
 
-void ImportPly(
+void Ivy::ImportPly(
     const CHAR* pPlyFilename,
     UINT& numVertices,
     VertexPTN** ppVB,

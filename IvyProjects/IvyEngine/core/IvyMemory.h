@@ -51,32 +51,37 @@ that does this without any way of disabling/overriding the 'feature' is also sus
 
 **/
 
-class IvyMemoryMgr
+namespace Ivy
 {
-public:
-    static void* Alloc(size_t size)
+
+    class IvyMemoryMgr
     {
-        std::cout << "Alloc size=" << size << std::endl;
-        return calloc(1, size);
+    public:
+        static void* Alloc(size_t size)
+        {
+            std::cout << "Alloc size=" << size << std::endl;
+            return calloc(1, size);
+        };
+
+        static void Free(void* pMem)
+        {
+            std::cout << "Free Pointer=" << pMem << std::endl;
+            free(pMem);
+        }
     };
 
-    static void Free(void* pMem)
+    inline void* IvyTrackedAlloc (size_t n, const char* file, unsigned int line)
     {
-        std::cout << "Free Pointer=" << pMem << std::endl;
-        free(pMem);
+        IvyPrint("IvyAlloc", file, line);
+        return IvyMemoryMgr::Alloc(n);
     }
-};
 
-inline void* IvyTrackedAlloc (size_t n, const char* file, unsigned int line)
-{
-    IvyPrint("IvyAlloc", file, line);
-    return IvyMemoryMgr::Alloc(n);
-}
+    inline void IvyTrackedFree (void* in, const char* file, unsigned int line)
+    {
+        IvyPrint("IvyFree", file, line);
+        IvyMemoryMgr::Free(in);
+    }
 
-inline void IvyTrackedFree (void* in, const char* file, unsigned int line)
-{
-    IvyPrint("IvyFree", file, line);
-    IvyMemoryMgr::Free(in);
 }
 
 #define IVY_TRACK_MEMORY 1

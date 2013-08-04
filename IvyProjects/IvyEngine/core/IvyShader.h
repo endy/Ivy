@@ -12,40 +12,44 @@
 
 #include "IvyObject.h"
 
-enum IvyShaderType
+namespace Ivy
 {
-    IvyVertexShader,
-    IvyFragmentShader,
 
-    IvyMaxShaderTypes      // Enum sentinel, invalid shader type
-};
+    enum IvyShaderType
+    {
+        IvyVertexShader,
+        IvyFragmentShader,
 
-///@todo Make an IvyShaderCreateInfo structure, consumed by API shader classes
+        IvyMaxShaderTypes      // Enum sentinel, invalid shader type
+    };
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/// IvyShader Class
-///////////////////////////////////////////////////////////////////////////////////////////////////
-class IvyShader :
-    public IvyObject
-{
-public:
-    virtual void Destroy() = 0;
+    ///@todo Make an IvyShaderCreateInfo structure, consumed by API shader classes
 
-    IvyShaderType Type() const { return m_type; }
+    ///////////////////////////////////////////////////////////////////////////////////////////////////
+    /// IvyShader Class
+    ///////////////////////////////////////////////////////////////////////////////////////////////////
+    class IvyShader :
+        public IvyObject
+    {
+    public:
+        virtual void Destroy() = 0;
 
-    const CHAR* GetShaderName() { return m_shaderName.c_str(); }
-    const WCHAR* GetShaderFilename() { return m_shaderFilename.c_str(); }
+        IvyShaderType Type() const { return m_type; }
 
-protected:
-    IvyShader(IvyShaderType shaderType, const CHAR* pShaderName, const WCHAR* pShaderFilename);
-    virtual ~IvyShader();
+        const CHAR* GetShaderName() { return m_shaderName.c_str(); }
+        const WCHAR* GetShaderFilename() { return m_shaderFilename.c_str(); }
 
-private:
-    IvyShaderType m_type;
-    std::string m_shaderName;
-    std::wstring m_shaderFilename;
-};
+    protected:
+        IvyShader(IvyShaderType shaderType, const CHAR* pShaderName, const WCHAR* pShaderFilename);
+        virtual ~IvyShader();
 
+    private:
+        IvyShaderType m_type;
+        std::string m_shaderName;
+        std::wstring m_shaderFilename;
+    };
+
+}
 
 #endif // _IVYSHADER_H_
 

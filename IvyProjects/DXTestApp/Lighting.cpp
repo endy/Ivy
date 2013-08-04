@@ -14,6 +14,8 @@
 
 #include "stb_image.h"
 
+using namespace Ivy;
+
 void DxTestApp::RunLighting()
 {
     IVY_PRINT("DxTestApp D3D11 Path");

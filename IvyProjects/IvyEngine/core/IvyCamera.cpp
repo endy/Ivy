@@ -12,6 +12,8 @@
 #include <sstream>
 using std::stringstream;
 
+using namespace Ivy;
+
 #define STUB 1
 
 // Calculates perspective transform using PBRT's perspective transform

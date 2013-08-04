@@ -14,6 +14,8 @@
 #include "GLTexture.h"
 #include "GLShader.h"
 
+using namespace Ivy;
+
 void GLTestApp::LightingTest()
 {
 

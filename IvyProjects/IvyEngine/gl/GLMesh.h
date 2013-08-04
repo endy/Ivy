@@ -12,6 +12,7 @@
 
 #include "IvyMesh.h"
 
+
 // Forward decls
 class GLProgram;
 
@@ -19,10 +20,10 @@ class GLProgram;
 /// GLMesh Class
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 class GLMesh :
-    public IvyMesh
+    public Ivy::IvyMesh
 {
 public:
-    static GLMesh* Create(IvyMeshCreateInfo* pMeshCreateInfo);
+    static GLMesh* Create(Ivy::IvyMeshCreateInfo* pMeshCreateInfo);
     virtual void Destroy();
 
     void Bind(GLProgram* pProgram);
@@ -37,6 +38,7 @@ private:
     UINT m_glIndexBufferId;     ///< GL Index Buffer Id
     UINT m_numIndices;          ///< Num indicies
 };
+
 
 #endif // _GLMESH_H_
 

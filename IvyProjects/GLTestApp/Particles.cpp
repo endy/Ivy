@@ -20,6 +20,8 @@
 #include "IvyGL.h"
 #include "GLShader.h"
 
+using namespace Ivy;
+
 inline float IvyMax(float a, float b) { return (a > b) ? a : b; }
 inline float IvyMin(float a, float b) { return (a < b) ? a : b; }
 inline float IvyClamp(float minClamp, float maxClamp, float value) { return IvyMax(IvyMin(value, maxClamp), minClamp); }

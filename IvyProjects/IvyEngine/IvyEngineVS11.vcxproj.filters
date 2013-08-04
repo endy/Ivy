@@ -111,9 +111,6 @@
     <ClCompile Include="dx\DxBuffer.cpp">
       <Filter>dx</Filter>
     </ClCompile>
-    <ClCompile Include="dx\DxLight.cpp">
-      <Filter>dx</Filter>
-    </ClCompile>
     <ClCompile Include="dx\DxMesh.cpp">
       <Filter>dx</Filter>
     </ClCompile>
@@ -185,6 +182,9 @@
     </ClCompile>
     <ClCompile Include="core\SystemEventDispatcher.cpp">
       <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="dx\DxLight.cpp">
+      <Filter>dx</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

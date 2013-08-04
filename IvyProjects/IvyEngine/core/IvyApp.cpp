@@ -11,6 +11,8 @@
 #include "IvyWindow.h"
 #include "IvyCamera.h"
 
+using namespace Ivy;
+
 const UINT IvyApp::BufferCount = 1;
 
 unsigned int IvyApp::ScreenWidth  = 512;

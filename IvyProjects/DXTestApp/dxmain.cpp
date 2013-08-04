@@ -13,7 +13,7 @@
 
 int main(unsigned int argc, const char** argv)
 {
-    IvyApp::Configure(argc, argv);
+    Ivy::IvyApp::Configure(argc, argv);
 
     DxTestApp* app = DxTestApp::Create();
 

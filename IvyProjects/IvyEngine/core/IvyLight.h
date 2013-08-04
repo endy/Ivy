@@ -12,29 +12,34 @@
 
 #include "IvyTypes.h"
 
-struct LightCreateInfo
+namespace Ivy
 {
-    Point4 position;
-    Point4 color;
-};
 
-// Point light source
+    struct LightCreateInfo
+    {
+        Point4 position;
+        Point4 color;
+    };
 
-class Light
-{
-public:
-	static Light* Create(LightCreateInfo* pInfo);
-	virtual void Destroy();
+    // Point light source
 
-protected:
-	Light(LightCreateInfo* pInfo);
-	virtual ~Light();
+    class Light
+    {
+    public:
+        static Light* Create(LightCreateInfo* pInfo);
+        virtual void Destroy();
 
-    Point4 m_position;
-    Point4 m_color;
+    protected:
+        Light(LightCreateInfo* pInfo);
+        virtual ~Light();
 
-private:
-	Light(const Light& copy);	// disallow copy constructor
-};
+        Point4 m_position;
+        Point4 m_color;
+
+    private:
+        Light(const Light& copy);	// disallow copy constructor
+    };
+
+}
 
 #endif // _LIGHT_H_

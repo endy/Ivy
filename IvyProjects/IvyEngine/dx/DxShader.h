@@ -86,7 +86,7 @@ VS_PT_OUT IvyPosTex( float4 Pos : SV_POSITION,                  \
 /// DxShader Class
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 class DxShader :
-    public IvyShader
+    public Ivy::IvyShader
 {
 public:
     ///@todo Refactor these to use an info structure?
@@ -119,7 +119,7 @@ public:
     virtual void Bind(ID3D11DeviceContext* pContext);
 
 private:
-    DxShader(IvyShaderType type, const CHAR* pShaderName, const WCHAR* pShaderFilename, ID3D11Device* pDevice);
+    DxShader(Ivy::IvyShaderType type, const CHAR* pShaderName, const WCHAR* pShaderFilename, ID3D11Device* pDevice);
     virtual ~DxShader(); 
 
     DxShader(const DxShader& copy);   // Disallow copy constructor

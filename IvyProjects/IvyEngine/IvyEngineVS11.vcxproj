@@ -250,7 +250,9 @@
     <ClCompile Include="dx\DxTexture.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="dx\DxUI.cpp" />
+    <ClCompile Include="dx\DxUI.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="dx\IvyAppDX.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">true</ExcludedFromBuild>
     </ClCompile>
@@ -301,7 +303,9 @@
     <ClInclude Include="dx\DxTypes.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">true</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="dx\DxUI.h" />
+    <ClInclude Include="dx\DxUI.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="dx\DxUtils.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">true</ExcludedFromBuild>
     </ClInclude>

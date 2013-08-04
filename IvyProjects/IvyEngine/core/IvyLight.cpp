@@ -9,14 +9,16 @@
 
 #include "IvyLight.h"
 
+using namespace Ivy;
+
 /**************************************************************************************************
     Light::Light
 **************************************************************************************************/
 Light::Light(
-	LightCreateInfo* pInfo)
-	:
-	m_position(pInfo->position),
-	m_color(pInfo->color)
+    LightCreateInfo* pInfo)
+    :
+    m_position(pInfo->position),
+    m_color(pInfo->color)
 {
 
 }

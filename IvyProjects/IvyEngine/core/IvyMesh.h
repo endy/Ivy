@@ -12,41 +12,45 @@
 
 #include "IvyObject.h"
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/// IvyMeshCreateInfo Struct
-///////////////////////////////////////////////////////////////////////////////////////////////////
-struct IvyMeshCreateInfo
+namespace Ivy
 {
-    void* pVertexData;          ///< Pointer to vertex data
-    UINT vertexSizeInBytes;     ///< Single vertex size
-    UINT numVertices;           ///< Num vertices in the vertex data
-    void* pIndexData;           ///< Pointer to index data (can be NULL)
-    UINT numIndicies;           ///< Num indicies in the index data
-};
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/// IvyMesh Class
-///
-/// @note
-///     Supports:
-///         1. TRIANGLE primitive type only
-///         2. Index buffers
-///////////////////////////////////////////////////////////////////////////////////////////////////
-class IvyMesh :
-    public IvyObject
-{
-public:
-    virtual void Destroy() = 0;
+    ///////////////////////////////////////////////////////////////////////////////////////////////////
+    /// IvyMeshCreateInfo Struct
+    ///////////////////////////////////////////////////////////////////////////////////////////////////
+    struct IvyMeshCreateInfo
+    {
+        void* pVertexData;          ///< Pointer to vertex data
+        UINT vertexSizeInBytes;     ///< Single vertex size
+        UINT numVertices;           ///< Num vertices in the vertex data
+        void* pIndexData;           ///< Pointer to index data (can be NULL)
+        UINT numIndicies;           ///< Num indicies in the index data
+    };
 
-protected:
-    IvyMesh();
-    virtual ~IvyMesh();
+    ///////////////////////////////////////////////////////////////////////////////////////////////////
+    /// IvyMesh Class
+    ///
+    /// @note
+    ///     Supports:
+    ///         1. TRIANGLE primitive type only
+    ///         2. Index buffers
+    ///////////////////////////////////////////////////////////////////////////////////////////////////
+    class IvyMesh :
+        public IvyObject
+    {
+    public:
+        virtual void Destroy() = 0;
 
-private:
-    IvyMesh(const IvyMesh& copy);   // Disallow copy constructor
+    protected:
+        IvyMesh();
+        virtual ~IvyMesh();
 
-};
+    private:
+        IvyMesh(const IvyMesh& copy);   // Disallow copy constructor
 
+    };
+
+}
 
 #endif // _IVYMESH_H_
 

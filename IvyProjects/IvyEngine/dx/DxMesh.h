@@ -30,7 +30,7 @@ struct DxMeshCreateInfo
 /// DxMesh Class
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 class DxMesh :
-    public IvyObject
+    public Ivy::IvyObject
 {
 public:
     static DxMesh* Create(ID3D11Device* pDevice, DxMeshCreateInfo* pCreateInfo);

@@ -2,13 +2,15 @@
 ///
 ///     Ivy Engine
 ///
-///     Copyright 2010-2011, Brandon Light
+///     Copyright 2010-2013, Brandon Light
 ///     All rights reserved.
 ///
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "DxLight.h"
 #include "DxUtils.h"
+
+using namespace Ivy;
 
 /**************************************************************************************************
     DxLight::DxLight

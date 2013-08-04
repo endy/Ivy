@@ -12,6 +12,8 @@
 
 #include "stb_image.h"
 
+using namespace Ivy;
+
 MlaaApp* MlaaApp::Create()
 {
     return new MlaaApp();

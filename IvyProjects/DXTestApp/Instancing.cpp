@@ -12,8 +12,9 @@
 #include "DxBuffer.h"
 #include "DxMesh.h"
 
-
 #include "stb_image.h"
+
+using namespace Ivy;
 
 void DxTestApp::RunInstancing()
 {

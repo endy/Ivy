@@ -10,6 +10,8 @@
 #include "GLShader.h"
 #include "IvyGL.h"
 
+using namespace Ivy;
+
 const CHAR* gVS2String = "                       \n\
                          attribute  vec3 in_Position;                    \n\
                          attribute  vec4 in_Color;                       \n\

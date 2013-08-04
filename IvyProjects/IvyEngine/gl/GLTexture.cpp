@@ -12,6 +12,8 @@
 
 #include "stb_image.h"
 
+using namespace Ivy;
+
 ///@todo Add a compile-time assert to check this table matches IvyTextureType enums
 const GLenum IvyToGLTexTypeTable[] =
 {

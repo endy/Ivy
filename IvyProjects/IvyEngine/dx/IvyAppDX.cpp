@@ -24,7 +24,9 @@
 #include <Initguid.h>
 #include <dxgidebug.h>
 
-struct IvyDxUIData
+using namespace Ivy;
+
+struct Ivy::IvyDxUIData
 {
     // UI Objects
     DxShader* pUserInterfaceVS;

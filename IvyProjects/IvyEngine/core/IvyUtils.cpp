@@ -10,6 +10,8 @@
 #include "IvyPlatform.h"
 #include "IvyUtils.h"
 
+using namespace Ivy;
+
 Plane::Plane() :
     m_pVB(NULL)
 {
