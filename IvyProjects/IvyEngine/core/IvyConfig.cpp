@@ -2,10 +2,22 @@
 ///
 ///     Ivy Engine
 ///
-///     Copyright 2012, Brandon Light
+///     Copyright 2012-2013, Brandon Light
 ///     All rights reserved.
 ///
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/// @notes
+///     1. Single entry point to get all config data:  IvyApp::Configure(argv, argc)
+///         a.  Ivy core customizes all of core.  App can override by implementing *App::Configure
+///             but must call IvyApp::Configure first.
+///         b.   
+///     2. Order of precidence: Ivy Defaults, App Defaults, Config File, Command Line Args
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 
 #include "IvyConfig.h"
 #include "IvyMemory.h"
@@ -203,11 +215,12 @@ bool IvyConfigParseConfigString(
     unsigned int startPos = 0;
     unsigned int endPos = 0;
 
-    while(!argError)
+    while (!argError)
     {
         memset(nameTokenBuffer, 0, 1024);
         memset(valueTokenBuffer, 0, 1024);
 
+        IvyConfigItem* pConfigItem = NULL;
         if (IvyConfigGetName(configString, startPos, nameTokenBuffer, &endPos))
         {
             startPos = endPos;
@@ -232,7 +245,10 @@ bool IvyConfigParseConfigString(
                     }
                 }
             }
+        }
 
+        if (pConfigItem)
+        {
             // process name,value pair
             std::cout << "Name: " << nameTokenBuffer << "  Value: " << valueTokenBuffer << std::endl;
 
