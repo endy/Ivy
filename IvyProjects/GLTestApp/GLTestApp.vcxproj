@@ -70,7 +70,6 @@
     <Import Project="..\Properties\IvyEngineDebug32.props" />
     <Import Project="..\Properties\DX11Debug32.props" />
     <Import Project="..\Properties\OpenGLDebug32.props" />
-    <Import Project="..\Properties\Corona32.props" />
     <Import Project="..\Properties\GLES2_32.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
@@ -82,7 +81,6 @@
     <Import Project="..\Properties\IvyEngineRelease32.props" />
     <Import Project="..\Properties\OpenGLDebug32.props" />
     <Import Project="..\Properties\DX11Release32.props" />
-    <Import Project="..\Properties\Corona32.props" />
     <Import Project="..\Properties\GLES2_32.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
