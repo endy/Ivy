@@ -35,6 +35,9 @@ namespace Ivy
         void Resize();
 
         Rect GetDrawableArea();
+
+        VOID SetWindowName(const char* pName);
+
     protected:
 
         IvyWindow();
