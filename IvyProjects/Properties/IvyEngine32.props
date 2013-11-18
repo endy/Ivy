@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros">
+    <IvyEngineProjectDir>..\IvyEngine\</IvyEngineProjectDir>
+  </PropertyGroup>
+  <PropertyGroup>
+    <IncludePath>$(IvyEngineProjectDir)core;$(IvyEngineProjectDir)dx;$(IvyEngineProjectDir)gl;$(SolutionDir)..\Lib\stb_image;$(SolutionDir)..\Lib\Eigen_3.1.2;$(IncludePath)</IncludePath>
+    <LibraryPath>$(IvyEngineProjectDir)x86\$(Configuration);$(LibraryPath)</LibraryPath>
+    <OutDir>$(IvyEngineProjectDir)x86\$(Configuration)\</OutDir>
+    <_PropertySheetDisplayName>IvyEngine32</_PropertySheetDisplayName>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <Link>
+      <AdditionalDependencies>IvyEngine32.lib;XInput9_1_0.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <BuildMacro Include="IvyEngineProjectDir">
+      <Value>$(IvyEngineProjectDir)</Value>
+    </BuildMacro>
+  </ItemGroup>
+</Project>

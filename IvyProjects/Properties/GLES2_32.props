@@ -1,16 +1,22 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
-  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Label="UserMacros">
+    <ExternalLibDir>..\..\Lib\</ExternalLibDir>
+  </PropertyGroup>
   <PropertyGroup>
     <_PropertySheetDisplayName>GLES2_32</_PropertySheetDisplayName>
-    <IncludePath>$(SolutionDir)..\Lib\AMD\include\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)..\Lib\AMD\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ExternalLibDir)AMD\include\;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ExternalLibDir)AMD\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>
       <AdditionalDependencies>libEGL.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <BuildMacro Include="ExternalLibDir">
+      <Value>$(ExternalLibDir)</Value>
+    </BuildMacro>
+  </ItemGroup>
 </Project>

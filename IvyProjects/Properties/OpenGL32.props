@@ -2,11 +2,11 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
-    <IvyRootDir>$(SolutionDir)..\</IvyRootDir>
+    <IvyRootDir>..\</IvyRootDir>
   </PropertyGroup>
   <PropertyGroup>
-    <IncludePath>$(IvyRootDir)Lib\glew-1.7.0-win32\glew-1.7.0\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(IvyRootDir)\Lib\glew-1.7.0-win32\glew-1.7.0\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(IvyRootDir)..\Lib\glew-1.7.0-win32\glew-1.7.0\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(IvyRootDir)..\Lib\glew-1.7.0-win32\glew-1.7.0\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>

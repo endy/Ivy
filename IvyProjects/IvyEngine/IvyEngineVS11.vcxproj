@@ -57,55 +57,43 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\Properties\DX11Debug32.props" />
-    <Import Project="..\Properties\IvyEngineDebug32.props" />
-    <Import Project="..\Properties\OpenGLDebug32.props" />
     <Import Project="..\Properties\GLES2_32.props" />
+    <Import Project="..\Properties\IvyEngine32.props" />
+    <Import Project="..\Properties\OpenGL32.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\Properties\IvyEngineDebug32.props" />
-    <Import Project="..\Properties\OpenGLDebug32.props" />
     <Import Project="..\Properties\GLES2_32.props" />
+    <Import Project="..\Properties\IvyEngine32.props" />
+    <Import Project="..\Properties\OpenGL32.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\Properties\DX11Release32.props" />
-    <Import Project="..\Properties\IvyEngineRelease32.props" />
     <Import Project="..\Properties\GLES2_32.props" />
-    <Import Project="..\Properties\OpenGLDebug32.props" />
+    <Import Project="..\Properties\IvyEngine32.props" />
+    <Import Project="..\Properties\OpenGL32.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseGL|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\Properties\DX11Release32.props" />
-    <Import Project="..\Properties\IvyEngineRelease32.props" />
     <Import Project="..\Properties\GLES2_32.props" />
-    <Import Project="..\Properties\OpenGLDebug32.props" />
+    <Import Project="..\Properties\IvyEngine32.props" />
+    <Import Project="..\Properties\OpenGL32.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)x86\$(Configuration)\</OutDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">
-    <OutDir>$(SolutionDir)x86\$(Configuration)\</OutDir>
-  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IntDir>x86\$(Configuration)\</IntDir>
     <TargetName>$(ProjectName)32</TargetName>
-    <IncludePath>$(IncludePath)</IncludePath>
-    <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">
     <IntDir>x86\$(Configuration)\</IntDir>
     <TargetName>$(ProjectName)32</TargetName>
-    <IncludePath>$(IncludePath)</IncludePath>
-    <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)x86\$(Configuration)\</OutDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseGL|Win32'">
-    <OutDir>$(SolutionDir)x86\$(Configuration)\</OutDir>
-  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseGL|Win32'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IntDir>x86\$(Configuration)\</IntDir>
     <TargetName>$(ProjectName)32</TargetName>
