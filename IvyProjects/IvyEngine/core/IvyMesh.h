@@ -20,7 +20,7 @@ namespace Ivy
     ///////////////////////////////////////////////////////////////////////////////////////////////////
     struct IvyMeshCreateInfo
     {
-        void* pVertexData;          ///< Pointer to vertex data
+        const void* pVertexData;	///< Pointer to vertex data
         UINT vertexSizeInBytes;     ///< Single vertex size
         UINT numVertices;           ///< Num vertices in the vertex data
         void* pIndexData;           ///< Pointer to index data (can be NULL)

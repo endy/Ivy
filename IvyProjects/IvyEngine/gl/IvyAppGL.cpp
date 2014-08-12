@@ -17,6 +17,18 @@
 
 using namespace Ivy;
 
+void GLCallBack(
+	GLenum source,
+	GLenum type,
+	GLuint id,
+	GLenum severity,
+	GLsizei length,
+	const GLchar *message,
+	void *userParam)
+{
+	std::cout << source << " " << type << " " << id << " " << severity << " " << length << " " << message << std::endl;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// IvyApp::InitGL2
 ///
@@ -66,15 +78,6 @@ bool IvyApp::InitGL2()
         exit(1);
     }
 
-    //  Error Setup
-
-
-    //  glDebugMessageCallbackAMD((GLDEBUGPROCAMD)DebugCallbackAMD, NULL);
-
-    //  glDebugMessageEnableAMD(0, 0, 0, NULL, TRUE);
-    //glDebugMessageInsertAMDattribute  vec2 in_Position;                    
-    //attribute  vec3 in_Color;                       
-    ////////////glGetDebugMessageLogAMD
 
     const GLubyte* pString = glGetString(GL_VERSION);
 
@@ -157,6 +160,11 @@ bool IvyApp::InitGL4()
     wglDeleteContext(tempGLRC);
 
     wglMakeCurrent(m_hDC, m_hGLRC);
+
+	//  Error Setup
+
+	glDebugMessageCallbackARB((GLDEBUGPROCARB)&GLCallBack, NULL);
+
 #endif // !(IVY_GL_ES)
 
     return true;

@@ -87,25 +87,35 @@ void GLMesh::Bind(
 {
     ///@todo  Need to invert the relationship of the GLMesh and the GLProgram
 
+	glBindBuffer(GL_ARRAY_BUFFER, m_glVertexBufferId);
+
+	GLuint offset = 0;
+
     GLint positionAttribLoc = glGetAttribLocation(pProgram->ProgramId(), "in_Position");
+	if (positionAttribLoc >= 0)
+	{
+		glBindAttribLocation(pProgram->ProgramId(), positionAttribLoc, "in_Position");
+		glVertexAttribPointer(positionAttribLoc, 3, GL_FLOAT, FALSE, sizeof(VertexPTN), 0);
+		glEnableVertexAttribArray(positionAttribLoc);
+	}
+
     GLint colorAttribLoc = glGetAttribLocation(pProgram->ProgramId(), "in_Color");
+	if (colorAttribLoc >= 0)
+	{
+		glBindAttribLocation(pProgram->ProgramId(), colorAttribLoc, "in_Color");
+		offset = 5 * 4;
+		glVertexAttribPointer(colorAttribLoc, 4, GL_FLOAT, FALSE, sizeof(VertexPTN), (const GLvoid*)offset);
+		glEnableVertexAttribArray(colorAttribLoc);
+	}
+
     GLint texAttribLoc = glGetAttribLocation(pProgram->ProgramId(), "in_Tex");
-
-    glBindAttribLocation(pProgram->ProgramId(), positionAttribLoc, "in_Position");
-    glBindAttribLocation(pProgram->ProgramId(), colorAttribLoc, "in_Color");
-    glBindAttribLocation(pProgram->ProgramId(), texAttribLoc, "in_Tex");
-
-    glVertexAttribPointer(positionAttribLoc, 3, GL_FLOAT, FALSE, sizeof(VertexPTN), 0);
-    glEnableVertexAttribArray(positionAttribLoc);
-
-    GLuint offset = 3*4;
-    glVertexAttribPointer(texAttribLoc, 2, GL_FLOAT, FALSE, sizeof(VertexPTN), (const GLvoid*)offset);
-    glEnableVertexAttribArray(texAttribLoc);
-
-    offset = 5*4;
-    glVertexAttribPointer(colorAttribLoc, 4, GL_FLOAT, FALSE, sizeof(VertexPTN), (const GLvoid*)offset);
-    glEnableVertexAttribArray(colorAttribLoc);
-
+	if (texAttribLoc >= 0)
+	{
+		glBindAttribLocation(pProgram->ProgramId(), texAttribLoc, "in_Tex");
+		offset = 3 * 4;
+		glVertexAttribPointer(texAttribLoc, 2, GL_FLOAT, FALSE, sizeof(VertexPTN), (const GLvoid*)offset);
+		glEnableVertexAttribArray(texAttribLoc);
+	}
 
 }
 

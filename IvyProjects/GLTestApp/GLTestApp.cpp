@@ -25,6 +25,7 @@
 
 using namespace Ivy;
 
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// GlTestApp::GlTestApp
 ///
@@ -80,60 +81,6 @@ bool GLTestApp::Init()
     return success;
 }
 
-/*
-void FormatDebugOutputAMD(char outStr[], size_t outStrSize, GLenum category, GLuint id,
-    GLenum severity, const char *msg)
-{
-    char categoryStr[32];
-    const char *categoryFmt = "UNDEFINED(0x%04X)";
-    switch(category)
-    {
-    case GL_DEBUG_CATEGORY_API_ERROR_AMD:          categoryFmt = "API_ERROR"; break;
-    case GL_DEBUG_CATEGORY_WINDOW_SYSTEM_AMD:      categoryFmt = "WINDOW_SYSTEM"; break;
-    case GL_DEBUG_CATEGORY_DEPRECATION_AMD:        categoryFmt = "DEPRECATION"; break;
-    case GL_DEBUG_CATEGORY_UNDEFINED_BEHAVIOR_AMD: categoryFmt = "UNDEFINED_BEHAVIOR"; break;
-    case GL_DEBUG_CATEGORY_PERFORMANCE_AMD:        categoryFmt = "PERFORMANCE"; break;
-    case GL_DEBUG_CATEGORY_SHADER_COMPILER_AMD:    categoryFmt = "SHADER_COMPILER"; break;
-    case GL_DEBUG_CATEGORY_APPLICATION_AMD:        categoryFmt = "APPLICATION"; break;
-    case GL_DEBUG_CATEGORY_OTHER_AMD:              categoryFmt = "OTHER"; break;
-    }
-    _snprintf(categoryStr, 32, categoryFmt, category);
-    char severityStr[32];
-    const char *severityFmt = "UNDEFINED";
-    switch(severity)
-    {
-    case GL_DEBUG_SEVERITY_HIGH_AMD:   severityFmt = "HIGH";   break;
-    case GL_DEBUG_SEVERITY_MEDIUM_AMD: severityFmt = "MEDIUM"; break;
-    case GL_DEBUG_SEVERITY_LOW_AMD:    severityFmt = "LOW";    break;
-    }
-    _snprintf(severityStr, 32, severityFmt, severity);
-    _snprintf(outStr, outStrSize, "OpenGL: %s [category=%s severity=%s id=%d]",
-        msg, categoryStr, severityStr, id);
-}
-*/
-/*
-typedef void (APIENTRY *GLDEBUGPROCAMD)(GLuint id,
-    GLenum category,
-    GLenum severity,
-    GLsizei length,
-    const GLchar* message,
-    GLvoid* userParam);
-
-void DebugCallbackAMD(
-    GLuint id,
-    GLenum category,
-    GLenum severity,
-    GLsizei length,
-    const GLchar *message,
-    GLvoid *userParam)
-{
-    (void)length;
-    FILE *outFile = (FILE*)userParam;
-    char finalMsg[256];
-    FormatDebugOutputAMD(finalMsg, 256, category, id, severity, message);
-    fprintf(outFile, "%s\n", finalMsg);
-}
-*/
 
 void GLTestApp::Run()
 {
@@ -397,12 +344,19 @@ void GLTestApp::DrawTestGL4()
     pProgram->Link();
     pProgram->Bind();
 
-#ifndef STUB
+	GLShader* pVsFont = GLShader::CreateFromFile(IvyVertexShader, "SimpleVS4", "Content/shaders/gl4/font.vert");
+	GLShader* pFsTexture = GLShader::CreateFromFile(IvyFragmentShader, "Texture", "Content/shaders/gl4/texture.frag");
+
+	GLProgram* pTexProgram = GLProgram::Create();
+	pTexProgram->AttachShader(pVsFont);
+	pTexProgram->AttachShader(pFsTexture);
+	pTexProgram->Link();
+	pTexProgram->Bind();
+
     struct CameraBufferData
     {
         XMMATRIX worldMatrix;
         XMMATRIX viewMatrix;
-
         XMMATRIX projectionMatrix;
     };
 
@@ -410,6 +364,9 @@ void GLTestApp::DrawTestGL4()
     cameraBufferData.worldMatrix      = XMMatrixScaling(5, 5, 1); //XMMatrixIdentity(); //XMMatrixRotationX(-3.14f/2.0f) * XMMatrixScaling(2, 2, 1); //XMMatrixIdentity();
     cameraBufferData.viewMatrix = XMMatrixTranslation(0, 0, 2.0f) * m_pCamera->W2C();
     cameraBufferData.projectionMatrix = m_pCamera->C2S();
+
+
+	pProgram->Bind();
 
     UINT worldMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "worldMatrix");
     UINT viewMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "viewMatrix");
@@ -419,63 +376,49 @@ void GLTestApp::DrawTestGL4()
     glUniformMatrix4fv(worldMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.worldMatrix));
     glUniformMatrix4fv(viewMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.viewMatrix));
     glUniformMatrix4fv(projMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.projectionMatrix));
-#endif
 
-    VertexPTN triangle[3];
-    memset(triangle, 0, sizeof(triangle));
 
-    triangle[0].Pos = Point3(-0.5f, 0.5f, 0.0f);
-    triangle[0].N   = Point4(1.0f, 0.0f, 0.0f, 1.0f);
-    triangle[0].Tex = Point2(0.0f, 0);
-    triangle[1].Pos = Point3(0.5f, 0.5f, 0.0f);
-    triangle[1].N   = Point4(0.0f, 1.0f, 0.0f, 1.0f);
-    triangle[1].Tex = Point2(1.0f, 0);
-    triangle[2].Pos = Point3(0.5f, -0.5f, 0.0f);
-    triangle[2].N   = Point4(0.0f, 0.0f, 1.0f, 1.0f);
-    triangle[2].Tex = Point2(1.0f, 1);
 
-    unsigned int triIndicies[3] = { 0, 1, 2 };
+	IvyMeshCreateInfo bunnyMesh = { 0 };
+	bunnyMesh.vertexSizeInBytes = sizeof(VertexPTN);
+	Import(bunnyMesh.numVertices, (VertexPTN**)&bunnyMesh.pVertexData, bunnyMesh.numIndicies, (UINT**)&bunnyMesh.pIndexData);
 
-    GLuint vbId = 0;
-    glGenBuffers(1, &vbId);
-    glBindBuffer(GL_ARRAY_BUFFER, vbId);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(VertexPTN)*3, triangle, GL_STATIC_DRAW);
+	GLMesh* pBunnyMesh = GLMesh::Create(&bunnyMesh);
 
-    GLint positionAttribLoc = glGetAttribLocation(pProgram->ProgramId(), "in_Position");
-    GLint colorAttribLoc = glGetAttribLocation(pProgram->ProgramId(), "in_Color");
-    GLint texAttribLoc = glGetAttribLocation(pProgram->ProgramId(), "in_Tex");
+	Plane p;
+	IvyMeshCreateInfo quadMeshInfo = { 0 };
+	quadMeshInfo.vertexSizeInBytes = sizeof(VertexPTN);
+	quadMeshInfo.pVertexData = p.GetVB();
+	quadMeshInfo.numVertices = p.NumVertices();
+	GLMesh* pQuadMesh = GLMesh::Create(&quadMeshInfo);
 
-    glBindAttribLocation(pProgram->ProgramId(), positionAttribLoc, "in_Position");
-    glBindAttribLocation(pProgram->ProgramId(), colorAttribLoc, "in_Color");
-    glBindAttribLocation(pProgram->ProgramId(), texAttribLoc, "in_Tex");
+	// Setup Textures
+	GLint textureAttribLoc = 0;
 
-    glVertexAttribPointer(positionAttribLoc, 3, GL_FLOAT, FALSE, sizeof(VertexPTN), 0);
-    glEnableVertexAttribArray(positionAttribLoc);
 
-    GLuint offset = 5*4;
-    glVertexAttribPointer(colorAttribLoc, 4, GL_FLOAT, FALSE, sizeof(VertexPTN), (const GLvoid*)offset);
-    glEnableVertexAttribArray(colorAttribLoc);
+	GLTexture* pTexture = GLTexture::CreateFromFile(IvyTexture2D, "Content/Font.png");
+	textureAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "s_tex0");
 
-    offset = 3*4;
-    glVertexAttribPointer(texAttribLoc, 4, GL_FLOAT, FALSE, sizeof(VertexPTN), (const GLvoid*)offset);
-    glEnableVertexAttribArray(texAttribLoc);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-    IvyMeshCreateInfo meshCreateInfo = {0};
-    meshCreateInfo.vertexSizeInBytes = sizeof(VertexPTN);
-    meshCreateInfo.pVertexData = &triangle[0];
-    meshCreateInfo.numVertices = 3;
+	GLTexture* pFirefleaTex = GLTexture::CreateFromFile(IvyTexture2D, "Content/fireflea.png");
+	textureAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "s_tex1");
 
-    meshCreateInfo.pIndexData = &triIndicies[0];
-    meshCreateInfo.numIndicies = 3;
+	pTexture->Bind(0, textureAttribLoc);
+	pFirefleaTex->Bind(1, textureAttribLoc);
 
-    Import(meshCreateInfo.numVertices, (VertexPTN**)&meshCreateInfo.pVertexData, meshCreateInfo.numIndicies, (UINT**)&meshCreateInfo.pIndexData);
-
-    GLMesh* pMesh = GLMesh::Create(&meshCreateInfo);
+	///@todo Migrate settings into texture object?  Or have separate sampler that is attached to texture?
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     m_pWindow->Show();
 
     glEnable(GL_DEPTH_TEST);
 
+	int x, y;
+	x = 2;
+	y = 2;
     while (ExitApp() == FALSE)
     {
         ProcessUpdates();
@@ -503,25 +446,101 @@ void GLTestApp::DrawTestGL4()
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-#ifndef STUB
-
         // Update camera for Bunny
-        cameraBufferData.worldMatrix = XMMatrixScaling(1, 1, 1) * XMMatrixTranslation(0, -1, 0);
+        cameraBufferData.worldMatrix = XMMatrixScaling(1, 1, 1) * XMMatrixTranslation(0, 1, 1);
 
         cameraBufferData.viewMatrix = m_pCamera->W2C();
         cameraBufferData.projectionMatrix = m_pCamera->C2S();
 
+		pProgram->Bind();
+
+		worldMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "worldMatrix");
+		viewMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "viewMatrix");
+		projMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "projectionMatrix");
+
         glUniformMatrix4fv(worldMatrixAttribLoc, 1, GL_TRUE, reinterpret_cast<GLfloat*>(&cameraBufferData.worldMatrix));
         glUniformMatrix4fv(viewMatrixAttribLoc, 1, GL_TRUE, reinterpret_cast<GLfloat*>(&cameraBufferData.viewMatrix));
         glUniformMatrix4fv(projMatrixAttribLoc, 1, GL_TRUE, reinterpret_cast<GLfloat*>(&cameraBufferData.projectionMatrix));
-#endif
 
-        pMesh->Bind(pProgram);
-        pMesh->Draw();
+		pBunnyMesh->Bind(pProgram);
+		pBunnyMesh->Draw();
 
-        //glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDisable(GL_DEPTH_TEST);
+
+		// Quad
+
+		pTexProgram->Bind();
+
+		UINT charPosLoc = glGetUniformLocation(pTexProgram->ProgramId(), "charPos");
+		glUniform2f(charPosLoc, (float)x, (float)y);
+
+		//pQuadMesh->Bind(pTexProgram);
+		//pQuadMesh->Draw();
+
+		// Text Buffer 
+
+		char* buffer = "IVYENGINE!";
+		UINT bufferLength = strlen(buffer);
+
+		UINT charWidth = 40; // 40 pixels
+		UINT charHeight = 40; // 40 pixels
+
+		
+		Point4* pVerts = static_cast<Point4*>(IVY_RAW_ALLOC(sizeof(Point4)* bufferLength * 6));
+		//
+		
+		for (UINT charQuad = 0; charQuad < bufferLength; ++charQuad)
+		{
+			pVerts[(charQuad * 6) + 0].x = (charQuad*charWidth)/256.0;
+			pVerts[(charQuad * 6) + 0].y = 0;
+			pVerts[(charQuad * 6) + 0].z = 8;
+
+			pVerts[(charQuad * 6) + 1].x = ((charQuad*charWidth) + charWidth) / 256.0;
+			pVerts[(charQuad * 6) + 1].y = 0;
+			pVerts[(charQuad * 6) + 1].z = 8;
+
+			pVerts[(charQuad * 6) + 2].x = ((charQuad*charWidth) + charWidth) / 256.0;
+			pVerts[(charQuad * 6) + 2].y = (charHeight) / 256.0;
+			pVerts[(charQuad * 6) + 2].z = 8;
+
+			pVerts[(charQuad * 6) + 3].x = ((charQuad*charWidth) + charWidth) / 256.0;
+			pVerts[(charQuad * 6) + 3].y = (charHeight) / 256.0;
+			pVerts[(charQuad * 6) + 3].z = 8;
+
+			pVerts[(charQuad * 6) + 4].x = (charQuad*charWidth) / 256.0;
+			pVerts[(charQuad * 6) + 4].y = (charHeight) / 256.0;
+			pVerts[(charQuad * 6) + 4].z = 8;
+
+			pVerts[(charQuad * 6) + 5].x = (charQuad*charWidth) / 256.0;
+			pVerts[(charQuad * 6) + 5].y = 0;
+			pVerts[(charQuad * 6) + 5].z = 8;
+
+		}
+
+
+		GLuint vbId = 0;
+		glGenBuffers(1, &vbId);
+		glBindBuffer(GL_ARRAY_BUFFER, vbId);
+		glBufferData(GL_ARRAY_BUFFER,
+					 sizeof(Point4)* bufferLength * 6,
+					 pVerts,
+					 GL_STATIC_DRAW);
+
+		GLint positionAttribLoc = glGetAttribLocation(pTexProgram->ProgramId(), "in_Position");
+		if (positionAttribLoc >= 0)
+		{
+			glBindAttribLocation(pTexProgram->ProgramId(), positionAttribLoc, "in_Position");
+			glVertexAttribPointer(positionAttribLoc, 4, GL_FLOAT, FALSE, sizeof(Point4), 0);
+			glEnableVertexAttribArray(positionAttribLoc);
+		}
+
+		glDrawArrays(GL_TRIANGLES, 0, bufferLength*6);
+
+		glDeleteBuffers(1, &vbId);
+		IVY_FREE(pVerts);
 
         IvySwapBuffers();
+
     }
 
     wglMakeCurrent(NULL, NULL);
