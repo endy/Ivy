@@ -547,8 +547,8 @@ void GLTestApp::DrawTestGL4()
 		//
 		Point2 textPos = Point2(0, 0);
 
-		FLOAT screenWidth = 512;
-		FLOAT screenHeight = 512;
+		FLOAT screenWidth = m_screenWidth;
+		FLOAT screenHeight = m_screenHeight;
 		
 		for (UINT charQuad = 0; charQuad < bufferLength; ++charQuad)
 		{

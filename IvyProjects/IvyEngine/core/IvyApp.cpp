@@ -229,6 +229,8 @@ void IvyApp::ReceiveEvent(
     {
         case EventTypeWindowResize:
             m_pWindow->Resize();
+			m_screenWidth = m_pWindow->GetDrawableArea().right;
+			m_screenHeight = m_pWindow->GetDrawableArea().bottom;
 #ifndef IVY_GL_ONLY
             UpdateSwapChain();
 #endif // IVY_GL_ONLY
