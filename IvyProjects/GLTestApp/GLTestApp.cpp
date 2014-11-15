@@ -19,6 +19,8 @@
 #include "GLShader.h"
 #include "GLMesh.h"
 
+#include <cstdio> // _snprintf
+
 #ifndef XNA_MATH
 #define STUB 1
 #endif
@@ -328,21 +330,21 @@ void GLTestApp::DrawTestGL2()
 void GLTestApp::DrawTestGL4()
 {
 #if !(IVY_GL_ES)
-    IVY_PRINT("GLTestApp OpenGL 4.0 Path");
+	IVY_PRINT("GLTestApp OpenGL 4.0 Path");
 
-    InitGL4();
+	InitGL4();
 
-    glViewport(0, 0, m_screenWidth, m_screenHeight);             // context state
-    glClearColor(0.4f, 1.0f, 0.4f, 1.0f);   // context state
+	glViewport(0, 0, m_screenWidth, m_screenHeight);             // context state
+	glClearColor(0.4f, 1.0f, 0.4f, 1.0f);   // context state
 
-    GLShader* pVSShader = GLShader::CreateFromFile(IvyVertexShader, "SimpleVS4", "Content/shaders/gl4.vert");
-    GLShader* pFSShader = GLShader::CreateFromFile(IvyFragmentShader, "SimpleFS4", "Content/shaders/gl4.frag");
+	GLShader* pVSShader = GLShader::CreateFromFile(IvyVertexShader, "SimpleVS4", "Content/shaders/gl4.vert");
+	GLShader* pFSShader = GLShader::CreateFromFile(IvyFragmentShader, "SimpleFS4", "Content/shaders/gl4.frag");
 
-    GLProgram* pProgram = GLProgram::Create();
-    pProgram->AttachShader(pVSShader);
-    pProgram->AttachShader(pFSShader);
-    pProgram->Link();
-    pProgram->Bind();
+	GLProgram* pProgram = GLProgram::Create();
+	pProgram->AttachShader(pVSShader);
+	pProgram->AttachShader(pFSShader);
+	pProgram->Link();
+	pProgram->Bind();
 
 	GLShader* pVsFont = GLShader::CreateFromFile(IvyVertexShader, "SimpleVS4", "Content/shaders/gl4/font.vert");
 	GLShader* pFsTexture = GLShader::CreateFromFile(IvyFragmentShader, "Texture", "Content/shaders/gl4/texture.frag");
@@ -353,29 +355,29 @@ void GLTestApp::DrawTestGL4()
 	pTexProgram->Link();
 	pTexProgram->Bind();
 
-    struct CameraBufferData
-    {
-        XMMATRIX worldMatrix;
-        XMMATRIX viewMatrix;
-        XMMATRIX projectionMatrix;
-    };
+	struct CameraBufferData
+	{
+		XMMATRIX worldMatrix;
+		XMMATRIX viewMatrix;
+		XMMATRIX projectionMatrix;
+	};
 
-    CameraBufferData cameraBufferData;
-    cameraBufferData.worldMatrix      = XMMatrixScaling(5, 5, 1); //XMMatrixIdentity(); //XMMatrixRotationX(-3.14f/2.0f) * XMMatrixScaling(2, 2, 1); //XMMatrixIdentity();
-    cameraBufferData.viewMatrix = XMMatrixTranslation(0, 0, 2.0f) * m_pCamera->W2C();
-    cameraBufferData.projectionMatrix = m_pCamera->C2S();
+	CameraBufferData cameraBufferData;
+	cameraBufferData.worldMatrix = XMMatrixScaling(5, 5, 1); //XMMatrixIdentity(); //XMMatrixRotationX(-3.14f/2.0f) * XMMatrixScaling(2, 2, 1); //XMMatrixIdentity();
+	cameraBufferData.viewMatrix = XMMatrixTranslation(0, 0, 2.0f) * m_pCamera->W2C();
+	cameraBufferData.projectionMatrix = m_pCamera->C2S();
 
 
 	pProgram->Bind();
 
-    UINT worldMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "worldMatrix");
-    UINT viewMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "viewMatrix");
-    UINT projMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "projectionMatrix");
+	UINT worldMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "worldMatrix");
+	UINT viewMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "viewMatrix");
+	UINT projMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "projectionMatrix");
 
 
-    glUniformMatrix4fv(worldMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.worldMatrix));
-    glUniformMatrix4fv(viewMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.viewMatrix));
-    glUniformMatrix4fv(projMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.projectionMatrix));
+	glUniformMatrix4fv(worldMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.worldMatrix));
+	glUniformMatrix4fv(viewMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.viewMatrix));
+	glUniformMatrix4fv(projMatrixAttribLoc, 1, GL_FALSE, reinterpret_cast<GLfloat*>(&cameraBufferData.projectionMatrix));
 
 
 
@@ -412,9 +414,44 @@ void GLTestApp::DrawTestGL4()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-    m_pWindow->Show();
+	m_pWindow->Show();
 
-    glEnable(GL_DEPTH_TEST);
+	glEnable(GL_DEPTH_TEST);
+
+	Point2 asciiCharMap[128];
+	memset(&asciiCharMap, 0, sizeof(asciiCharMap));
+
+
+	asciiCharMap['!'] = Point2(1, 0);
+	asciiCharMap[','] = Point2(4, 1);
+	asciiCharMap['.'] = Point2(6, 1);
+
+	asciiCharMap['0'] = Point2(0, 2);
+	asciiCharMap['1'] = Point2(1, 2);
+	asciiCharMap['2'] = Point2(2, 2);
+	asciiCharMap['3'] = Point2(3, 2);
+	asciiCharMap['4'] = Point2(4, 2);
+	asciiCharMap['5'] = Point2(5, 2);
+	asciiCharMap['6'] = Point2(6, 2);
+	asciiCharMap['7'] = Point2(7, 2);
+	asciiCharMap['8'] = Point2(0, 3);
+	asciiCharMap['9'] = Point2(1, 3);
+
+	asciiCharMap['A'] = asciiCharMap['a'] = Point2(1, 4);
+	asciiCharMap['B'] = asciiCharMap['b'] = Point2(2, 4);
+	asciiCharMap['C'] = asciiCharMap['c'] = Point2(3, 4);
+	asciiCharMap['D'] = asciiCharMap['d'] = Point2(4, 4);
+	asciiCharMap['E'] = asciiCharMap['e'] = Point2(5, 4);
+	asciiCharMap['F'] = asciiCharMap['f'] = Point2(6, 4);
+	asciiCharMap['G'] = asciiCharMap['g'] = Point2(7, 4);
+	asciiCharMap['I'] = asciiCharMap['i'] = Point2(1, 5);
+	asciiCharMap['M'] = asciiCharMap['m'] = Point2(5, 5);
+	asciiCharMap['N'] = asciiCharMap['n'] = Point2(6, 5);
+	asciiCharMap['O'] = asciiCharMap['o'] = Point2(7, 5);
+	asciiCharMap['P'] = asciiCharMap['p'] = Point2(0, 6);
+	asciiCharMap['V'] = asciiCharMap['v'] = Point2(6, 6);
+	asciiCharMap['Y'] = asciiCharMap['y'] = Point2(1, 7);
+
 
 	int x, y;
 	x = 2;
@@ -478,42 +515,80 @@ void GLTestApp::DrawTestGL4()
 		//pQuadMesh->Draw();
 
 		// Text Buffer 
+		char buffer[1024];
+		Point3 position;
+		m_pCamera->Position(position);
+		FLOAT phi;
+		FLOAT theta;
+		m_pCamera->Orientation(phi, theta);
+		Point3 direction = m_pCamera->LookAt();
 
-		char* buffer = "IVYENGINE!";
+		_snprintf(buffer,
+			1024,
+			"Viewport: (%i, %i, %i, %i) FOVY: (%f)\nCamera Pos (%f, %f, %f)\nOrientation [Phi: %f, Theta: %f]\nDirection Vector: (%f, %f, %f)",
+			0, 0, m_screenWidth, m_screenHeight,
+			m_fovY * 180 / IvyPi,
+			position.x,
+			position.y,
+			position.z,
+			phi * 180 / IvyPi,
+			theta * 180 / IvyPi,
+			direction.x,
+			direction.y,
+			direction.z);
+
 		UINT bufferLength = strlen(buffer);
 
-		UINT charWidth = 40; // 40 pixels
-		UINT charHeight = 40; // 40 pixels
+		UINT charWidth = 15; 
+		UINT charHeight = 15; 
 
 		
 		Point4* pVerts = static_cast<Point4*>(IVY_RAW_ALLOC(sizeof(Point4)* bufferLength * 6));
 		//
+		Point2 textPos = Point2(0, 0);
+
+		FLOAT screenWidth = 512;
+		FLOAT screenHeight = 512;
 		
 		for (UINT charQuad = 0; charQuad < bufferLength; ++charQuad)
 		{
-			pVerts[(charQuad * 6) + 0].x = (charQuad*charWidth)/256.0;
+			Point2 cLoc = asciiCharMap[buffer[charQuad]];
+
+			// BL
+			pVerts[(charQuad * 6) + 0].x = (charQuad*charWidth) / (screenWidth / 2.0f);
 			pVerts[(charQuad * 6) + 0].y = 0;
-			pVerts[(charQuad * 6) + 0].z = 8;
+			pVerts[(charQuad * 6) + 0].z = cLoc.x;
+			pVerts[(charQuad * 6) + 0].w = cLoc.y + 0.05;
 
-			pVerts[(charQuad * 6) + 1].x = ((charQuad*charWidth) + charWidth) / 256.0;
+			// BR
+			pVerts[(charQuad * 6) + 1].x = ((charQuad*charWidth) + charWidth) / (screenWidth / 2.0f);
 			pVerts[(charQuad * 6) + 1].y = 0;
-			pVerts[(charQuad * 6) + 1].z = 8;
+			pVerts[(charQuad * 6) + 1].z = cLoc.x;
+			pVerts[(charQuad * 6) + 1].w = cLoc.y + 0.15;
 
-			pVerts[(charQuad * 6) + 2].x = ((charQuad*charWidth) + charWidth) / 256.0;
-			pVerts[(charQuad * 6) + 2].y = (charHeight) / 256.0;
-			pVerts[(charQuad * 6) + 2].z = 8;
+			// TR
+			pVerts[(charQuad * 6) + 2].x = ((charQuad*charWidth) + charWidth) / (screenWidth / 2.0f);
+			pVerts[(charQuad * 6) + 2].y = (charHeight) / (screenHeight / 2.0f);
+			pVerts[(charQuad * 6) + 2].z = cLoc.x;
+			pVerts[(charQuad * 6) + 2].w = cLoc.y + 0.25;
 
-			pVerts[(charQuad * 6) + 3].x = ((charQuad*charWidth) + charWidth) / 256.0;
-			pVerts[(charQuad * 6) + 3].y = (charHeight) / 256.0;
-			pVerts[(charQuad * 6) + 3].z = 8;
+			// TR
+			pVerts[(charQuad * 6) + 3].x = ((charQuad*charWidth) + charWidth) / (screenWidth / 2.0f);
+			pVerts[(charQuad * 6) + 3].y = (charHeight) / (screenHeight / 2.0f);
+			pVerts[(charQuad * 6) + 3].z = cLoc.x;
+			pVerts[(charQuad * 6) + 3].w = cLoc.y + 0.25;
 
-			pVerts[(charQuad * 6) + 4].x = (charQuad*charWidth) / 256.0;
-			pVerts[(charQuad * 6) + 4].y = (charHeight) / 256.0;
-			pVerts[(charQuad * 6) + 4].z = 8;
+			// TL
+			pVerts[(charQuad * 6) + 4].x = (charQuad*charWidth) / (screenWidth / 2.0f);
+			pVerts[(charQuad * 6) + 4].y = (charHeight) / (screenHeight / 2.0f);
+			pVerts[(charQuad * 6) + 4].z = cLoc.x;
+			pVerts[(charQuad * 6) + 4].w = cLoc.y + 0.35;
 
-			pVerts[(charQuad * 6) + 5].x = (charQuad*charWidth) / 256.0;
+			// BL
+			pVerts[(charQuad * 6) + 5].x = (charQuad*charWidth) / (screenWidth / 2.0f);
 			pVerts[(charQuad * 6) + 5].y = 0;
-			pVerts[(charQuad * 6) + 5].z = 8;
+			pVerts[(charQuad * 6) + 5].z = cLoc.x;
+			pVerts[(charQuad * 6) + 5].w = cLoc.y + 0.05;
 
 		}
 
