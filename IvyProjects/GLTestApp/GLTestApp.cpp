@@ -444,50 +444,62 @@ void GLTestApp::DrawTestGL4()
 	asciiCharMap['E'] = asciiCharMap['e'] = Point2(5, 4);
 	asciiCharMap['F'] = asciiCharMap['f'] = Point2(6, 4);
 	asciiCharMap['G'] = asciiCharMap['g'] = Point2(7, 4);
+	asciiCharMap['H'] = asciiCharMap['h'] = Point2(0, 5);
 	asciiCharMap['I'] = asciiCharMap['i'] = Point2(1, 5);
+	asciiCharMap['J'] = asciiCharMap['j'] = Point2(2, 5);
+	asciiCharMap['K'] = asciiCharMap['k'] = Point2(3, 5);
+	asciiCharMap['L'] = asciiCharMap['l'] = Point2(4, 5);
 	asciiCharMap['M'] = asciiCharMap['m'] = Point2(5, 5);
 	asciiCharMap['N'] = asciiCharMap['n'] = Point2(6, 5);
 	asciiCharMap['O'] = asciiCharMap['o'] = Point2(7, 5);
 	asciiCharMap['P'] = asciiCharMap['p'] = Point2(0, 6);
+	asciiCharMap['Q'] = asciiCharMap['q'] = Point2(1, 6);
+	asciiCharMap['R'] = asciiCharMap['r'] = Point2(2, 6);
+	asciiCharMap['S'] = asciiCharMap['s'] = Point2(3, 6);
+	asciiCharMap['T'] = asciiCharMap['t'] = Point2(4, 6);
+	asciiCharMap['U'] = asciiCharMap['u'] = Point2(5, 6);
 	asciiCharMap['V'] = asciiCharMap['v'] = Point2(6, 6);
+	asciiCharMap['W'] = asciiCharMap['w'] = Point2(7, 6);
+	asciiCharMap['X'] = asciiCharMap['x'] = Point2(0, 7);
 	asciiCharMap['Y'] = asciiCharMap['y'] = Point2(1, 7);
+	asciiCharMap['Z'] = asciiCharMap['z'] = Point2(2, 7);
 
 
 	int x, y;
 	x = 2;
 	y = 2;
-    while (ExitApp() == FALSE)
-    {
-        ProcessUpdates();
+	while (ExitApp() == FALSE)
+	{
+		ProcessUpdates();
 
-        const KeyboardState* pKeys = GetKeyboardState();
+		const KeyboardState* pKeys = GetKeyboardState();
 
-        if (pKeys->Pressed[Key_W])
-        {
-            m_pCamera->Move(Point3(0, 0, 0.01f), 0, 0);
-        }
-        else if (pKeys->Pressed[Key_S])
-        {
-            m_pCamera->Move(Point3(0, 0, -0.01f), 0, 0);
-        }
+		if (pKeys->Pressed[Key_W])
+		{
+			m_pCamera->Move(Point3(0, 0, 0.01f), 0, 0);
+		}
+		else if (pKeys->Pressed[Key_S])
+		{
+			m_pCamera->Move(Point3(0, 0, -0.01f), 0, 0);
+		}
 
-        if (pKeys->Pressed[Key_A])
-        {
-            m_pCamera->Move(Point3(-0.01f, 0, 0), 0, 0);
-        }
-        if (pKeys->Pressed[Key_D])
-        {
-            m_pCamera->Move(Point3(0.01f, 0, 0), 0, 0);
-        }
+		if (pKeys->Pressed[Key_A])
+		{
+			m_pCamera->Move(Point3(-0.01f, 0, 0), 0, 0);
+		}
+		if (pKeys->Pressed[Key_D])
+		{
+			m_pCamera->Move(Point3(0.01f, 0, 0), 0, 0);
+		}
 
 
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // Update camera for Bunny
-        cameraBufferData.worldMatrix = XMMatrixScaling(1, 1, 1) * XMMatrixTranslation(0, 1, 1);
+		// Update camera for Bunny
+		cameraBufferData.worldMatrix = XMMatrixScaling(1, 1, 1) * XMMatrixTranslation(0, 1, 1);
 
-        cameraBufferData.viewMatrix = m_pCamera->W2C();
-        cameraBufferData.projectionMatrix = m_pCamera->C2S();
+		cameraBufferData.viewMatrix = m_pCamera->W2C();
+		cameraBufferData.projectionMatrix = m_pCamera->C2S();
 
 		pProgram->Bind();
 
@@ -495,9 +507,9 @@ void GLTestApp::DrawTestGL4()
 		viewMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "viewMatrix");
 		projMatrixAttribLoc = glGetUniformLocation(pProgram->ProgramId(), "projectionMatrix");
 
-        glUniformMatrix4fv(worldMatrixAttribLoc, 1, GL_TRUE, reinterpret_cast<GLfloat*>(&cameraBufferData.worldMatrix));
-        glUniformMatrix4fv(viewMatrixAttribLoc, 1, GL_TRUE, reinterpret_cast<GLfloat*>(&cameraBufferData.viewMatrix));
-        glUniformMatrix4fv(projMatrixAttribLoc, 1, GL_TRUE, reinterpret_cast<GLfloat*>(&cameraBufferData.projectionMatrix));
+		glUniformMatrix4fv(worldMatrixAttribLoc, 1, GL_TRUE, reinterpret_cast<GLfloat*>(&cameraBufferData.worldMatrix));
+		glUniformMatrix4fv(viewMatrixAttribLoc, 1, GL_TRUE, reinterpret_cast<GLfloat*>(&cameraBufferData.viewMatrix));
+		glUniformMatrix4fv(projMatrixAttribLoc, 1, GL_TRUE, reinterpret_cast<GLfloat*>(&cameraBufferData.projectionMatrix));
 
 		pBunnyMesh->Bind(pProgram);
 		pBunnyMesh->Draw();
@@ -537,82 +549,92 @@ void GLTestApp::DrawTestGL4()
 			direction.y,
 			direction.z);
 
-		UINT bufferLength = strlen(buffer);
+		char* substring = strtok(&buffer[0], "\n");
 
-		UINT charWidth = 15; 
-		UINT charHeight = 15; 
-
-		
-		Point4* pVerts = static_cast<Point4*>(IVY_RAW_ALLOC(sizeof(Point4)* bufferLength * 6));
-		//
-		Point2 textPos = Point2(0, 0);
-
-		FLOAT screenWidth = m_screenWidth;
-		FLOAT screenHeight = m_screenHeight;
-		
-		for (UINT charQuad = 0; charQuad < bufferLength; ++charQuad)
+		UINT substringLength = strlen(substring);
+		UINT line = 0;
+		while (substringLength != 0)
 		{
-			Point2 cLoc = asciiCharMap[buffer[charQuad]];
+			UINT charWidth = 20;
+			UINT charHeight = 20;
 
-			// BL
-			pVerts[(charQuad * 6) + 0].x = (charQuad*charWidth) / (screenWidth / 2.0f);
-			pVerts[(charQuad * 6) + 0].y = 0;
-			pVerts[(charQuad * 6) + 0].z = cLoc.x;
-			pVerts[(charQuad * 6) + 0].w = cLoc.y + 0.05;
 
-			// BR
-			pVerts[(charQuad * 6) + 1].x = ((charQuad*charWidth) + charWidth) / (screenWidth / 2.0f);
-			pVerts[(charQuad * 6) + 1].y = 0;
-			pVerts[(charQuad * 6) + 1].z = cLoc.x;
-			pVerts[(charQuad * 6) + 1].w = cLoc.y + 0.15;
+			Point4* pVerts = static_cast<Point4*>(IVY_RAW_ALLOC(sizeof(Point4)* substringLength * 6));
+			//
+			Point2 textPos = Point2(0, 0);
 
-			// TR
-			pVerts[(charQuad * 6) + 2].x = ((charQuad*charWidth) + charWidth) / (screenWidth / 2.0f);
-			pVerts[(charQuad * 6) + 2].y = (charHeight) / (screenHeight / 2.0f);
-			pVerts[(charQuad * 6) + 2].z = cLoc.x;
-			pVerts[(charQuad * 6) + 2].w = cLoc.y + 0.25;
+			FLOAT screenWidth = m_screenWidth;
+			FLOAT screenHeight = m_screenHeight;
 
-			// TR
-			pVerts[(charQuad * 6) + 3].x = ((charQuad*charWidth) + charWidth) / (screenWidth / 2.0f);
-			pVerts[(charQuad * 6) + 3].y = (charHeight) / (screenHeight / 2.0f);
-			pVerts[(charQuad * 6) + 3].z = cLoc.x;
-			pVerts[(charQuad * 6) + 3].w = cLoc.y + 0.25;
+			for (UINT charQuad = 0; charQuad < substringLength; ++charQuad)
+			{
+				Point2 cLoc = asciiCharMap[substring[charQuad]];
 
-			// TL
-			pVerts[(charQuad * 6) + 4].x = (charQuad*charWidth) / (screenWidth / 2.0f);
-			pVerts[(charQuad * 6) + 4].y = (charHeight) / (screenHeight / 2.0f);
-			pVerts[(charQuad * 6) + 4].z = cLoc.x;
-			pVerts[(charQuad * 6) + 4].w = cLoc.y + 0.35;
+				// BL
+				pVerts[(charQuad * 6) + 0].x = (charQuad*charWidth) / (screenWidth / 2.0f);
+				pVerts[(charQuad * 6) + 0].y = 0 + ((line * charHeight) / (screenHeight / 2.0f));
+				pVerts[(charQuad * 6) + 0].z = cLoc.x;
+				pVerts[(charQuad * 6) + 0].w = cLoc.y + 0.05;
 
-			// BL
-			pVerts[(charQuad * 6) + 5].x = (charQuad*charWidth) / (screenWidth / 2.0f);
-			pVerts[(charQuad * 6) + 5].y = 0;
-			pVerts[(charQuad * 6) + 5].z = cLoc.x;
-			pVerts[(charQuad * 6) + 5].w = cLoc.y + 0.05;
+				// BR
+				pVerts[(charQuad * 6) + 1].x = ((charQuad*charWidth) + charWidth) / (screenWidth / 2.0f);
+				pVerts[(charQuad * 6) + 1].y = 0 + ((line * charHeight) / (screenHeight / 2.0f));
+				pVerts[(charQuad * 6) + 1].z = cLoc.x;
+				pVerts[(charQuad * 6) + 1].w = cLoc.y + 0.15;
 
+				// TR
+				pVerts[(charQuad * 6) + 2].x = ((charQuad*charWidth) + charWidth) / (screenWidth / 2.0f);
+				pVerts[(charQuad * 6) + 2].y = (charHeight) / (screenHeight / 2.0f) + ((line * charHeight) / (screenHeight / 2.0f));
+				pVerts[(charQuad * 6) + 2].z = cLoc.x;
+				pVerts[(charQuad * 6) + 2].w = cLoc.y + 0.25;
+
+				// TR
+				pVerts[(charQuad * 6) + 3].x = ((charQuad*charWidth) + charWidth) / (screenWidth / 2.0f);
+				pVerts[(charQuad * 6) + 3].y = (charHeight) / (screenHeight / 2.0f) + ((line * charHeight) / (screenHeight / 2.0f));
+				pVerts[(charQuad * 6) + 3].z = cLoc.x;
+				pVerts[(charQuad * 6) + 3].w = cLoc.y + 0.25;
+
+				// TL
+				pVerts[(charQuad * 6) + 4].x = (charQuad*charWidth) / (screenWidth / 2.0f);
+				pVerts[(charQuad * 6) + 4].y = (charHeight) / (screenHeight / 2.0f) + ((line * charHeight) / (screenHeight / 2.0f));
+				pVerts[(charQuad * 6) + 4].z = cLoc.x;
+				pVerts[(charQuad * 6) + 4].w = cLoc.y + 0.35;
+
+				// BL
+				pVerts[(charQuad * 6) + 5].x = (charQuad*charWidth) / (screenWidth / 2.0f);
+				pVerts[(charQuad * 6) + 5].y = 0 + ((line * charHeight) / (screenHeight / 2.0f));
+				pVerts[(charQuad * 6) + 5].z = cLoc.x;
+				pVerts[(charQuad * 6) + 5].w = cLoc.y + 0.05;
+
+			}
+
+
+			GLuint vbId = 0;
+			glGenBuffers(1, &vbId);
+			glBindBuffer(GL_ARRAY_BUFFER, vbId);
+			glBufferData(GL_ARRAY_BUFFER,
+				sizeof(Point4)* substringLength * 6,
+				pVerts,
+				GL_STATIC_DRAW);
+
+			GLint positionAttribLoc = glGetAttribLocation(pTexProgram->ProgramId(), "in_Position");
+			if (positionAttribLoc >= 0)
+			{
+				glBindAttribLocation(pTexProgram->ProgramId(), positionAttribLoc, "in_Position");
+				glVertexAttribPointer(positionAttribLoc, 4, GL_FLOAT, FALSE, sizeof(Point4), 0);
+				glEnableVertexAttribArray(positionAttribLoc);
+			}
+
+			glDrawArrays(GL_TRIANGLES, 0, substringLength * 6);
+
+			glDeleteBuffers(1, &vbId);
+			IVY_FREE(pVerts);
+
+			line += 1;
+
+			substring = strtok(NULL, "\n");
+			substringLength = (substring != NULL) ? strlen(substring) : 0;
 		}
-
-
-		GLuint vbId = 0;
-		glGenBuffers(1, &vbId);
-		glBindBuffer(GL_ARRAY_BUFFER, vbId);
-		glBufferData(GL_ARRAY_BUFFER,
-					 sizeof(Point4)* bufferLength * 6,
-					 pVerts,
-					 GL_STATIC_DRAW);
-
-		GLint positionAttribLoc = glGetAttribLocation(pTexProgram->ProgramId(), "in_Position");
-		if (positionAttribLoc >= 0)
-		{
-			glBindAttribLocation(pTexProgram->ProgramId(), positionAttribLoc, "in_Position");
-			glVertexAttribPointer(positionAttribLoc, 4, GL_FLOAT, FALSE, sizeof(Point4), 0);
-			glEnableVertexAttribArray(positionAttribLoc);
-		}
-
-		glDrawArrays(GL_TRIANGLES, 0, bufferLength*6);
-
-		glDeleteBuffers(1, &vbId);
-		IVY_FREE(pVerts);
 
         IvySwapBuffers();
 

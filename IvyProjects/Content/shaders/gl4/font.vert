@@ -22,7 +22,7 @@ void main(void)
 
 	float cellWidth = 32;
 	float cellHeight = 32;
-	float charWidth = 15;
+	float charWidth = 20;
 	float charHeight = 20;
 	float texWidth = 256;
 	float texHeight = 256;
